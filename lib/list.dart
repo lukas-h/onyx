@@ -25,7 +25,7 @@ class ChecklistViewState extends State<ChecklistView> {
               child: ReorderableListView.builder(
                 itemBuilder: (context, index) => ListItem(
                   cubit: cubit,
-                  key: ValueKey(state.items[index].uid),
+                  key: UniqueKey(),
                   model: state.items[index],
                   inFocus: state.index == index,
                   onTap: () {

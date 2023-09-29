@@ -115,7 +115,7 @@ class _ListItemState extends State<ListItem> {
         height: 40,
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: widget.inFocus ? Colors.yellow : Colors.white,
+          color: widget.inFocus ? Colors.black12 : Colors.white,
           border: Border(
             bottom: BorderSide(color: Colors.grey[300]!, width: 0.5),
           ),
