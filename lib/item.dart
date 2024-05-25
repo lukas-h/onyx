@@ -39,7 +39,6 @@ class _ListItemState extends State<ListItem> {
   @override
   void initState() {
     if (widget.inFocus) {
-      print('HI');
       _focusNode.requestFocus();
     }
     _controller.text = widget.model.fullText;
@@ -121,7 +120,7 @@ class _ListItemState extends State<ListItem> {
           ),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             InkWell(
               onTap: () {
@@ -149,12 +148,12 @@ class _ListItemState extends State<ListItem> {
             ),
             if (widget.inFocus)
               const SizedBox(
-                width: 20,
+                width: 45,
               ),
             if (widget.inFocus)
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 2.0),
+                  padding: const EdgeInsets.only(bottom: 11.0),
                   child: TextField(
                       maxLines: 1,
                       minLines: 1,
@@ -162,6 +161,11 @@ class _ListItemState extends State<ListItem> {
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                       ),
+                      style: const TextStyle(fontSize: 16, height: 1),
+                      scrollPadding: EdgeInsets.zero,
+                      textAlign: TextAlign.start,
+                      textAlignVertical: TextAlignVertical.top,
+                      expands: false,
                       textInputAction: TextInputAction.search,
                       onSubmitted: (value) {
                         widget.onNext();
