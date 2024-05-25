@@ -12,10 +12,9 @@ class ChecklistView extends StatefulWidget {
 }
 
 class ChecklistViewState extends State<ChecklistView> {
-  final cubit = CounterCubit();
-
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<CounterCubit>();
     return BlocBuilder<CounterCubit, CounterState>(
       bloc: cubit,
       builder: (content, state) {
@@ -23,6 +22,7 @@ class ChecklistViewState extends State<ChecklistView> {
           children: [
             Expanded(
               child: ReorderableListView.builder(
+                buildDefaultDragHandles: false,
                 itemBuilder: (context, index) => ListItem(
                   cubit: cubit,
                   key: UniqueKey(),
@@ -31,8 +31,8 @@ class ChecklistViewState extends State<ChecklistView> {
                   onTap: () {
                     cubit.index(index);
                   },
-                  onChecked: () {
-                    cubit.remove(index);
+                  onChecked: (i) {
+                    cubit.check(i);
                   },
                   onChanged: (value) {
                     cubit.update(index, value);
@@ -93,22 +93,40 @@ class ChecklistViewState extends State<ChecklistView> {
                       );
                     },
                   ),
+                  IconButton(
+                    icon: const Icon(Icons.keyboard_arrow_left),
+                    onPressed: state.items.isNotEmpty &&
+                            state.items[state.index].indent > 0
+                        ? () {
+                            cubit.decreaseIndent();
+                          }
+                        : null,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.keyboard_arrow_right),
+                    onPressed: state.items.isNotEmpty
+                        ? () {
+                            cubit.increaseIndent();
+                          }
+                        : null,
+                  ),
                   Expanded(child: Container()),
                   IconButton(
                     icon: const Icon(Icons.keyboard_arrow_up),
-                    onPressed: () {
-                      cubit.index(state.index - 1);
-                    },
+                    onPressed: state.index > 0
+                        ? () {
+                            cubit.index(state.index - 1);
+                          }
+                        : null,
                   ),
                   IconButton(
                     icon: const Icon(Icons.keyboard_arrow_down),
-                    onPressed: () {
-                      cubit.index(state.index + 1);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.format_indent_increase),
-                    onPressed: () {},
+                    onPressed: state.items.isNotEmpty &&
+                            state.index < state.items.length - 1
+                        ? () {
+                            cubit.index(state.index + 1);
+                          }
+                        : null,
                   ),
                 ],
               ),

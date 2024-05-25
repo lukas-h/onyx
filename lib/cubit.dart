@@ -59,21 +59,58 @@ class CounterCubit extends Cubit<CounterState> {
   void update(int index, ListItemModel model) {
     final items = List.of(state.items, growable: true);
     items[index] = Parser.parse(model);
-    emit(CounterState(items, state.index, calculateUntil(items, items.length)));
+    emit(
+      CounterState(
+        items,
+        state.index,
+        calculateUntil(items, items.length),
+      ),
+    );
   }
 
   void remove(int index) {
+    if (state.items.isEmpty) return;
     final items = List.of(state.items, growable: true);
     items.removeAt(index);
-    emit(CounterState(
-        items, items.length - 1, calculateUntil(items, items.length)));
+    emit(
+      CounterState(
+        items,
+        items.length - 1,
+        calculateUntil(items, items.length),
+      ),
+    );
+  }
+
+  void removeCurrent() => remove(state.index);
+
+  void check(int index) {
+    if (state.items.isEmpty) return;
+    emit(
+      state.copyWith(
+        items: state.items
+            .map((e) => e.index == index
+                ? e.copyWith(checked: !e.checked)
+                : e.copyWith())
+            .toList(),
+      ),
+    );
+    print(state.items.map((e) => '${e.checked}').join(', '));
   }
 
   void add(ListItemModel model) {
     final items = List.of(state.items, growable: true);
-    items.add(Parser.parse(model));
-    emit(CounterState(
-        items, items.length - 1, calculateUntil(items, items.length)));
+    var item = Parser.parse(model);
+    if (state.items.isNotEmpty) {
+      item = item.copyWith(indent: state.items.last.indent);
+    }
+    items.add(item);
+    emit(
+      CounterState(
+        items,
+        items.length - 1,
+        calculateUntil(items, items.length),
+      ),
+    );
   }
 
   void index(int i) {
@@ -82,10 +119,54 @@ class CounterCubit extends Cubit<CounterState> {
     }
   }
 
+  void indexUp() {
+    if (state.index > 0) {
+      index(state.index - 1);
+    }
+  }
+
+  void indexDown() {
+    if (state.items.isNotEmpty && state.index < state.items.length - 1) {
+      index(state.index + 1);
+    }
+  }
+
   void reorder(int oldIndex, int newIndex) {
     final items = List.of(state.items, growable: true);
     final item = items.removeAt(oldIndex);
     items.insert(newIndex, item);
-    emit(CounterState(items, newIndex, calculateUntil(items, items.length)));
+    emit(
+      CounterState(
+        items,
+        newIndex,
+        calculateUntil(items, items.length),
+      ),
+    );
+  }
+
+  void increaseIndent() {
+    if (state.items.isEmpty) return;
+    emit(
+      state.copyWith(
+        items: state.items
+            .map((e) => e.index == state.index
+                ? e.copyWith(indent: e.indent + 1)
+                : e.copyWith())
+            .toList(),
+      ),
+    );
+  }
+
+  void decreaseIndent() {
+    if (state.items.isEmpty) return;
+    emit(
+      state.copyWith(
+        items: state.items
+            .map((e) => e.index == state.index && e.indent > 0
+                ? e.copyWith(indent: e.indent - 1)
+                : e.copyWith())
+            .toList(),
+      ),
+    );
   }
 }

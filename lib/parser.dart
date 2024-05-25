@@ -9,12 +9,12 @@ abstract class Parser {
 
     Operator operator = Operator.none;
 
-    final map = {
-      '-': Operator.subtract,
-      '+': Operator.add,
-      '/': Operator.divide,
-      '*': Operator.multiply,
-      '=': Operator.equals,
+    <String, Operator>{
+      ':-': Operator.subtract,
+      ':+': Operator.add,
+      ':/': Operator.divide,
+      ':*': Operator.multiply,
+      ':=': Operator.equals,
     }.forEach((key, value) {
       if (source.startsWith(key)) {
         operator = value;
@@ -22,7 +22,7 @@ abstract class Parser {
     });
 
     if (operator != Operator.none) {
-      source = source.substring(1).trim();
+      source = source.substring(2).trim();
     }
 
     num? number;

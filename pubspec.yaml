@@ -40,6 +40,7 @@ dependencies:
   bloc: ^8.1.2
   meta: ^1.9.1
   equatable: ^2.0.5
+  flutter_markdown: ^0.7.1
 
 dev_dependencies:
   flutter_test:

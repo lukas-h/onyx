@@ -1,12 +1,13 @@
 import 'package:counter_note/cubit.dart';
 import 'package:counter_note/model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class ListItem extends StatefulWidget {
   final ListItemModel model;
   final int index;
   final ValueChanged<ListItemModel> onChanged;
-  final VoidCallback onChecked;
+  final ValueChanged<int> onChecked;
   final VoidCallback onDeleted;
   final VoidCallback onTap;
   final VoidCallback onNext;
@@ -31,7 +32,6 @@ class ListItem extends StatefulWidget {
 }
 
 class _ListItemState extends State<ListItem> {
-  bool checked = false;
   final _focusNode = FocusNode();
   final _controller = TextEditingController();
   bool hasMatch = false;
@@ -53,7 +53,7 @@ class _ListItemState extends State<ListItem> {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 4),
             height: 20,
-            width: 20,
+            width: 22,
             decoration: BoxDecoration(
               color: Colors.transparent,
               border: Border.all(color: Colors.transparent, width: 1.5),
@@ -73,11 +73,11 @@ class _ListItemState extends State<ListItem> {
               ),
             ),
           ),
-        if (model.operator == Operator.none) const SizedBox(width: 25),
+        if (model.operator == Operator.none) const SizedBox(width: 30),
         if (model.operator != Operator.none &&
             model.operator != Operator.equals)
           SizedBox(
-            width: 100,
+            width: 60,
             child: Text(
               model.number.toString(),
               style: const TextStyle(fontSize: 16),
@@ -85,7 +85,7 @@ class _ListItemState extends State<ListItem> {
           ),
         if (model.operator == Operator.equals)
           SizedBox(
-            width: 100,
+            width: 60,
             child: Text(
               widget.cubit
                   .calculateUntil(widget.cubit.state.items, index)
@@ -94,13 +94,10 @@ class _ListItemState extends State<ListItem> {
               style: const TextStyle(fontSize: 16),
             ),
           ),
-        const SizedBox(
-          width: 20,
-        ),
         Expanded(
-            child: Text(
-          model.textPart,
-          style: const TextStyle(fontSize: 16),
+            child: MarkdownBody(
+          data: model.textPart,
+          styleSheet: MarkdownStyleSheet(p: const TextStyle(fontSize: 16)),
         )),
       ],
     );
@@ -111,7 +108,8 @@ class _ListItemState extends State<ListItem> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        height: 40,
+        height: 44,
+        constraints: const BoxConstraints(minHeight: 44),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: widget.inFocus ? Colors.black12 : Colors.white,
@@ -124,39 +122,47 @@ class _ListItemState extends State<ListItem> {
           children: [
             InkWell(
               onTap: () {
-                setState(() {
-                  checked = !checked;
-                });
-                widget.onChecked();
+                widget.onChecked(widget.model.index);
               },
               child: Container(
                 height: 20,
                 width: 20,
                 decoration: BoxDecoration(
-                  color: checked ? Colors.black : Colors.transparent,
+                  color: widget.model.checked
+                      ? Colors.black38
+                      : Colors.transparent,
                   border: Border.all(color: Colors.black, width: 1.5),
                   borderRadius: BorderRadius.circular(3),
                 ),
                 child: Center(
                   child: Icon(
                     Icons.check,
-                    color: checked ? Colors.white : Colors.transparent,
+                    color: widget.model.checked
+                        ? Colors.white
+                        : Colors.transparent,
                     size: 15,
                   ),
                 ),
               ),
             ),
-            if (widget.inFocus)
+            for (int i = 0; i < (widget.model.indent + 1); i++)
               const SizedBox(
-                width: 45,
+                width: 20,
+                child: Center(
+                  child: Icon(
+                    Icons.keyboard_arrow_right,
+                    size: 10,
+                    color: Colors.black38,
+                  ),
+                ),
               ),
             if (widget.inFocus)
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 11.0),
+                  padding: const EdgeInsets.only(bottom: 15.0, left: 29),
                   child: TextField(
-                      maxLines: 1,
                       minLines: 1,
+                      maxLines: 1,
                       cursorColor: Colors.black,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
@@ -165,11 +171,11 @@ class _ListItemState extends State<ListItem> {
                       scrollPadding: EdgeInsets.zero,
                       textAlign: TextAlign.start,
                       textAlignVertical: TextAlignVertical.top,
-                      expands: false,
                       textInputAction: TextInputAction.search,
                       onSubmitted: (value) {
                         widget.onNext();
                       },
+                      expands: false,
                       focusNode: _focusNode,
                       controller: _controller,
                       onChanged: (v) {
@@ -195,7 +201,6 @@ class _ListItemState extends State<ListItem> {
                 height: 20,
                 width: 20,
                 decoration: BoxDecoration(
-                  color: checked ? Colors.black : Colors.transparent,
                   border: Border.all(color: Colors.transparent, width: 1.5),
                   borderRadius: BorderRadius.circular(3),
                 ),
