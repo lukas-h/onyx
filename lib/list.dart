@@ -1,4 +1,4 @@
-import 'package:counter_note/cubit.dart';
+import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/item.dart';
 import 'package:counter_note/model.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +14,8 @@ class ChecklistView extends StatefulWidget {
 class ChecklistViewState extends State<ChecklistView> {
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<CounterCubit>();
-    return BlocBuilder<CounterCubit, CounterState>(
+    final cubit = context.read<PageCubit>();
+    return BlocBuilder<PageCubit, PageState>(
       bloc: cubit,
       builder: (content, state) {
         return Column(
@@ -75,8 +75,8 @@ class ChecklistViewState extends State<ChecklistView> {
                 ),
               ),
             Material(
-              elevation: 2,
-              color: Colors.orange,
+              elevation: 0,
+              color: Colors.black.withOpacity(0.08),
               child: Row(
                 children: [
                   IconButton(

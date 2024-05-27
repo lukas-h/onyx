@@ -4,32 +4,46 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/nanoid.dart';
 
-class CounterState extends Equatable {
+class PageState extends Equatable {
+  final String pageTitle;
+  final DateTime pageCreated;
   final String uid;
   final List<ListItemModel> items;
   final int index;
   final num sum;
 
-  CounterState(this.items, this.index, this.sum) : uid = nanoid();
+  PageState({
+    required this.items,
+    required this.index,
+    required this.sum,
+    required this.pageTitle,
+    required this.pageCreated,
+  }) : uid = nanoid();
 
   @override
   List<Object?> get props => [uid];
 
-  CounterState copyWith({
+  PageState copyWith({
     String? uid,
     List<ListItemModel>? items,
     int? index,
   }) {
-    return CounterState(
-      items ?? this.items,
-      index ?? this.index,
-      sum,
+    return PageState(
+      items: items ?? this.items,
+      index: index ?? this.index,
+      sum: sum,
+      pageCreated: pageCreated,
+      pageTitle: pageTitle,
     );
   }
 }
 
-class CounterCubit extends Cubit<CounterState> {
-  CounterCubit() : super(CounterState(const [], 0, 0));
+class PageCubit extends Cubit<PageState> {
+  PageCubit(super.initialState);
+
+  void reInit(PageState newPage) {
+    emit(newPage);
+  }
 
   num calculateUntil(List<ListItemModel> items, int untilIndex) {
     final limit = untilIndex < items.length ? untilIndex : items.length;
@@ -60,10 +74,12 @@ class CounterCubit extends Cubit<CounterState> {
     final items = List.of(state.items, growable: true);
     items[index] = Parser.parse(model);
     emit(
-      CounterState(
-        items,
-        state.index,
-        calculateUntil(items, items.length),
+      PageState(
+        items: items,
+        index: state.index,
+        sum: calculateUntil(items, items.length),
+        pageCreated: state.pageCreated,
+        pageTitle: state.pageTitle,
       ),
     );
   }
@@ -73,10 +89,12 @@ class CounterCubit extends Cubit<CounterState> {
     final items = List.of(state.items, growable: true);
     items.removeAt(index);
     emit(
-      CounterState(
-        items,
-        items.length - 1,
-        calculateUntil(items, items.length),
+      PageState(
+        items: items,
+        index: items.length - 1,
+        sum: calculateUntil(items, items.length),
+        pageCreated: state.pageCreated,
+        pageTitle: state.pageTitle,
       ),
     );
   }
@@ -94,7 +112,6 @@ class CounterCubit extends Cubit<CounterState> {
             .toList(),
       ),
     );
-    print(state.items.map((e) => '${e.checked}').join(', '));
   }
 
   void add(ListItemModel model) {
@@ -105,10 +122,12 @@ class CounterCubit extends Cubit<CounterState> {
     }
     items.add(item);
     emit(
-      CounterState(
-        items,
-        items.length - 1,
-        calculateUntil(items, items.length),
+      PageState(
+        items: items,
+        index: items.length - 1,
+        sum: calculateUntil(items, items.length),
+        pageCreated: state.pageCreated,
+        pageTitle: state.pageTitle,
       ),
     );
   }
@@ -136,10 +155,12 @@ class CounterCubit extends Cubit<CounterState> {
     final item = items.removeAt(oldIndex);
     items.insert(newIndex, item);
     emit(
-      CounterState(
-        items,
-        newIndex,
-        calculateUntil(items, items.length),
+      PageState(
+        items: items,
+        index: newIndex,
+        sum: calculateUntil(items, items.length),
+        pageCreated: state.pageCreated,
+        pageTitle: state.pageTitle,
       ),
     );
   }

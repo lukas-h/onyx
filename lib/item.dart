@@ -1,4 +1,4 @@
-import 'package:counter_note/cubit.dart';
+import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -12,7 +12,7 @@ class ListItem extends StatefulWidget {
   final VoidCallback onTap;
   final VoidCallback onNext;
   final bool inFocus;
-  final CounterCubit cubit;
+  final PageCubit cubit;
 
   const ListItem({
     super.key,
@@ -112,7 +112,9 @@ class _ListItemState extends State<ListItem> {
         constraints: const BoxConstraints(minHeight: 44),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: widget.inFocus ? Colors.black12 : Colors.white,
+          color: widget.inFocus
+              ? Colors.black.withOpacity(0.08)
+              : Colors.transparent,
           border: Border(
             bottom: BorderSide(color: Colors.grey[300]!, width: 0.5),
           ),
@@ -120,31 +122,32 @@ class _ListItemState extends State<ListItem> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            InkWell(
-              onTap: () {
-                widget.onChecked(widget.model.index);
-              },
-              child: Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
-                  color: widget.model.checked
-                      ? Colors.black38
-                      : Colors.transparent,
-                  border: Border.all(color: Colors.black, width: 1.5),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.check,
+            if (false)
+              InkWell(
+                onTap: () {
+                  widget.onChecked(widget.model.index);
+                },
+                child: Container(
+                  height: 20,
+                  width: 20,
+                  decoration: BoxDecoration(
                     color: widget.model.checked
-                        ? Colors.white
+                        ? Colors.black38
                         : Colors.transparent,
-                    size: 15,
+                    border: Border.all(color: Colors.black, width: 1.5),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.check,
+                      color: widget.model.checked
+                          ? Colors.white
+                          : Colors.transparent,
+                      size: 15,
+                    ),
                   ),
                 ),
               ),
-            ),
             for (int i = 0; i < (widget.model.indent + 1); i++)
               const SizedBox(
                 width: 20,
@@ -214,7 +217,7 @@ class _ListItemState extends State<ListItem> {
               ),
             ),
             const SizedBox(
-              width: 30,
+              width: 10,
             ),
           ],
         ),
