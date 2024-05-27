@@ -1,3 +1,4 @@
+import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/editor/list.dart';
 import 'package:counter_note/utils/utils.dart';
@@ -29,7 +30,13 @@ class JournalsScreen extends StatelessWidget {
                         return Button(
                           'Today',
                           icon: const Icon(Icons.today_outlined),
-                          onTap: isToday(state.created) ? null : () {},
+                          onTap: isToday(state.created)
+                              ? null
+                              : () {
+                                  context
+                                      .read<NavigationCubit>()
+                                      .switchToTodaysJournal();
+                                },
                           active: isToday(state.created),
                         );
                       },
@@ -38,14 +45,24 @@ class JournalsScreen extends StatelessWidget {
                     Button(
                       'Next',
                       icon: const Icon(Icons.keyboard_arrow_up),
-                      onTap: isToday(state.created) ? null : () {},
+                      onTap: isToday(state.created)
+                          ? null
+                          : () {
+                              context
+                                  .read<NavigationCubit>()
+                                  .switchToNextJournal();
+                            },
                       active: false,
                     ),
                     const SizedBox(width: 8),
                     Button(
                       'Previous',
                       icon: const Icon(Icons.keyboard_arrow_down),
-                      onTap: () {},
+                      onTap: () {
+                        context
+                            .read<NavigationCubit>()
+                            .switchToPreviousJournal();
+                      },
                       active: false,
                     ),
                   ],

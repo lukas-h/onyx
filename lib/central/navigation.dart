@@ -72,7 +72,7 @@ class CentralNavigation extends StatelessWidget {
                       onTap: () {
                         context
                             .read<NavigationCubit>()
-                            .navigateTo(RouteState.journals);
+                            .navigateTo(RouteState.journalSelected);
                       },
                     ),
                     Button(
@@ -118,7 +118,6 @@ class CentralNavigation extends StatelessWidget {
   StatelessWidget buildBody(NavigationSuccess state) {
     return switch (state.route) {
       RouteState.journalSelected => const JournalsScreen(),
-      RouteState.journals => const JournalsScreen(),
       RouteState.pages => const PagesScreen(),
       RouteState.pageSelected => const PagesScreen(),
       RouteState.settings => const SettingsScreen(),

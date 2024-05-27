@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:counter_note/utils/utils.dart';
 import 'package:intl/intl.dart';
 
 import 'package:counter_note/cubit/page_cubit.dart';
@@ -10,7 +11,6 @@ class NavigationInitial extends NavigationState {}
 enum RouteState {
   pages,
   pageSelected,
-  journals,
   journalSelected,
   settings,
 }
@@ -23,15 +23,13 @@ class NavigationSuccess extends NavigationState {
 
   PageState? get currentPage => switch (route) {
         RouteState.pages => pages.isNotEmpty ? pages[index] : null,
-        RouteState.journals => journals.isNotEmpty ? journals[index] : null,
         RouteState.journalSelected =>
           journals.isNotEmpty ? journals[index] : null,
         RouteState.pageSelected => pages.isNotEmpty ? pages[index] : null,
         RouteState.settings => journals.last,
       };
 
-  bool get journalNav =>
-      route == RouteState.journalSelected || route == RouteState.journals;
+  bool get journalNav => route == RouteState.journalSelected;
 
   bool get pagesNav =>
       route == RouteState.pageSelected || route == RouteState.pages;
@@ -128,6 +126,38 @@ class NavigationCubit extends Cubit<NavigationState> {
 
   void updatePage() {}
   void updateJournal() {}
+
+  void switchToTodaysJournal() {
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      final newIndex =
+          currentState.journals.indexWhere((e) => isToday(e.created));
+      emit(currentState.copyWith(
+          index: newIndex, route: RouteState.journalSelected));
+    }
+  }
+
+  void switchToPreviousJournal() {
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      if (currentState.index < (currentState.journals.length)) {
+        final newIndex = currentState.index + 1;
+        emit(currentState.copyWith(
+            index: newIndex, route: RouteState.journalSelected));
+      }
+    }
+  }
+
+  void switchToNextJournal() {
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      if (currentState.index > 0) {
+        final newIndex = currentState.index - 1;
+        emit(currentState.copyWith(
+            index: newIndex, route: RouteState.journalSelected));
+      }
+    }
+  }
 
   navigateTo(RouteState newRoute) {
     if (state is NavigationSuccess) {
