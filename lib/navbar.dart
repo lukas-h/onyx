@@ -1,35 +1,11 @@
+import 'package:counter_note/cubit/navigation_cubit.dart';
+import 'package:counter_note/search.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SideNavigation extends StatelessWidget {
   final Widget child;
   const SideNavigation({super.key, required this.child});
-
-  Widget _navbarItem(
-    String title,
-    IconData icon,
-    bool active, [
-    double? width,
-  ]) {
-    return Container(
-      width: width,
-      decoration: BoxDecoration(
-          color: active ? Colors.black.withOpacity(0.08) : Colors.transparent,
-          borderRadius: BorderRadius.circular(3),
-          border: Border.all(width: 1, color: Colors.black.withOpacity(0.08))),
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 15,
-          ),
-          const SizedBox(width: 8),
-          Text(title)
-        ],
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,22 +15,77 @@ class SideNavigation extends StatelessWidget {
           width: 190,
           decoration: const BoxDecoration(),
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                      flex: 1, child: _navbarItem('Sync', Icons.sync, false)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                      flex: 1, child: _navbarItem('⌘K', Icons.search, false)),
-                ],
-              ),
-              _navbarItem('Journals', Icons.calendar_today_outlined, true),
-              _navbarItem('Pages', Icons.summarize_outlined, false),
-              _navbarItem('Settings', Icons.settings_outlined, false),
-            ],
+          child: BlocBuilder<NavigationCubit, NavigationState>(
+            builder: (context, state) {
+              if (state is NavigationSuccess) {
+                return Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: NavigationItem(
+                            'Sync',
+                            icon: const Icon(Icons.sync),
+                            active: false,
+                            onTap: () {
+                              context.read<NavigationCubit>().sync();
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 1,
+                          child: NavigationItem(
+                            '⌘K',
+                            icon: const Icon(Icons.search),
+                            active: false,
+                            onTap: () {
+                              openSearchMenu(context);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    NavigationItem(
+                      'Journals',
+                      icon: const Icon(Icons.calendar_today_outlined),
+                      active: state.journalNav,
+                      onTap: () {
+                        context
+                            .read<NavigationCubit>()
+                            .navigateTo(RouteState.journals);
+                      },
+                    ),
+                    NavigationItem(
+                      'Pages',
+                      icon: const Icon(Icons.summarize_outlined),
+                      active: state.pagesNav,
+                      onTap: () {
+                        context
+                            .read<NavigationCubit>()
+                            .navigateTo(RouteState.pages);
+                      },
+                    ),
+                    Expanded(child: Container()),
+                    NavigationItem(
+                      'Settings',
+                      icon: const Icon(Icons.settings_outlined),
+                      active: state.settingsNav,
+                      onTap: () {
+                        context
+                            .read<NavigationCubit>()
+                            .navigateTo(RouteState.settings);
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                );
+              } else {
+                return Container();
+              }
+            },
           ),
         ),
         const VerticalDivider(
@@ -64,6 +95,51 @@ class SideNavigation extends StatelessWidget {
         ),
         Expanded(child: child),
       ],
+    );
+  }
+}
+
+class NavigationItem extends StatelessWidget {
+  final String title;
+  final Widget icon;
+  final bool active;
+  final double? width;
+  final VoidCallback onTap;
+
+  // ignore: use_key_in_widget_constructors
+  const NavigationItem(
+    this.title, {
+    required this.icon,
+    required this.active,
+    required this.onTap,
+    this.width,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(3),
+        onTap: onTap,
+        child: Container(
+          width: width,
+          decoration: BoxDecoration(
+              color:
+                  active ? Colors.black.withOpacity(0.08) : Colors.transparent,
+              borderRadius: BorderRadius.circular(3),
+              border:
+                  Border.all(width: 1, color: Colors.black.withOpacity(0.08))),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Row(
+            children: [
+              IconTheme(data: const IconThemeData(size: 15), child: icon),
+              const SizedBox(width: 8),
+              Text(title),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

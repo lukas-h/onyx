@@ -42,7 +42,6 @@ class PageCubit extends Cubit<PageState> {
   PageCubit(super.initialState);
 
   void selectPage(PageState newPage) {
-    print('Hello');
     emit(newPage);
   }
 

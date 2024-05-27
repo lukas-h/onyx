@@ -12,8 +12,14 @@ class JournalsScreen extends StatelessWidget {
       children: [
         BlocBuilder<PageCubit, PageState>(
           builder: (context, state) {
-            return ListTile(
-              title: Text('Title: ${state.title}'),
+            return Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: ListTile(
+                title: Text(
+                  state.title,
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+              ),
             );
           },
         ),

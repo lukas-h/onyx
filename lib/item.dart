@@ -122,32 +122,6 @@ class _ListItemState extends State<ListItem> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (false)
-              InkWell(
-                onTap: () {
-                  widget.onChecked(widget.model.index);
-                },
-                child: Container(
-                  height: 20,
-                  width: 20,
-                  decoration: BoxDecoration(
-                    color: widget.model.checked
-                        ? Colors.black38
-                        : Colors.transparent,
-                    border: Border.all(color: Colors.black, width: 1.5),
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.check,
-                      color: widget.model.checked
-                          ? Colors.white
-                          : Colors.transparent,
-                      size: 15,
-                    ),
-                  ),
-                ),
-              ),
             for (int i = 0; i < (widget.model.indent + 1); i++)
               const SizedBox(
                 width: 20,
@@ -220,6 +194,31 @@ class _ListItemState extends State<ListItem> {
               width: 10,
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // ignore: unused_element
+  InkWell _checkbox() {
+    return InkWell(
+      onTap: () {
+        widget.onChecked(widget.model.index);
+      },
+      child: Container(
+        height: 20,
+        width: 20,
+        decoration: BoxDecoration(
+          color: widget.model.checked ? Colors.black38 : Colors.transparent,
+          border: Border.all(color: Colors.black, width: 1.5),
+          borderRadius: BorderRadius.circular(3),
+        ),
+        child: Center(
+          child: Icon(
+            Icons.check,
+            color: widget.model.checked ? Colors.white : Colors.transparent,
+            size: 15,
+          ),
         ),
       ),
     );

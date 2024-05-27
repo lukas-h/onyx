@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:intl/intl.dart';
+
+import 'package:counter_note/cubit/page_cubit.dart';
 
 class NavigationState {}
 
@@ -18,7 +19,23 @@ class NavigationSuccess extends NavigationState {
   final List<PageState> pages;
   final List<PageState> journals;
   final RouteState route;
-  final int? index;
+  final int index;
+
+  PageState get currentPage => switch (route) {
+        RouteState.pages => pages[index],
+        RouteState.journals => journals[index],
+        RouteState.journalSelected => journals[index],
+        RouteState.pageSelected => pages[index],
+        RouteState.settings => journals.last,
+      };
+
+  bool get journalNav =>
+      route == RouteState.journalSelected || route == RouteState.journals;
+
+  bool get pagesNav =>
+      route == RouteState.pageSelected || route == RouteState.pages;
+
+  bool get settingsNav => route == RouteState.settings;
 
   NavigationSuccess({
     required this.pages,
@@ -26,6 +43,20 @@ class NavigationSuccess extends NavigationState {
     required this.route,
     required this.index,
   });
+
+  NavigationSuccess copyWith({
+    List<PageState>? pages,
+    List<PageState>? journals,
+    RouteState? route,
+    int? index,
+  }) {
+    return NavigationSuccess(
+      pages: pages ?? this.pages,
+      journals: journals ?? this.journals,
+      route: route ?? this.route,
+      index: index ?? this.index,
+    );
+  }
 }
 
 class NavigationCubit extends Cubit<NavigationState> {
@@ -34,7 +65,6 @@ class NavigationCubit extends Cubit<NavigationState> {
   }
   Future<void> init() async {
     await Future.delayed(const Duration(seconds: 1));
-    print('Herro');
     emit(
       NavigationSuccess(
         route: RouteState.journalSelected,
@@ -62,4 +92,11 @@ class NavigationCubit extends Cubit<NavigationState> {
 
   void updatePage() {}
   void updateJournal() {}
+
+  navigateTo(RouteState newRoute) {
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      emit(currentState.copyWith(route: newRoute));
+    }
+  }
 }

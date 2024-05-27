@@ -43,9 +43,8 @@ class CounterNoteApp extends StatelessWidget {
         ),
         home: BlocConsumer<NavigationCubit, NavigationState>(
           listener: (context, state) {
-            print('Herrrrro ${state.runtimeType}');
             if (state is NavigationSuccess) {
-              context.read<PageCubit>().selectPage(state.journals[0]);
+              context.read<PageCubit>().selectPage(state.currentPage);
             }
           },
           builder: (context, state) => state is NavigationSuccess
