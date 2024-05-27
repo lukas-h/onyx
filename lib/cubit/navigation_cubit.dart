@@ -57,6 +57,29 @@ class NavigationSuccess extends NavigationState {
       index: index ?? this.index,
     );
   }
+
+  NavigationLoading copyToLoading() => NavigationLoading(
+        pages: pages,
+        journals: journals,
+        route: route,
+        index: index,
+      );
+}
+
+class NavigationLoading extends NavigationSuccess {
+  NavigationLoading({
+    required super.pages,
+    required super.journals,
+    required super.route,
+    required super.index,
+  });
+
+  NavigationSuccess copyToSuccess() => NavigationSuccess(
+        pages: pages,
+        journals: journals,
+        route: route,
+        index: index,
+      );
 }
 
 class NavigationCubit extends Cubit<NavigationState> {
@@ -83,7 +106,13 @@ class NavigationCubit extends Cubit<NavigationState> {
     );
   }
 
-  void sync() {}
+  Future<void> sync() async {
+    if (state is NavigationSuccess) {
+      emit((state as NavigationSuccess).copyToLoading());
+      await Future.delayed(const Duration(seconds: 3));
+      emit((state as NavigationLoading).copyToSuccess());
+    }
+  }
 
   void createPage() {}
   void createJournal() {}

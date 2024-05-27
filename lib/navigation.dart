@@ -3,9 +3,9 @@ import 'package:counter_note/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SideNavigation extends StatelessWidget {
+class CentralNavigation extends StatelessWidget {
   final Widget child;
-  const SideNavigation({super.key, required this.child});
+  const CentralNavigation({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,20 @@ class SideNavigation extends StatelessWidget {
                           flex: 1,
                           child: NavigationItem(
                             'Sync',
-                            icon: const Icon(Icons.sync),
+                            icon: BlocBuilder<NavigationCubit, NavigationState>(
+                              builder: (context, state) {
+                                return state is NavigationLoading
+                                    ? const SizedBox(
+                                        width: 15,
+                                        height: 15,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.black38,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.sync);
+                              },
+                            ),
                             active: false,
                             onTap: () {
                               context.read<NavigationCubit>().sync();
