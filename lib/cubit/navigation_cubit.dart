@@ -146,13 +146,30 @@ class NavigationCubit extends Cubit<NavigationState> {
   // TODO void deletePage() {}
   // TODO void updateJournal() {}
 
+  void switchToPage(String uid) {
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      final newIndex = currentState.pages.indexWhere((e) => e.uid == uid);
+      emit(
+        currentState.copyWith(
+          index: newIndex,
+          route: RouteState.pageSelected,
+        ),
+      );
+    }
+  }
+
   void switchToTodaysJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
       final newIndex =
           currentState.journals.indexWhere((e) => isToday(e.created));
-      emit(currentState.copyWith(
-          index: newIndex, route: RouteState.journalSelected));
+      emit(
+        currentState.copyWith(
+          index: newIndex,
+          route: RouteState.journalSelected,
+        ),
+      );
     }
   }
 
@@ -161,8 +178,12 @@ class NavigationCubit extends Cubit<NavigationState> {
       final currentState = state as NavigationSuccess;
       if (currentState.index < (currentState.journals.length - 1)) {
         final newIndex = currentState.index + 1;
-        emit(currentState.copyWith(
-            index: newIndex, route: RouteState.journalSelected));
+        emit(
+          currentState.copyWith(
+            index: newIndex,
+            route: RouteState.journalSelected,
+          ),
+        );
       } else {
         // TODO add pagination -> load older
       }
@@ -174,16 +195,24 @@ class NavigationCubit extends Cubit<NavigationState> {
       final currentState = state as NavigationSuccess;
       if (currentState.index > 0) {
         final newIndex = currentState.index - 1;
-        emit(currentState.copyWith(
-            index: newIndex, route: RouteState.journalSelected));
+        emit(
+          currentState.copyWith(
+            index: newIndex,
+            route: RouteState.journalSelected,
+          ),
+        );
       }
     }
   }
 
-  navigateTo(RouteState newRoute) {
+  void navigateTo(RouteState newRoute) {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      emit(currentState.copyWith(route: newRoute));
+      emit(
+        currentState.copyWith(
+          route: newRoute,
+        ),
+      );
     }
   }
 }
