@@ -40,6 +40,16 @@ class CounterNoteApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
+          dialogBackgroundColor: Colors.white,
+          dialogTheme: DialogTheme(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(3),
+              side: BorderSide(
+                width: 1,
+                color: Colors.black.withOpacity(0.08),
+              ),
+            ),
+          ),
         ),
         home: BlocConsumer<NavigationCubit, NavigationState>(
           listener: (context, state) {

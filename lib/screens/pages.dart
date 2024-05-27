@@ -8,18 +8,33 @@ class PagesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<NavigationCubit, NavigationState>(
-      builder: (context, state) {
-        if (state is NavigationSuccess) {
-          return ListView.builder(
-            itemBuilder: (context, index) =>
-                _PageCard(state: state.pages[index]),
-            itemCount: state.pages.length,
-          );
-        } else {
-          return Container();
-        }
-      },
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 16.0),
+          child: ListTile(
+            title: Text(
+              'Pages',
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+          ),
+        ),
+        Expanded(
+          child: BlocBuilder<NavigationCubit, NavigationState>(
+            builder: (context, state) {
+              if (state is NavigationSuccess) {
+                return ListView.builder(
+                  itemBuilder: (context, index) =>
+                      _PageCard(state: state.pages[index]),
+                  itemCount: state.pages.length,
+                );
+              } else {
+                return Container();
+              }
+            },
+          ),
+        ),
+      ],
     );
   }
 }
