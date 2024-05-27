@@ -119,13 +119,32 @@ class NavigationCubit extends Cubit<NavigationState> {
     }
   }
 
-  void createPage() {}
-  void createJournal() {}
+  void createPage() {
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      emit(
+        currentState.copyWith(
+          index: currentState.pages.length,
+          route: RouteState.pageSelected,
+          pages: [
+            ...currentState.pages,
+            PageState(
+              items: const [],
+              index: 0,
+              sum: 0,
+              title: '',
+              created: DateTime.now(),
+            ),
+          ],
+          journals: currentState.journals,
+        ),
+      );
+    }
+  }
 
-  void deletePage() {}
-
-  void updatePage() {}
-  void updateJournal() {}
+  // TODO void updatePage() {}
+  // TODO void deletePage() {}
+  // TODO void updateJournal() {}
 
   void switchToTodaysJournal() {
     if (state is NavigationSuccess) {
@@ -140,10 +159,12 @@ class NavigationCubit extends Cubit<NavigationState> {
   void switchToPreviousJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      if (currentState.index < (currentState.journals.length)) {
+      if (currentState.index < (currentState.journals.length - 1)) {
         final newIndex = currentState.index + 1;
         emit(currentState.copyWith(
             index: newIndex, route: RouteState.journalSelected));
+      } else {
+        // TODO add pagination -> load older
       }
     }
   }
