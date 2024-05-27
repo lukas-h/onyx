@@ -2,7 +2,8 @@ import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/screens/journals.dart';
 import 'package:counter_note/screens/pages.dart';
 import 'package:counter_note/screens/settings.dart';
-import 'package:counter_note/search.dart';
+import 'package:counter_note/central/search.dart';
+import 'package:counter_note/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,7 +29,7 @@ class CentralNavigation extends StatelessWidget {
                       children: [
                         Expanded(
                           flex: 1,
-                          child: NavigationItem(
+                          child: Button(
                             'Sync',
                             icon: BlocBuilder<NavigationCubit, NavigationState>(
                               builder: (context, state) {
@@ -53,7 +54,7 @@ class CentralNavigation extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           flex: 1,
-                          child: NavigationItem(
+                          child: Button(
                             '⌘K',
                             icon: const Icon(Icons.search),
                             active: false,
@@ -64,7 +65,7 @@ class CentralNavigation extends StatelessWidget {
                         ),
                       ],
                     ),
-                    NavigationItem(
+                    Button(
                       'Journals',
                       icon: const Icon(Icons.calendar_today_outlined),
                       active: state.journalNav,
@@ -74,7 +75,7 @@ class CentralNavigation extends StatelessWidget {
                             .navigateTo(RouteState.journals);
                       },
                     ),
-                    NavigationItem(
+                    Button(
                       'Pages',
                       icon: const Icon(Icons.summarize_outlined),
                       active: state.pagesNav,
@@ -85,7 +86,7 @@ class CentralNavigation extends StatelessWidget {
                       },
                     ),
                     Expanded(child: Container()),
-                    NavigationItem(
+                    Button(
                       'Settings',
                       icon: const Icon(Icons.settings_outlined),
                       active: state.settingsNav,
@@ -122,50 +123,5 @@ class CentralNavigation extends StatelessWidget {
       RouteState.pageSelected => const PagesScreen(),
       RouteState.settings => const SettingsScreen(),
     };
-  }
-}
-
-class NavigationItem extends StatelessWidget {
-  final String title;
-  final Widget icon;
-  final bool active;
-  final double? width;
-  final VoidCallback onTap;
-
-  // ignore: use_key_in_widget_constructors
-  const NavigationItem(
-    this.title, {
-    required this.icon,
-    required this.active,
-    required this.onTap,
-    this.width,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(3),
-        onTap: onTap,
-        child: Container(
-          width: width,
-          decoration: BoxDecoration(
-              color:
-                  active ? Colors.black.withOpacity(0.08) : Colors.transparent,
-              borderRadius: BorderRadius.circular(3),
-              border:
-                  Border.all(width: 1, color: Colors.black.withOpacity(0.08))),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: Row(
-            children: [
-              IconTheme(data: const IconThemeData(size: 15), child: icon),
-              const SizedBox(width: 8),
-              Text(title),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

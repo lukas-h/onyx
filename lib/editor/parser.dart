@@ -1,4 +1,4 @@
-import 'package:counter_note/model.dart';
+import 'package:counter_note/editor/model.dart';
 
 final expression = RegExp(r'^[0-9]+(([\.\,])+[0-9]+)?');
 

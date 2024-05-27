@@ -21,11 +21,12 @@ class NavigationSuccess extends NavigationState {
   final RouteState route;
   final int index;
 
-  PageState get currentPage => switch (route) {
-        RouteState.pages => pages[index],
-        RouteState.journals => journals[index],
-        RouteState.journalSelected => journals[index],
-        RouteState.pageSelected => pages[index],
+  PageState? get currentPage => switch (route) {
+        RouteState.pages => pages.isNotEmpty ? pages[index] : null,
+        RouteState.journals => journals.isNotEmpty ? journals[index] : null,
+        RouteState.journalSelected =>
+          journals.isNotEmpty ? journals[index] : null,
+        RouteState.pageSelected => pages.isNotEmpty ? pages[index] : null,
         RouteState.settings => journals.last,
       };
 
@@ -94,12 +95,18 @@ class NavigationCubit extends Cubit<NavigationState> {
         index: 0,
         pages: [],
         journals: [
-          PageState(
-            items: const [],
-            index: 0,
-            sum: 0,
-            title: DateFormat.yMMMMd().format(DateTime.now()),
-            created: DateTime.now(),
+          ...List.generate(
+            30,
+            (index) {
+              final date = DateTime.now().subtract(Duration(days: index));
+              return PageState(
+                items: const [],
+                index: 0,
+                sum: 0,
+                title: DateFormat.yMMMMd().format(date),
+                created: date,
+              );
+            },
           ),
         ],
       ),

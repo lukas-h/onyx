@@ -1,7 +1,7 @@
 import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
-import 'package:counter_note/keyboard.dart';
-import 'package:counter_note/navigation.dart';
+import 'package:counter_note/central/keyboard.dart';
+import 'package:counter_note/central/navigation.dart';
 import 'package:counter_note/screens/journals.dart';
 import 'package:counter_note/screens/loading.dart';
 import 'package:flutter/material.dart';
@@ -53,8 +53,8 @@ class CounterNoteApp extends StatelessWidget {
         ),
         home: BlocConsumer<NavigationCubit, NavigationState>(
           listener: (context, state) {
-            if (state is NavigationSuccess) {
-              context.read<PageCubit>().selectPage(state.currentPage);
+            if (state is NavigationSuccess && state.currentPage != null) {
+              context.read<PageCubit>().selectPage(state.currentPage!);
             }
           },
           builder: (context, state) => state is NavigationSuccess

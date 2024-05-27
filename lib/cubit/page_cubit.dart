@@ -1,5 +1,5 @@
-import 'package:counter_note/model.dart';
-import 'package:counter_note/parser.dart';
+import 'package:counter_note/editor/model.dart';
+import 'package:counter_note/editor/parser.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/nanoid.dart';

@@ -1,6 +1,6 @@
 import 'package:counter_note/cubit/page_cubit.dart';
-import 'package:counter_note/item.dart';
-import 'package:counter_note/model.dart';
+import 'package:counter_note/editor/item.dart';
+import 'package:counter_note/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
