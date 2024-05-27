@@ -1,4 +1,7 @@
 import 'package:counter_note/cubit/navigation_cubit.dart';
+import 'package:counter_note/screens/journals.dart';
+import 'package:counter_note/screens/pages.dart';
+import 'package:counter_note/screens/settings.dart';
 import 'package:counter_note/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,16 +12,16 @@ class CentralNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 190,
-          decoration: const BoxDecoration(),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: BlocBuilder<NavigationCubit, NavigationState>(
-            builder: (context, state) {
-              if (state is NavigationSuccess) {
-                return Column(
+    return BlocBuilder<NavigationCubit, NavigationState>(
+      builder: (context, state) {
+        if (state is NavigationSuccess) {
+          return Row(
+            children: [
+              Container(
+                width: 190,
+                decoration: const BoxDecoration(),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -94,21 +97,31 @@ class CentralNavigation extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                   ],
-                );
-              } else {
-                return Container();
-              }
-            },
-          ),
-        ),
-        const VerticalDivider(
-          width: 1,
-          color: Colors.black38,
-          thickness: 1,
-        ),
-        Expanded(child: child),
-      ],
+                ),
+              ),
+              const VerticalDivider(
+                width: 1,
+                color: Colors.black38,
+                thickness: 1,
+              ),
+              Expanded(child: buildBody(state)),
+            ],
+          );
+        } else {
+          return Container();
+        }
+      },
     );
+  }
+
+  StatelessWidget buildBody(NavigationSuccess state) {
+    return switch (state.route) {
+      RouteState.journalSelected => const JournalsScreen(),
+      RouteState.journals => const JournalsScreen(),
+      RouteState.pages => const PagesScreen(),
+      RouteState.pageSelected => const PagesScreen(),
+      RouteState.settings => const SettingsScreen(),
+    };
   }
 }
 
