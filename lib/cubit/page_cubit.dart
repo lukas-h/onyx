@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/nanoid.dart';
 
 class PageState extends Equatable {
-  final String pageTitle;
-  final DateTime pageCreated;
+  final String title;
+  final DateTime created;
   final String uid;
   final List<ListItemModel> items;
   final int index;
@@ -16,8 +16,8 @@ class PageState extends Equatable {
     required this.items,
     required this.index,
     required this.sum,
-    required this.pageTitle,
-    required this.pageCreated,
+    required this.title,
+    required this.created,
   }) : uid = nanoid();
 
   @override
@@ -32,8 +32,8 @@ class PageState extends Equatable {
       items: items ?? this.items,
       index: index ?? this.index,
       sum: sum,
-      pageCreated: pageCreated,
-      pageTitle: pageTitle,
+      created: created,
+      title: title,
     );
   }
 }
@@ -41,7 +41,8 @@ class PageState extends Equatable {
 class PageCubit extends Cubit<PageState> {
   PageCubit(super.initialState);
 
-  void reInit(PageState newPage) {
+  void selectPage(PageState newPage) {
+    print('Hello');
     emit(newPage);
   }
 
@@ -78,8 +79,8 @@ class PageCubit extends Cubit<PageState> {
         items: items,
         index: state.index,
         sum: calculateUntil(items, items.length),
-        pageCreated: state.pageCreated,
-        pageTitle: state.pageTitle,
+        created: state.created,
+        title: state.title,
       ),
     );
   }
@@ -93,8 +94,8 @@ class PageCubit extends Cubit<PageState> {
         items: items,
         index: items.length - 1,
         sum: calculateUntil(items, items.length),
-        pageCreated: state.pageCreated,
-        pageTitle: state.pageTitle,
+        created: state.created,
+        title: state.title,
       ),
     );
   }
@@ -126,8 +127,8 @@ class PageCubit extends Cubit<PageState> {
         items: items,
         index: items.length - 1,
         sum: calculateUntil(items, items.length),
-        pageCreated: state.pageCreated,
-        pageTitle: state.pageTitle,
+        created: state.created,
+        title: state.title,
       ),
     );
   }
@@ -159,8 +160,8 @@ class PageCubit extends Cubit<PageState> {
         items: items,
         index: newIndex,
         sum: calculateUntil(items, items.length),
-        pageCreated: state.pageCreated,
-        pageTitle: state.pageTitle,
+        created: state.created,
+        title: state.title,
       ),
     );
   }
