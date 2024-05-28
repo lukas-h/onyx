@@ -9,7 +9,7 @@ enum Operator {
   none,
 }
 
-class ListItemModel {
+class ListItemState {
   final int index;
   final String fullText;
   final String textPart;
@@ -19,7 +19,7 @@ class ListItemModel {
   final int indent;
   final bool checked;
 
-  ListItemModel({
+  ListItemState({
     this.indent = 0,
     required this.textPart,
     required this.operator,
@@ -29,7 +29,19 @@ class ListItemModel {
     this.checked = false,
   }) : uid = nanoid();
 
-  ListItemModel copyWith({
+  factory ListItemState.unparsed({
+    required int index,
+    required String fullText,
+  }) =>
+      ListItemState(
+        textPart: '',
+        operator: Operator.none,
+        number: null,
+        index: index,
+        fullText: fullText,
+      );
+
+  ListItemState copyWith({
     int? index,
     String? fullText,
     String? textPart,
@@ -37,15 +49,14 @@ class ListItemModel {
     Operator? operator,
     num? number,
     int? indent,
-  }) {
-    return ListItemModel(
-      index: index ?? this.index,
-      fullText: fullText ?? this.fullText,
-      textPart: textPart ?? this.textPart,
-      operator: operator ?? this.operator,
-      number: number ?? this.number,
-      indent: indent ?? this.indent,
-      checked: checked ?? this.checked,
-    );
-  }
+  }) =>
+      ListItemState(
+        index: index ?? this.index,
+        fullText: fullText ?? this.fullText,
+        textPart: textPart ?? this.textPart,
+        operator: operator ?? this.operator,
+        number: number ?? this.number,
+        indent: indent ?? this.indent,
+        checked: checked ?? this.checked,
+      );
 }

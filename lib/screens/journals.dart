@@ -71,7 +71,7 @@ class JournalsScreen extends StatelessWidget {
             );
           },
         ),
-        const Expanded(child: ChecklistView()),
+        const Expanded(child: ListEditor()),
       ],
     );
   }

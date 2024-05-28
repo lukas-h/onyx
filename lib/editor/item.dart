@@ -3,10 +3,10 @@ import 'package:counter_note/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
-class ListItem extends StatefulWidget {
-  final ListItemModel model;
+class ListItemEditor extends StatefulWidget {
+  final ListItemState model;
   final int index;
-  final ValueChanged<ListItemModel> onChanged;
+  final ValueChanged<ListItemState> onChanged;
   final ValueChanged<int> onChecked;
   final VoidCallback onDeleted;
   final VoidCallback onTap;
@@ -14,7 +14,7 @@ class ListItem extends StatefulWidget {
   final bool inFocus;
   final PageCubit cubit;
 
-  const ListItem({
+  const ListItemEditor({
     super.key,
     required this.inFocus,
     required this.onChecked,
@@ -28,10 +28,10 @@ class ListItem extends StatefulWidget {
   });
 
   @override
-  State<ListItem> createState() => _ListItemState();
+  State<ListItemEditor> createState() => _ListItemEditorState();
 }
 
-class _ListItemState extends State<ListItem> {
+class _ListItemEditorState extends State<ListItemEditor> {
   final _focusNode = FocusNode();
   final _controller = TextEditingController();
   bool hasMatch = false;
@@ -45,7 +45,7 @@ class _ListItemState extends State<ListItem> {
     super.initState();
   }
 
-  Widget _buildParsedPart(ListItemModel model, int index) {
+  Widget _buildParsedPart(ListItemState model, int index) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -97,7 +97,20 @@ class _ListItemState extends State<ListItem> {
         Expanded(
             child: MarkdownBody(
           data: model.textPart,
-          styleSheet: MarkdownStyleSheet(p: const TextStyle(fontSize: 16)),
+          styleSheet: MarkdownStyleSheet(
+            p: const TextStyle(fontSize: 16),
+            codeblockDecoration: BoxDecoration(
+              color: Colors.blueGrey,
+              border: Border.all(color: Colors.red, width: 10),
+              borderRadius: BorderRadius.circular(3),
+            ),
+            codeblockPadding: const EdgeInsets.all(10),
+            code: const TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+              backgroundColor: Colors.blueGrey,
+            ),
+          ),
         )),
       ],
     );

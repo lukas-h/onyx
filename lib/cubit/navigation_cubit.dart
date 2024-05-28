@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:counter_note/utils/utils.dart';
-import 'package:intl/intl.dart';
+import 'package:counter_note/store/page_store.dart';
 
 import 'package:counter_note/cubit/page_cubit.dart';
 
@@ -16,18 +15,8 @@ enum RouteState {
 }
 
 class NavigationSuccess extends NavigationState {
-  final List<PageState> pages;
-  final List<PageState> journals;
   final RouteState route;
   final int index;
-
-  PageState? get currentPage => switch (route) {
-        RouteState.pages => pages.isNotEmpty ? pages[index] : null,
-        RouteState.journalSelected =>
-          journals.isNotEmpty ? journals[index] : null,
-        RouteState.pageSelected => pages.isNotEmpty ? pages[index] : null,
-        RouteState.settings => journals.last,
-      };
 
   bool get journalNav => route == RouteState.journalSelected;
 
@@ -37,29 +26,21 @@ class NavigationSuccess extends NavigationState {
   bool get settingsNav => route == RouteState.settings;
 
   NavigationSuccess({
-    required this.pages,
-    required this.journals,
     required this.route,
     required this.index,
   });
 
   NavigationSuccess copyWith({
-    List<PageState>? pages,
-    List<PageState>? journals,
     RouteState? route,
     int? index,
   }) {
     return NavigationSuccess(
-      pages: pages ?? this.pages,
-      journals: journals ?? this.journals,
       route: route ?? this.route,
       index: index ?? this.index,
     );
   }
 
   NavigationLoading copyToLoading() => NavigationLoading(
-        pages: pages,
-        journals: journals,
         route: route,
         index: index,
       );
@@ -67,46 +48,31 @@ class NavigationSuccess extends NavigationState {
 
 class NavigationLoading extends NavigationSuccess {
   NavigationLoading({
-    required super.pages,
-    required super.journals,
     required super.route,
     required super.index,
   });
 
   NavigationSuccess copyToSuccess() => NavigationSuccess(
-        pages: pages,
-        journals: journals,
         route: route,
         index: index,
       );
 }
 
 class NavigationCubit extends Cubit<NavigationState> {
-  NavigationCubit() : super(NavigationInitial()) {
+  final PageStore store;
+  NavigationCubit({
+    required this.store,
+  }) : super(NavigationInitial()) {
     init();
   }
   Future<void> init() async {
+    await store.init();
     await Future.delayed(const Duration(seconds: 1));
+
     emit(
       NavigationSuccess(
         route: RouteState.journalSelected,
         index: 0,
-        pages: [],
-        journals: [
-          ...List.generate(
-            30,
-            (index) {
-              final date = DateTime.now().subtract(Duration(days: index));
-              return PageState(
-                items: const [],
-                index: 0,
-                sum: 0,
-                title: DateFormat.yMMMMd().format(date),
-                created: date,
-              );
-            },
-          ),
-        ],
       ),
     );
   }
@@ -122,34 +88,20 @@ class NavigationCubit extends Cubit<NavigationState> {
   void createPage() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
+      final newIndex = store.createPage();
       emit(
         currentState.copyWith(
-          index: currentState.pages.length,
+          index: newIndex,
           route: RouteState.pageSelected,
-          pages: [
-            ...currentState.pages,
-            PageState(
-              items: const [],
-              index: 0,
-              sum: 0,
-              title: '',
-              created: DateTime.now(),
-            ),
-          ],
-          journals: currentState.journals,
         ),
       );
     }
   }
 
-  // TODO void updatePage() {}
-  // TODO void deletePage() {}
-  // TODO void updateJournal() {}
-
   void switchToPage(String uid) {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      final newIndex = currentState.pages.indexWhere((e) => e.uid == uid);
+      final newIndex = store.getPageIndex(uid);
       emit(
         currentState.copyWith(
           index: newIndex,
@@ -162,8 +114,7 @@ class NavigationCubit extends Cubit<NavigationState> {
   void switchToTodaysJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      final newIndex =
-          currentState.journals.indexWhere((e) => isToday(e.created));
+      final newIndex = store.getTodaysJournalIndex();
       emit(
         currentState.copyWith(
           index: newIndex,
@@ -176,7 +127,7 @@ class NavigationCubit extends Cubit<NavigationState> {
   void switchToPreviousJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      if (currentState.index < (currentState.journals.length - 1)) {
+      if (currentState.index < (store.journalLength - 1)) {
         final newIndex = currentState.index + 1;
         emit(
           currentState.copyWith(
@@ -215,4 +166,24 @@ class NavigationCubit extends Cubit<NavigationState> {
       );
     }
   }
+
+  PageState? get currentPage {
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      return switch (currentState.route) {
+        RouteState.pages =>
+          store.getPage(currentState.index)?.toPageState(false),
+        RouteState.pageSelected =>
+          store.getPage(currentState.index)?.toPageState(false),
+        RouteState.journalSelected =>
+          store.getJournal(currentState.index)?.toPageState(true),
+        RouteState.settings => null,
+      };
+    } else {
+      return null;
+    }
+  }
+
+  List<PageState> get pages =>
+      store.pages.map((e) => e.toPageState(false)).toList();
 }

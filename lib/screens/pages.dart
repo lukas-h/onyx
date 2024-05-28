@@ -1,10 +1,10 @@
 import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/editor/list.dart';
-import 'package:counter_note/utils/utils.dart';
 import 'package:counter_note/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class PagesScreen extends StatelessWidget {
   const PagesScreen({super.key});
@@ -17,7 +17,7 @@ class PagesScreen extends StatelessWidget {
           if (state.route == RouteState.pages) {
             return const _PagesList();
           } else {
-            return const _PageDetail(); // TODO implement route detail
+            return const _PageDetail();
           }
         } else {
           return Container();
@@ -32,6 +32,8 @@ class _PagesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO reactive
+    final pages = context.read<NavigationCubit>().pages;
     return Column(
       children: [
         Padding(
@@ -57,18 +59,9 @@ class _PagesList extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: BlocBuilder<NavigationCubit, NavigationState>(
-            builder: (context, state) {
-              if (state is NavigationSuccess) {
-                return ListView.builder(
-                  itemBuilder: (context, index) =>
-                      _PageCard(state: state.pages[index]),
-                  itemCount: state.pages.length,
-                );
-              } else {
-                return Container();
-              }
-            },
+          child: ListView.builder(
+            itemBuilder: (context, index) => _PageCard(state: pages[index]),
+            itemCount: pages.length,
           ),
         ),
       ],
@@ -82,11 +75,20 @@ class _PageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(state.title),
-      onTap: () {
-        context.read<NavigationCubit>().switchToPage(state.uid);
-      },
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(width: 0.5, color: Colors.grey[300]!),
+        ),
+      ),
+      child: ListTile(
+        title: Text(state.title),
+        subtitle: Text(DateFormat.yMMMMd().format(state.created)),
+        leading: const Icon(Icons.summarize_outlined),
+        onTap: () {
+          context.read<NavigationCubit>().switchToPage(state.uid);
+        },
+      ),
     );
   }
 }
@@ -102,14 +104,8 @@ class _PageDetail extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(top: 16.0),
             child: ListTile(
-              title: TextField(
-                controller: TextEditingController(text: state.title),
-                style: Theme.of(context).textTheme.headlineLarge,
-                decoration: const InputDecoration(
-                  hintText: 'Page Title...',
-                  border: InputBorder.none,
-                ),
-                cursorColor: Colors.black,
+              title: _PageTitleEditor(
+                title: context.read<PageCubit>().state.title,
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -126,7 +122,41 @@ class _PageDetail extends StatelessWidget {
           );
         },
       ),
-      const Expanded(child: ChecklistView()),
+      const Expanded(child: ListEditor()),
     ]);
+  }
+}
+
+class _PageTitleEditor extends StatefulWidget {
+  final String title;
+  const _PageTitleEditor({required this.title});
+
+  @override
+  State<_PageTitleEditor> createState() => _PageTitleEditorState();
+}
+
+class _PageTitleEditorState extends State<_PageTitleEditor> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    _controller = TextEditingController(text: widget.title);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      style: Theme.of(context).textTheme.headlineLarge,
+      decoration: const InputDecoration(
+        hintText: 'Page Title...',
+        border: InputBorder.none,
+      ),
+      cursorColor: Colors.black,
+      onChanged: (v) {
+        context.read<PageCubit>().updateTitle(v);
+      },
+    );
   }
 }

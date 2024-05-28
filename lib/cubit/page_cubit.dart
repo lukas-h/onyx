@@ -1,51 +1,91 @@
 import 'package:counter_note/editor/model.dart';
 import 'package:counter_note/editor/parser.dart';
+import 'package:counter_note/store/page_store.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/nanoid.dart';
 
 class PageState extends Equatable {
+  final bool isJournal;
   final String title;
   final DateTime created;
   final String uid;
-  final List<ListItemModel> items;
+  final List<ListItemState> items;
   final int index;
   final num sum;
 
-  PageState({
+  const PageState({
+    required this.isJournal,
     required this.items,
     required this.index,
     required this.sum,
     required this.title,
     required this.created,
-  }) : uid = nanoid();
+    required this.uid,
+  });
 
   @override
-  List<Object?> get props => [uid];
+  List<Object?> get props => [nanoid()];
 
   PageState copyWith({
-    String? uid,
-    List<ListItemModel>? items,
+    List<ListItemState>? items,
     int? index,
+    String? title,
   }) {
     return PageState(
       items: items ?? this.items,
       index: index ?? this.index,
       sum: sum,
       created: created,
-      title: title,
+      title: title ?? this.title,
+      isJournal: isJournal,
+      uid: uid,
     );
   }
+
+  PageModel toPageModel() => PageModel.fromPageState(this);
+
+  factory PageState.fromPageModel(PageModel model, bool isJournal) => PageState(
+        items: [
+          for (int i = 0; i < model.fullText.length; i++)
+            Parser.parse(
+              ListItemState.unparsed(
+                fullText: model.fullText[i],
+                index: i,
+              ),
+            ),
+        ],
+        index: 0, // TODO use actual index
+        sum: 0,
+        title: model.title,
+        isJournal: isJournal,
+        created: model.created,
+        uid: model.uid,
+      );
 }
 
 class PageCubit extends Cubit<PageState> {
-  PageCubit(super.initialState);
+  final PageStore store;
+  PageCubit(
+    super.initialState, {
+    required this.store,
+  });
+
+  @override
+  void emit(PageState state) {
+    if (state.isJournal) {
+      store.updateJournal(state.toPageModel());
+    } else {
+      store.updatePage(state.toPageModel());
+    }
+    super.emit(state);
+  }
 
   void selectPage(PageState newPage) {
     emit(newPage);
   }
 
-  num calculateUntil(List<ListItemModel> items, int untilIndex) {
+  num calculateUntil(List<ListItemState> items, int untilIndex) {
     final limit = untilIndex < items.length ? untilIndex : items.length;
     num sum = 0;
     for (int i = 0; i < limit; i++) {
@@ -70,7 +110,7 @@ class PageCubit extends Cubit<PageState> {
     return sum;
   }
 
-  void update(int index, ListItemModel model) {
+  void update(int index, ListItemState model) {
     final items = List.of(state.items, growable: true);
     items[index] = Parser.parse(model);
     emit(
@@ -80,6 +120,16 @@ class PageCubit extends Cubit<PageState> {
         sum: calculateUntil(items, items.length),
         created: state.created,
         title: state.title,
+        isJournal: state.isJournal,
+        uid: state.uid,
+      ),
+    );
+  }
+
+  void updateTitle(String title) {
+    emit(
+      state.copyWith(
+        title: title,
       ),
     );
   }
@@ -95,6 +145,8 @@ class PageCubit extends Cubit<PageState> {
         sum: calculateUntil(items, items.length),
         created: state.created,
         title: state.title,
+        isJournal: state.isJournal,
+        uid: state.uid,
       ),
     );
   }
@@ -114,7 +166,7 @@ class PageCubit extends Cubit<PageState> {
     );
   }
 
-  void add(ListItemModel model) {
+  void add(ListItemState model) {
     final items = List.of(state.items, growable: true);
     var item = Parser.parse(model);
     if (state.items.isNotEmpty) {
@@ -128,6 +180,8 @@ class PageCubit extends Cubit<PageState> {
         sum: calculateUntil(items, items.length),
         created: state.created,
         title: state.title,
+        isJournal: state.isJournal,
+        uid: state.uid,
       ),
     );
   }
@@ -161,6 +215,8 @@ class PageCubit extends Cubit<PageState> {
         sum: calculateUntil(items, items.length),
         created: state.created,
         title: state.title,
+        isJournal: state.isJournal,
+        uid: state.uid,
       ),
     );
   }

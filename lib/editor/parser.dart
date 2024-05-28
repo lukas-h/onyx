@@ -3,7 +3,7 @@ import 'package:counter_note/editor/model.dart';
 final expression = RegExp(r'^[0-9]+(([\.\,])+[0-9]+)?');
 
 abstract class Parser {
-  static ListItemModel parse(ListItemModel model) {
+  static ListItemState parse(ListItemState model) {
     var updatedModel = model;
     var source = model.fullText.trim();
 

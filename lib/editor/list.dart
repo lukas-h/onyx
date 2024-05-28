@@ -4,14 +4,14 @@ import 'package:counter_note/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ChecklistView extends StatefulWidget {
-  const ChecklistView({super.key});
+class ListEditor extends StatefulWidget {
+  const ListEditor({super.key});
 
   @override
-  State<ChecklistView> createState() => ChecklistViewState();
+  State<ListEditor> createState() => ListEditorState();
 }
 
-class ChecklistViewState extends State<ChecklistView> {
+class ListEditorState extends State<ListEditor> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PageCubit>();
@@ -22,8 +22,8 @@ class ChecklistViewState extends State<ChecklistView> {
           children: [
             Expanded(
               child: ReorderableListView.builder(
-                buildDefaultDragHandles: false,
-                itemBuilder: (context, index) => ListItem(
+                buildDefaultDragHandles: true,
+                itemBuilder: (context, index) => ListItemEditor(
                   cubit: cubit,
                   key: UniqueKey(),
                   model: state.items[index],
@@ -42,10 +42,7 @@ class ChecklistViewState extends State<ChecklistView> {
                   },
                   onNext: () {
                     cubit.add(
-                      ListItemModel(
-                        textPart: '',
-                        operator: Operator.none,
-                        number: null,
+                      ListItemState.unparsed(
                         index: state.items.length,
                         fullText: '',
                       ),
@@ -60,9 +57,10 @@ class ChecklistViewState extends State<ChecklistView> {
             if (state.sum > 0)
               Container(
                 decoration: BoxDecoration(
-                    border: Border(
-                  top: BorderSide(width: 0.5, color: Colors.grey[300]!),
-                )),
+                  border: Border(
+                    top: BorderSide(width: 0.5, color: Colors.grey[300]!),
+                  ),
+                ),
                 child: ListTile(
                   leading: const Icon(Icons.functions),
                   title: Padding(
@@ -83,10 +81,7 @@ class ChecklistViewState extends State<ChecklistView> {
                     icon: const Icon(Icons.add),
                     onPressed: () {
                       cubit.add(
-                        ListItemModel(
-                          textPart: '',
-                          operator: Operator.none,
-                          number: null,
+                        ListItemState.unparsed(
                           index: state.items.length,
                           fullText: '',
                         ),
