@@ -2,7 +2,6 @@ import 'package:counter_note/editor/model.dart';
 import 'package:counter_note/editor/parser.dart';
 import 'package:counter_note/store/page_store.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nanoid/nanoid.dart';
 
