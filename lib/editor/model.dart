@@ -29,6 +29,18 @@ class ListItemState {
     this.checked = false,
   }) : uid = nanoid();
 
+  factory ListItemState.unparsed({
+    required int index,
+    required String fullText,
+  }) =>
+      ListItemState(
+        textPart: '',
+        operator: Operator.none,
+        number: null,
+        index: index,
+        fullText: fullText,
+      );
+
   ListItemState copyWith({
     int? index,
     String? fullText,
@@ -37,15 +49,14 @@ class ListItemState {
     Operator? operator,
     num? number,
     int? indent,
-  }) {
-    return ListItemState(
-      index: index ?? this.index,
-      fullText: fullText ?? this.fullText,
-      textPart: textPart ?? this.textPart,
-      operator: operator ?? this.operator,
-      number: number ?? this.number,
-      indent: indent ?? this.indent,
-      checked: checked ?? this.checked,
-    );
-  }
+  }) =>
+      ListItemState(
+        index: index ?? this.index,
+        fullText: fullText ?? this.fullText,
+        textPart: textPart ?? this.textPart,
+        operator: operator ?? this.operator,
+        number: number ?? this.number,
+        indent: indent ?? this.indent,
+        checked: checked ?? this.checked,
+      );
 }

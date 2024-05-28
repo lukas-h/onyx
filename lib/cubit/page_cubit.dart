@@ -43,8 +43,15 @@ class PageState extends Equatable {
 
 // TODO
   factory PageState.fromPageModel(PageModel model) => PageState(
-        items:
-            model.fullText.map((e) => Parser.parse(ListItemState.e)).toList(),
+        items: [
+          for (int i = 0; i < model.fullText.length; i++)
+            Parser.parse(
+              ListItemState.unparsed(
+                fullText: model.fullText[i],
+                index: i,
+              ),
+            ),
+        ],
         index: model.fullText.length - 1,
         sum: 0,
         title: '',

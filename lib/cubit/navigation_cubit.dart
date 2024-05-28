@@ -1,7 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:counter_note/persistence/page_store.dart';
-import 'package:counter_note/utils/utils.dart';
-import 'package:intl/intl.dart';
 
 import 'package:counter_note/cubit/page_cubit.dart';
 
@@ -88,46 +86,20 @@ class NavigationCubit extends Cubit<NavigationState> {
   void createPage() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
+      final newIndex = store.createPage();
       emit(
         currentState.copyWith(
-          index: currentState.pages.length,
+          index: newIndex,
           route: RouteState.pageSelected,
-          pages: [
-            ...currentState.pages,
-            PageState(
-              items: const [],
-              index: 0,
-              sum: 0,
-              title: '',
-              created: DateTime.now(),
-            ),
-          ],
-          journals: currentState.journals,
         ),
       );
     }
   }
 
-  void updatePage(PageState newPageState) {
-    print('Update page');
-    if (state is NavigationSuccess) {
-      final currentState = state as NavigationSuccess;
-      if (currentState.route == RouteState.pageSelected ||
-          currentState.route == RouteState.pages) {
-        final index =
-            currentState.pages.indexWhere((e) => e.index == currentState.index);
-      } else if (currentState.route == RouteState.journalSelected) {
-        final index = currentState.journals
-            .indexWhere((e) => e.index == currentState.index);
-      }
-    }
-  }
-  // TODO void deletePage() {}
-
   void switchToPage(String uid) {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      final newIndex = currentState.pages.indexWhere((e) => e.uid == uid);
+      final newIndex = store.getPageIndex(uid);
       emit(
         currentState.copyWith(
           index: newIndex,
@@ -140,8 +112,7 @@ class NavigationCubit extends Cubit<NavigationState> {
   void switchToTodaysJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      final newIndex =
-          currentState.journals.indexWhere((e) => isToday(e.created));
+      final newIndex = store.getTodaysJournalIndex();
       emit(
         currentState.copyWith(
           index: newIndex,
@@ -154,7 +125,7 @@ class NavigationCubit extends Cubit<NavigationState> {
   void switchToPreviousJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      if (currentState.index < (currentState.journals.length - 1)) {
+      if (currentState.index < (store.journalLength - 1)) {
         final newIndex = currentState.index + 1;
         emit(
           currentState.copyWith(
@@ -194,11 +165,20 @@ class NavigationCubit extends Cubit<NavigationState> {
     }
   }
 
-  PageState? get currentPage => switch (route) {
-        RouteState.pages => pages.isNotEmpty ? pages[index] : null,
-        RouteState.journalSelected =>
-          journals.isNotEmpty ? journals[index] : null,
-        RouteState.pageSelected => pages.isNotEmpty ? pages[index] : null,
-        RouteState.settings => journals.last,
-      };
+  PageState? get currentPage {
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      return switch (currentState.route) {
+        RouteState.pages => store.getPage(currentState.index),
+        RouteState.pageSelected => store.getPage(currentState.index),
+        RouteState.journalSelected => store.getJournal(currentState.index),
+        RouteState.settings => null,
+      }
+          ?.toPageState();
+    } else {
+      return null;
+    }
+  }
+
+  List<PageState> get pages => store.pages.map((e) => e.toPageState()).toList();
 }

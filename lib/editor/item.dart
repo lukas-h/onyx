@@ -3,7 +3,7 @@ import 'package:counter_note/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
-class ListItem extends StatefulWidget {
+class ListItemEditor extends StatefulWidget {
   final ListItemState model;
   final int index;
   final ValueChanged<ListItemState> onChanged;
@@ -14,7 +14,7 @@ class ListItem extends StatefulWidget {
   final bool inFocus;
   final PageCubit cubit;
 
-  const ListItem({
+  const ListItemEditor({
     super.key,
     required this.inFocus,
     required this.onChecked,
@@ -28,10 +28,10 @@ class ListItem extends StatefulWidget {
   });
 
   @override
-  State<ListItem> createState() => _ListItemState();
+  State<ListItemEditor> createState() => _ListItemEditorState();
 }
 
-class _ListItemState extends State<ListItem> {
+class _ListItemEditorState extends State<ListItemEditor> {
   final _focusNode = FocusNode();
   final _controller = TextEditingController();
   bool hasMatch = false;

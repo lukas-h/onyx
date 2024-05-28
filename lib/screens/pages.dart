@@ -31,6 +31,8 @@ class _PagesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO reactive
+    final pages = context.read<NavigationCubit>().pages;
     return Column(
       children: [
         Padding(
@@ -56,18 +58,9 @@ class _PagesList extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: BlocBuilder<NavigationCubit, NavigationState>(
-            builder: (context, state) {
-              if (state is NavigationSuccess) {
-                return ListView.builder(
-                  itemBuilder: (context, index) =>
-                      _PageCard(state: state.pages[index]),
-                  itemCount: state.pages.length,
-                );
-              } else {
-                return Container();
-              }
-            },
+          child: ListView.builder(
+            itemBuilder: (context, index) => _PageCard(state: pages[index]),
+            itemCount: pages.length,
           ),
         ),
       ],

@@ -1,4 +1,5 @@
 import 'package:counter_note/cubit/page_cubit.dart';
+import 'package:counter_note/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -45,12 +46,12 @@ ${fullText.join('\n')}
 
 class PageStore {
   final List<PageModel> pages;
-  late final List<PageModel> journals;
+  final List<PageModel> journals;
 
   PageStore(this.pages, this.journals);
 
   Future<void> init() async {
-    journals = [
+    journals.addAll([
       ...List.generate(
         30,
         (index) {
@@ -63,9 +64,40 @@ class PageStore {
           );
         },
       ),
-    ];
+    ]);
   }
 
-  updatePage() {}
-  updateJournal() {}
+  int createPage() {
+    final page = PageModel(
+      fullText: const [''],
+      title: '',
+      created: DateTime.now(),
+      uid: nanoid(),
+    );
+    pages.add(page);
+    return pages.length - 1;
+  }
+
+  // TODO updatePage() {}
+  // TODO updateJournal() {}
+
+  int getPageIndex(String uid) => pages.indexWhere((e) => e.uid == uid);
+
+  int getJournalIndex(String uid) => journals.indexWhere((e) => e.uid == uid);
+
+  int getTodaysJournalIndex() => journals.indexWhere((e) => isToday(e.created));
+
+  int get journalLength => journals.length;
+
+  int get pageLength => pages.length;
+
+  PageModel? getPage(int index) {
+    if (index < 0 || index >= pages.length) return null;
+    return pages[index];
+  }
+
+  PageModel? getJournal(int index) {
+    if (index < 0 || index >= journals.length) return null;
+    return journals[index];
+  }
 }
