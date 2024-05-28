@@ -75,7 +75,6 @@ class _PageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO improve widget
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -130,7 +129,7 @@ class _PageDetail extends StatelessWidget {
 
 class _PageTitleEditor extends StatefulWidget {
   final String title;
-  const _PageTitleEditor({super.key, required this.title});
+  const _PageTitleEditor({required this.title});
 
   @override
   State<_PageTitleEditor> createState() => _PageTitleEditorState();

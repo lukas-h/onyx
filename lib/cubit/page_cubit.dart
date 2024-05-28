@@ -4,6 +4,7 @@ import 'package:counter_note/store/page_store.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:nanoid/nanoid.dart';
 
 class PageState extends Equatable {
   final bool isJournal;
@@ -25,7 +26,7 @@ class PageState extends Equatable {
   });
 
   @override
-  List<Object?> get props => [UniqueKey()]; // TODO
+  List<Object?> get props => [nanoid()];
 
   PageState copyWith({
     List<ListItemState>? items,
@@ -55,7 +56,7 @@ class PageState extends Equatable {
               ),
             ),
         ],
-        index: 0, // TODO
+        index: 0, // TODO use actual index
         sum: 0,
         title: model.title,
         isJournal: isJournal,

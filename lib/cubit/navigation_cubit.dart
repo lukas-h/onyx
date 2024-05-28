@@ -68,7 +68,7 @@ class NavigationCubit extends Cubit<NavigationState> {
   Future<void> init() async {
     await store.init();
     await Future.delayed(const Duration(seconds: 1));
-    // TODO wait for store
+
     emit(
       NavigationSuccess(
         route: RouteState.journalSelected,
