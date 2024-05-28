@@ -2,7 +2,7 @@ import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/central/keyboard.dart';
 import 'package:counter_note/central/navigation.dart';
-import 'package:counter_note/persistence/page_store.dart';
+import 'package:counter_note/store/page_store.dart';
 import 'package:counter_note/screens/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,16 +35,17 @@ class _CounterNoteAppState extends State<CounterNoteApp> {
         ),
         BlocProvider(
           create: (context) => PageCubit(
-              PageState(
-                isJournal: true,
-                index: 0,
-                items: const [],
-                created: DateTime.now(),
-                title: '',
-                sum: 0,
-                uid: '',
-              ),
-              store: store),
+            PageState(
+              isJournal: true,
+              index: 0,
+              items: const [],
+              created: DateTime.now(),
+              title: '',
+              sum: 0,
+              uid: '',
+            ),
+            store: store,
+          ),
         ),
       ],
       child: MaterialApp(

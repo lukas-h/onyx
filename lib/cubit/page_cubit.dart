@@ -1,6 +1,6 @@
 import 'package:counter_note/editor/model.dart';
 import 'package:counter_note/editor/parser.dart';
-import 'package:counter_note/persistence/page_store.dart';
+import 'package:counter_note/store/page_store.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,7 +45,6 @@ class PageState extends Equatable {
 
   PageModel toPageModel() => PageModel.fromPageState(this);
 
-// TODO
   factory PageState.fromPageModel(PageModel model, bool isJournal) => PageState(
         items: [
           for (int i = 0; i < model.fullText.length; i++)

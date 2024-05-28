@@ -4,14 +4,14 @@ import 'package:counter_note/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ChecklistView extends StatefulWidget {
-  const ChecklistView({super.key});
+class ListEditor extends StatefulWidget {
+  const ListEditor({super.key});
 
   @override
-  State<ChecklistView> createState() => ChecklistViewState();
+  State<ListEditor> createState() => ListEditorState();
 }
 
-class ChecklistViewState extends State<ChecklistView> {
+class ListEditorState extends State<ListEditor> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PageCubit>();
@@ -57,9 +57,10 @@ class ChecklistViewState extends State<ChecklistView> {
             if (state.sum > 0)
               Container(
                 decoration: BoxDecoration(
-                    border: Border(
-                  top: BorderSide(width: 0.5, color: Colors.grey[300]!),
-                )),
+                  border: Border(
+                    top: BorderSide(width: 0.5, color: Colors.grey[300]!),
+                  ),
+                ),
                 child: ListTile(
                   leading: const Icon(Icons.functions),
                   title: Padding(

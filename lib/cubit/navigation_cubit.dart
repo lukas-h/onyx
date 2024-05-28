@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:counter_note/persistence/page_store.dart';
+import 'package:counter_note/store/page_store.dart';
 
 import 'package:counter_note/cubit/page_cubit.dart';
 

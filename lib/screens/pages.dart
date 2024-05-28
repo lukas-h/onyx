@@ -4,6 +4,7 @@ import 'package:counter_note/editor/list.dart';
 import 'package:counter_note/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class PagesScreen extends StatelessWidget {
   const PagesScreen({super.key});
@@ -16,7 +17,7 @@ class PagesScreen extends StatelessWidget {
           if (state.route == RouteState.pages) {
             return const _PagesList();
           } else {
-            return const _PageDetail(); // TODO implement route detail
+            return const _PageDetail();
           }
         } else {
           return Container();
@@ -75,24 +76,27 @@ class _PageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO improve widget
-    return ListTile(
-      title: Text(state.title),
-      onTap: () {
-        context.read<NavigationCubit>().switchToPage(state.uid);
-      },
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(width: 0.5, color: Colors.grey[300]!),
+        ),
+      ),
+      child: ListTile(
+        title: Text(state.title),
+        subtitle: Text(DateFormat.yMMMMd().format(state.created)),
+        leading: const Icon(Icons.summarize_outlined),
+        onTap: () {
+          context.read<NavigationCubit>().switchToPage(state.uid);
+        },
+      ),
     );
   }
 }
 
-class _PageDetail extends StatefulWidget {
-  final String? title;
-  const _PageDetail({this.title});
+class _PageDetail extends StatelessWidget {
+  const _PageDetail();
 
-  @override
-  State<_PageDetail> createState() => _PageDetailState();
-}
-
-class _PageDetailState extends State<_PageDetail> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -119,7 +123,7 @@ class _PageDetailState extends State<_PageDetail> {
           );
         },
       ),
-      const Expanded(child: ChecklistView()),
+      const Expanded(child: ListEditor()),
     ]);
   }
 }
