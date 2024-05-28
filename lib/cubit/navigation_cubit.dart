@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:counter_note/persistence/page_store.dart';
 import 'package:counter_note/utils/utils.dart';
 import 'package:intl/intl.dart';
 
@@ -16,18 +17,8 @@ enum RouteState {
 }
 
 class NavigationSuccess extends NavigationState {
-  final List<PageState> pages;
-  final List<PageState> journals;
   final RouteState route;
   final int index;
-
-  PageState? get currentPage => switch (route) {
-        RouteState.pages => pages.isNotEmpty ? pages[index] : null,
-        RouteState.journalSelected =>
-          journals.isNotEmpty ? journals[index] : null,
-        RouteState.pageSelected => pages.isNotEmpty ? pages[index] : null,
-        RouteState.settings => journals.last,
-      };
 
   bool get journalNav => route == RouteState.journalSelected;
 
@@ -37,29 +28,21 @@ class NavigationSuccess extends NavigationState {
   bool get settingsNav => route == RouteState.settings;
 
   NavigationSuccess({
-    required this.pages,
-    required this.journals,
     required this.route,
     required this.index,
   });
 
   NavigationSuccess copyWith({
-    List<PageState>? pages,
-    List<PageState>? journals,
     RouteState? route,
     int? index,
   }) {
     return NavigationSuccess(
-      pages: pages ?? this.pages,
-      journals: journals ?? this.journals,
       route: route ?? this.route,
       index: index ?? this.index,
     );
   }
 
   NavigationLoading copyToLoading() => NavigationLoading(
-        pages: pages,
-        journals: journals,
         route: route,
         index: index,
       );
@@ -67,46 +50,29 @@ class NavigationSuccess extends NavigationState {
 
 class NavigationLoading extends NavigationSuccess {
   NavigationLoading({
-    required super.pages,
-    required super.journals,
     required super.route,
     required super.index,
   });
 
   NavigationSuccess copyToSuccess() => NavigationSuccess(
-        pages: pages,
-        journals: journals,
         route: route,
         index: index,
       );
 }
 
 class NavigationCubit extends Cubit<NavigationState> {
-  NavigationCubit() : super(NavigationInitial()) {
+  final PageStore store;
+  NavigationCubit(this.store) : super(NavigationInitial()) {
     init();
   }
   Future<void> init() async {
+    await store.init();
     await Future.delayed(const Duration(seconds: 1));
+    // TODO wait for store
     emit(
       NavigationSuccess(
         route: RouteState.journalSelected,
         index: 0,
-        pages: [],
-        journals: [
-          ...List.generate(
-            30,
-            (index) {
-              final date = DateTime.now().subtract(Duration(days: index));
-              return PageState(
-                items: const [],
-                index: 0,
-                sum: 0,
-                title: DateFormat.yMMMMd().format(date),
-                created: date,
-              );
-            },
-          ),
-        ],
       ),
     );
   }
@@ -142,9 +108,21 @@ class NavigationCubit extends Cubit<NavigationState> {
     }
   }
 
-  // TODO void updatePage() {}
+  void updatePage(PageState newPageState) {
+    print('Update page');
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      if (currentState.route == RouteState.pageSelected ||
+          currentState.route == RouteState.pages) {
+        final index =
+            currentState.pages.indexWhere((e) => e.index == currentState.index);
+      } else if (currentState.route == RouteState.journalSelected) {
+        final index = currentState.journals
+            .indexWhere((e) => e.index == currentState.index);
+      }
+    }
+  }
   // TODO void deletePage() {}
-  // TODO void updateJournal() {}
 
   void switchToPage(String uid) {
     if (state is NavigationSuccess) {
@@ -215,4 +193,12 @@ class NavigationCubit extends Cubit<NavigationState> {
       );
     }
   }
+
+  PageState? get currentPage => switch (route) {
+        RouteState.pages => pages.isNotEmpty ? pages[index] : null,
+        RouteState.journalSelected =>
+          journals.isNotEmpty ? journals[index] : null,
+        RouteState.pageSelected => pages.isNotEmpty ? pages[index] : null,
+        RouteState.settings => journals.last,
+      };
 }

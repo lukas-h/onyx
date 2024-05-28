@@ -22,7 +22,7 @@ class ChecklistViewState extends State<ChecklistView> {
           children: [
             Expanded(
               child: ReorderableListView.builder(
-                buildDefaultDragHandles: false,
+                buildDefaultDragHandles: true,
                 itemBuilder: (context, index) => ListItem(
                   cubit: cubit,
                   key: UniqueKey(),
@@ -42,7 +42,7 @@ class ChecklistViewState extends State<ChecklistView> {
                   },
                   onNext: () {
                     cubit.add(
-                      ListItemModel(
+                      ListItemState(
                         textPart: '',
                         operator: Operator.none,
                         number: null,
@@ -83,7 +83,7 @@ class ChecklistViewState extends State<ChecklistView> {
                     icon: const Icon(Icons.add),
                     onPressed: () {
                       cubit.add(
-                        ListItemModel(
+                        ListItemState(
                           textPart: '',
                           operator: Operator.none,
                           number: null,

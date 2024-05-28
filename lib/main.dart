@@ -2,7 +2,6 @@ import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/central/keyboard.dart';
 import 'package:counter_note/central/navigation.dart';
-import 'package:counter_note/screens/journals.dart';
 import 'package:counter_note/screens/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,11 +13,13 @@ void main() {
 class CounterNoteApp extends StatelessWidget {
   const CounterNoteApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(
+          create: (context) => NavigationCubit(),
+        ),
         BlocProvider(
           create: (context) => PageCubit(
             PageState(
@@ -29,9 +30,6 @@ class CounterNoteApp extends StatelessWidget {
               sum: 0,
             ),
           ),
-        ),
-        BlocProvider(
-          create: (context) => NavigationCubit(),
         ),
       ],
       child: MaterialApp(
@@ -60,9 +58,7 @@ class CounterNoteApp extends StatelessWidget {
           builder: (context, state) => state is NavigationSuccess
               ? const Scaffold(
                   body: KeyboardInterceptor(
-                    child: CentralNavigation(
-                      child: JournalsScreen(),
-                    ),
+                    child: CentralNavigation(),
                   ),
                 )
               : const LoadingScreen(),

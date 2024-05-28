@@ -1,7 +1,6 @@
 import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/editor/list.dart';
-import 'package:counter_note/utils/utils.dart';
 import 'package:counter_note/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -82,6 +81,7 @@ class _PageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO improve widget
     return ListTile(
       title: Text(state.title),
       onTap: () {
@@ -91,8 +91,20 @@ class _PageCard extends StatelessWidget {
   }
 }
 
-class _PageDetail extends StatelessWidget {
+class _PageDetail extends StatefulWidget {
   const _PageDetail();
+
+  @override
+  State<_PageDetail> createState() => _PageDetailState();
+}
+
+class _PageDetailState extends State<_PageDetail> {
+  late final TextEditingController _controller;
+  @override
+  void initState() {
+    _controller = TextEditingController(text: '');
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,13 +115,17 @@ class _PageDetail extends StatelessWidget {
             padding: const EdgeInsets.only(top: 16.0),
             child: ListTile(
               title: TextField(
-                controller: TextEditingController(text: state.title),
+                controller: _controller,
                 style: Theme.of(context).textTheme.headlineLarge,
                 decoration: const InputDecoration(
                   hintText: 'Page Title...',
                   border: InputBorder.none,
                 ),
                 cursorColor: Colors.black,
+                onChanged: (v) {
+                  print(v);
+                  context.read<PageCubit>().updateTitle(state.title);
+                },
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
