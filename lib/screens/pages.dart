@@ -85,20 +85,14 @@ class _PageCard extends StatelessWidget {
 }
 
 class _PageDetail extends StatefulWidget {
-  const _PageDetail();
+  final String? title;
+  const _PageDetail({this.title});
 
   @override
   State<_PageDetail> createState() => _PageDetailState();
 }
 
 class _PageDetailState extends State<_PageDetail> {
-  late final TextEditingController _controller;
-  @override
-  void initState() {
-    _controller = TextEditingController(text: '');
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -107,18 +101,8 @@ class _PageDetailState extends State<_PageDetail> {
           return Padding(
             padding: const EdgeInsets.only(top: 16.0),
             child: ListTile(
-              title: TextField(
-                controller: _controller,
-                style: Theme.of(context).textTheme.headlineLarge,
-                decoration: const InputDecoration(
-                  hintText: 'Page Title...',
-                  border: InputBorder.none,
-                ),
-                cursorColor: Colors.black,
-                onChanged: (v) {
-                  print(v);
-                  context.read<PageCubit>().updateTitle(state.title);
-                },
+              title: _PageTitleEditor(
+                title: context.read<PageCubit>().state.title,
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -137,5 +121,39 @@ class _PageDetailState extends State<_PageDetail> {
       ),
       const Expanded(child: ChecklistView()),
     ]);
+  }
+}
+
+class _PageTitleEditor extends StatefulWidget {
+  final String title;
+  const _PageTitleEditor({super.key, required this.title});
+
+  @override
+  State<_PageTitleEditor> createState() => _PageTitleEditorState();
+}
+
+class _PageTitleEditorState extends State<_PageTitleEditor> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    _controller = TextEditingController(text: widget.title);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: _controller,
+      style: Theme.of(context).textTheme.headlineLarge,
+      decoration: const InputDecoration(
+        hintText: 'Page Title...',
+        border: InputBorder.none,
+      ),
+      cursorColor: Colors.black,
+      onChanged: (v) {
+        context.read<PageCubit>().updateTitle(v);
+      },
+    );
   }
 }

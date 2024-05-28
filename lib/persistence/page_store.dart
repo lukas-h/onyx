@@ -20,7 +20,11 @@ class PageModel {
         uid: state.uid,
         title: state.title,
         created: state.created,
-        fullText: state.items.map((e) => e.fullText).toList(),
+        fullText: state.items
+            .map(
+              (e) => List.generate(e.indent, (e) => '  ').join('') + e.fullText,
+            )
+            .toList(),
       );
 
   String toMarkdown() => '''
@@ -41,7 +45,8 @@ ${fullText.join('\n')}
         uid: '',
       );
 
-  PageState toPageState() => PageState.fromPageModel(this);
+  PageState toPageState(bool isJournal) =>
+      PageState.fromPageModel(this, isJournal);
 }
 
 class PageStore {
@@ -78,8 +83,13 @@ class PageStore {
     return pages.length - 1;
   }
 
-  // TODO updatePage() {}
-  // TODO updateJournal() {}
+  void updatePage(PageModel model) {
+    pages[pages.indexWhere((e) => e.uid == model.uid)] = model;
+  }
+
+  void updateJournal(PageModel model) {
+    journals[journals.indexWhere((e) => e.uid == model.uid)] = model;
+  }
 
   int getPageIndex(String uid) => pages.indexWhere((e) => e.uid == uid);
 

@@ -60,7 +60,9 @@ class NavigationLoading extends NavigationSuccess {
 
 class NavigationCubit extends Cubit<NavigationState> {
   final PageStore store;
-  NavigationCubit(this.store) : super(NavigationInitial()) {
+  NavigationCubit({
+    required this.store,
+  }) : super(NavigationInitial()) {
     init();
   }
   Future<void> init() async {
@@ -169,16 +171,19 @@ class NavigationCubit extends Cubit<NavigationState> {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
       return switch (currentState.route) {
-        RouteState.pages => store.getPage(currentState.index),
-        RouteState.pageSelected => store.getPage(currentState.index),
-        RouteState.journalSelected => store.getJournal(currentState.index),
+        RouteState.pages =>
+          store.getPage(currentState.index)?.toPageState(false),
+        RouteState.pageSelected =>
+          store.getPage(currentState.index)?.toPageState(false),
+        RouteState.journalSelected =>
+          store.getJournal(currentState.index)?.toPageState(true),
         RouteState.settings => null,
-      }
-          ?.toPageState();
+      };
     } else {
       return null;
     }
   }
 
-  List<PageState> get pages => store.pages.map((e) => e.toPageState()).toList();
+  List<PageState> get pages =>
+      store.pages.map((e) => e.toPageState(false)).toList();
 }

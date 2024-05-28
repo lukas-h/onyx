@@ -31,18 +31,20 @@ class _CounterNoteAppState extends State<CounterNoteApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => NavigationCubit(store),
+          create: (context) => NavigationCubit(store: store),
         ),
         BlocProvider(
           create: (context) => PageCubit(
-            PageState(
-              index: 0,
-              items: const [],
-              created: DateTime.now(),
-              title: '',
-              sum: 0,
-            ),
-          ),
+              PageState(
+                isJournal: true,
+                index: 0,
+                items: const [],
+                created: DateTime.now(),
+                title: '',
+                sum: 0,
+                uid: '',
+              ),
+              store: store),
         ),
       ],
       child: MaterialApp(
