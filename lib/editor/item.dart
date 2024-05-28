@@ -204,7 +204,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
               ),
             ),
             const SizedBox(
-              width: 10,
+              width: 30,
             ),
           ],
         ),
