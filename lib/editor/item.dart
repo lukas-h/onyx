@@ -121,7 +121,6 @@ class _ListItemEditorState extends State<ListItemEditor> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        height: 44,
         constraints: const BoxConstraints(minHeight: 44),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
@@ -148,34 +147,37 @@ class _ListItemEditorState extends State<ListItemEditor> {
               ),
             if (widget.inFocus)
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 15.0, left: 29),
-                  child: TextField(
-                      minLines: 1,
-                      maxLines: 1,
-                      cursorColor: Colors.black,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                      ),
-                      style: const TextStyle(fontSize: 16, height: 1),
-                      scrollPadding: EdgeInsets.zero,
-                      textAlign: TextAlign.start,
-                      textAlignVertical: TextAlignVertical.top,
-                      textInputAction: TextInputAction.search,
-                      onSubmitted: (value) {
-                        widget.onNext();
-                      },
-                      expands: false,
-                      focusNode: _focusNode,
-                      controller: _controller,
-                      onChanged: (v) {
-                        widget.onChanged(
-                          widget.model.copyWith(
-                            fullText: _controller.text,
-                            textPart: _controller.text,
-                          ),
-                        );
-                      }),
+                child: SizedBox(
+                  height: 23,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 15.0, left: 29),
+                    child: TextField(
+                        minLines: 1,
+                        maxLines: 1,
+                        cursorColor: Colors.black,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                        ),
+                        style: const TextStyle(fontSize: 16, height: 1),
+                        scrollPadding: EdgeInsets.zero,
+                        textAlign: TextAlign.start,
+                        textAlignVertical: TextAlignVertical.top,
+                        textInputAction: TextInputAction.search,
+                        onSubmitted: (value) {
+                          widget.onNext();
+                        },
+                        expands: false,
+                        focusNode: _focusNode,
+                        controller: _controller,
+                        onChanged: (v) {
+                          widget.onChanged(
+                            widget.model.copyWith(
+                              fullText: _controller.text,
+                              textPart: _controller.text,
+                            ),
+                          );
+                        }),
+                  ),
                 ),
               ),
             if (!widget.inFocus)

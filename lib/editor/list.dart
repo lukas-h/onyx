@@ -41,12 +41,7 @@ class ListEditorState extends State<ListEditor> {
                     cubit.remove(index);
                   },
                   onNext: () {
-                    cubit.add(
-                      ListItemState.unparsed(
-                        index: state.items.length,
-                        fullText: '',
-                      ),
-                    );
+                    cubit.skipToNext();
                   },
                   index: index,
                 ),

@@ -204,6 +204,21 @@ class PageCubit extends Cubit<PageState> {
     }
   }
 
+  void skipToNext() {
+    final nextIndex = state.index + 1;
+    if (nextIndex < state.items.length &&
+        state.items[nextIndex].fullText.isEmpty) {
+      index(nextIndex);
+    } else {
+      add(
+        ListItemState.unparsed(
+          index: state.items.length,
+          fullText: '',
+        ),
+      );
+    }
+  }
+
   void reorder(int oldIndex, int newIndex) {
     final items = List.of(state.items, growable: true);
     final item = items.removeAt(oldIndex);
