@@ -125,14 +125,14 @@ class _ListItemEditorState extends State<ListItemEditor> {
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: widget.inFocus
-              ? Colors.black.withOpacity(0.08)
+              ? Colors.black.withOpacity(0.03)
               : Colors.transparent,
-          border: Border(
-            bottom: BorderSide(color: Colors.grey[300]!, width: 0.5),
-          ),
+          //border: Border(
+          //  bottom: BorderSide(color: Colors.grey[300]!, width: 0.5),
+          //),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             for (int i = 0; i < (widget.model.indent + 1); i++)
               const SizedBox(
@@ -199,7 +199,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 child: const Center(
                   child: Icon(
                     Icons.close,
-                    color: Colors.black,
+                    color: Colors.black38,
                     size: 18,
                   ),
                 ),

@@ -23,6 +23,20 @@ class ListEditorState extends State<ListEditor> {
             Expanded(
               child: ReorderableListView.builder(
                 buildDefaultDragHandles: true,
+                proxyDecorator: (child, index, animation) {
+                  return Material(
+                    color: Colors.white,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        border: Border(
+                          top: BorderSide(width: 0.5, color: Colors.black38),
+                        ),
+                      ),
+                      child: child,
+                    ),
+                  );
+                },
                 itemBuilder: (context, index) => ListItemEditor(
                   cubit: cubit,
                   key: UniqueKey(),
