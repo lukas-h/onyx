@@ -2,6 +2,7 @@ import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/editor/list.dart';
 import 'package:counter_note/widgets/button.dart';
+import 'package:counter_note/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -59,9 +60,11 @@ class _PagesList extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            itemBuilder: (context, index) => _PageCard(state: pages[index]),
-            itemCount: pages.length,
+          child: NarrowBody(
+            child: ListView.builder(
+              itemBuilder: (context, index) => _PageCard(state: pages[index]),
+              itemCount: pages.length,
+            ),
           ),
         ),
       ],
@@ -122,7 +125,9 @@ class _PageDetail extends StatelessWidget {
           );
         },
       ),
-      const Expanded(child: ListEditor()),
+      const Expanded(
+        child: NarrowBody(child: ListEditor()),
+      ),
     ]);
   }
 }

@@ -184,30 +184,41 @@ class _ListItemEditorState extends State<ListItemEditor> {
               Expanded(
                 child: _buildParsedPart(widget.model, widget.index),
               ),
-            const SizedBox(
-              width: 10,
-            ),
-            InkWell(
-              onTap: widget.onDeleted,
-              child: Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.transparent, width: 1.5),
-                  borderRadius: BorderRadius.circular(3),
+            if (widget.inFocus) ...[
+              const SizedBox(
+                width: 10,
+              ),
+              InkWell(
+                onTap: widget.onDeleted,
+                child: Container(
+                  height: 20,
+                  width: 20,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.transparent, width: 1.5),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.black38,
+                      size: 18,
+                    ),
+                  ),
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.close,
+              ),
+              SizedBox(
+                width: 18,
+                height: 20,
+                child: ReorderableDragStartListener(
+                  index: widget.index,
+                  child: const Icon(
+                    Icons.drag_indicator_outlined,
                     color: Colors.black38,
                     size: 18,
                   ),
                 ),
               ),
-            ),
-            const SizedBox(
-              width: 30,
-            ),
+            ],
           ],
         ),
       ),
