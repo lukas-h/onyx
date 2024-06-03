@@ -4,6 +4,7 @@ import 'package:counter_note/editor/list.dart';
 import 'package:counter_note/widgets/button.dart';
 import 'package:counter_note/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -157,6 +158,14 @@ class _PageTitleEditorState extends State<_PageTitleEditor> {
         context.read<PageCubit>().index(-1);
       }
     });
+    _node.onKeyEvent = (node, event) {
+      if (event.logicalKey == LogicalKeyboardKey.enter) {
+        context.read<PageCubit>().index(0);
+        return KeyEventResult.handled;
+      }
+      return KeyEventResult.ignored;
+    };
+
     super.initState();
   }
 
