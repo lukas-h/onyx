@@ -14,6 +14,8 @@ class PageState extends Equatable {
   final int index;
   final num sum;
 
+  ListItemState? get currentItem => index >= 0 ? items[index] : null;
+
   const PageState({
     required this.isJournal,
     required this.items,

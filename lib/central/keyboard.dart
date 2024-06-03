@@ -57,28 +57,25 @@ class KeyboardInterceptor extends StatelessWidget {
       child: Actions(
         actions: <Type, Action<Intent>>{
           SearchIntent: CallbackAction<Intent>(
-            onInvoke: (Intent intent) => _showDialog(context),
+            onInvoke: (_) => _showDialog(context),
           ),
           DeleteLineIntent: CallbackAction<Intent>(
-            onInvoke: (Intent intent) =>
-                context.read<PageCubit>().removeCurrent(),
+            onInvoke: (_) => context.read<PageCubit>().removeCurrent(),
           ),
           LineUpIntent: CallbackAction<Intent>(
-            onInvoke: (Intent intent) => context.read<PageCubit>().indexUp(),
+            onInvoke: (_) => context.read<PageCubit>().indexUp(),
           ),
           LineDownIntent: CallbackAction<Intent>(
-            onInvoke: (Intent intent) => context.read<PageCubit>().indexDown(),
+            onInvoke: (_) => context.read<PageCubit>().indexDown(),
           ),
           IndentIncreaseIntent: CallbackAction<Intent>(
-            onInvoke: (Intent intent) =>
-                context.read<PageCubit>().increaseIndent(),
+            onInvoke: (_) => context.read<PageCubit>().increaseIndent(),
           ),
           IndentDecreaseIntent: CallbackAction<Intent>(
-            onInvoke: (Intent intent) =>
-                context.read<PageCubit>().decreaseIndent(),
+            onInvoke: (_) => context.read<PageCubit>().decreaseIndent(),
           ),
           SyncIntent: CallbackAction<Intent>(
-            onInvoke: (Intent intent) => context.read<NavigationCubit>().sync(),
+            onInvoke: (_) => context.read<NavigationCubit>().sync(),
           )
         },
         child: FocusScope(

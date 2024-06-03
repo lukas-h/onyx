@@ -32,14 +32,14 @@ class ListItemEditor extends StatefulWidget {
 }
 
 class _ListItemEditorState extends State<ListItemEditor> {
-  final _focusNode = FocusNode();
+  final _node = FocusNode();
   final _controller = TextEditingController();
   bool hasMatch = false;
   String match = '';
   @override
   void initState() {
     if (widget.inFocus) {
-      _focusNode.requestFocus();
+      _node.requestFocus();
     }
     _controller.text = widget.model.fullText;
     super.initState();
@@ -168,7 +168,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                           widget.onNext();
                         },
                         expands: false,
-                        focusNode: _focusNode,
+                        focusNode: _node,
                         controller: _controller,
                         onChanged: (v) {
                           widget.onChanged(
