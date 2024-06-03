@@ -1,6 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/editor/model.dart';
+import 'package:counter_note/store/image_store.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 class ListItemEditor extends StatefulWidget {
@@ -95,23 +99,32 @@ class _ListItemEditorState extends State<ListItemEditor> {
             ),
           ),
         Expanded(
-            child: MarkdownBody(
-          data: model.textPart,
-          styleSheet: MarkdownStyleSheet(
-            p: const TextStyle(fontSize: 16),
-            codeblockDecoration: BoxDecoration(
-              color: Colors.blueGrey,
-              border: Border.all(color: Colors.red, width: 10),
-              borderRadius: BorderRadius.circular(3),
-            ),
-            codeblockPadding: const EdgeInsets.all(10),
-            code: const TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-              backgroundColor: Colors.blueGrey,
+          child: MarkdownBody(
+            data: model.textPart,
+            imageBuilder: (uri, title, alt) {
+              final name = uri.toString();
+              print(name);
+              final image = context.read<PageCubit>().getImage(name);
+              return Image.memory(image.bytes);
+            },
+            styleSheet: MarkdownStyleSheet(
+              p: const TextStyle(fontSize: 16),
+              codeblockDecoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.blueGrey,
+                border: Border.all(color: Colors.red, width: 10),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              codeblockPadding: const EdgeInsets.all(10),
+              code: const TextStyle(
+                fontSize: 16,
+                fontFamily: 'monospace',
+                color: Colors.black,
+                wordSpacing: 3,
+              ),
             ),
           ),
-        )),
+        ),
       ],
     );
   }

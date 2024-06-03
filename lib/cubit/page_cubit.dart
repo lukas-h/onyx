@@ -1,8 +1,10 @@
 import 'package:counter_note/editor/model.dart';
 import 'package:counter_note/editor/parser.dart';
+import 'package:counter_note/store/image_store.dart';
 import 'package:counter_note/store/page_store.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:nanoid/nanoid.dart';
 
 class PageState extends Equatable {
@@ -68,9 +70,11 @@ class PageState extends Equatable {
 
 class PageCubit extends Cubit<PageState> {
   final PageStore store;
+  final ImageStore imageStore;
   PageCubit(
     super.initialState, {
     required this.store,
+    required this.imageStore,
   });
 
   @override
@@ -263,4 +267,30 @@ class PageCubit extends Cubit<PageState> {
       ),
     );
   }
+
+  Future<void> insertImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+    final bytes = await image.readAsBytes();
+    final name = image.name;
+    final escapedName = name.replaceAll(' ', '_');
+    await imageStore.addImage(bytes, escapedName);
+
+    final imageString = '![$name]($escapedName)';
+
+    emit(
+      state.copyWith(
+        items: state.items
+            .map((e) => e.index == state.index
+                ? Parser.parse(
+                    e.copyWith(fullText: '${e.fullText} $imageString'),
+                  )
+                : e.copyWith())
+            .toList(),
+      ),
+    );
+  }
+
+  ImageModel getImage(String name) => imageStore.getImageByName(name);
 }

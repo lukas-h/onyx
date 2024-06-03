@@ -134,6 +134,14 @@ class ListEditorState extends State<ListEditor> {
                             }
                           : null,
                     ),
+                    IconButton(
+                      icon: const Icon(Icons.add_photo_alternate_outlined),
+                      onPressed: state.items.isNotEmpty
+                          ? () {
+                              cubit.insertImage();
+                            }
+                          : null,
+                    ),
                     Expanded(child: Container()),
                     IconButton(
                       icon: const Icon(Icons.keyboard_arrow_up),

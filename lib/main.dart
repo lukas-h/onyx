@@ -2,6 +2,7 @@ import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/central/keyboard.dart';
 import 'package:counter_note/central/navigation.dart';
+import 'package:counter_note/store/image_store.dart';
 import 'package:counter_note/store/page_store.dart';
 import 'package:counter_note/screens/loading.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _CounterNoteAppState extends State<CounterNoteApp> {
     [],
     [],
   );
+  final imageStore = ImageStore([]);
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +47,7 @@ class _CounterNoteAppState extends State<CounterNoteApp> {
               uid: '',
             ),
             store: store,
+            imageStore: imageStore,
           ),
         ),
       ],

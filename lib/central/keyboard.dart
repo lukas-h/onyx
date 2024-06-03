@@ -33,6 +33,10 @@ class IndentDecreaseIntent extends Intent {
   const IndentDecreaseIntent();
 }
 
+class ImageInsertIntent extends Intent {
+  const ImageInsertIntent();
+}
+
 class KeyboardInterceptor extends StatelessWidget {
   final Widget child;
 
@@ -53,6 +57,8 @@ class KeyboardInterceptor extends StatelessWidget {
         LogicalKeySet(LogicalKeyboardKey.tab): const IndentIncreaseIntent(),
         LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab):
             const IndentDecreaseIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyI):
+            const ImageInsertIntent(),
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
@@ -76,7 +82,10 @@ class KeyboardInterceptor extends StatelessWidget {
           ),
           SyncIntent: CallbackAction<Intent>(
             onInvoke: (_) => context.read<NavigationCubit>().sync(),
-          )
+          ),
+          ImageInsertIntent: CallbackAction<Intent>(
+            onInvoke: (_) => context.read<PageCubit>().insertImage(),
+          ),
         },
         child: FocusScope(
           autofocus: true,
