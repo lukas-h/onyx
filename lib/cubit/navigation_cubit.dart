@@ -17,6 +17,7 @@ enum RouteState {
 class NavigationSuccess extends NavigationState {
   final RouteState route;
   final int index;
+  final bool newPage;
 
   bool get journalNav => route == RouteState.journalSelected;
 
@@ -28,15 +29,18 @@ class NavigationSuccess extends NavigationState {
   NavigationSuccess({
     required this.route,
     required this.index,
+    required this.newPage,
   });
 
   NavigationSuccess copyWith({
     RouteState? route,
     int? index,
+    bool? newPage,
   }) {
     return NavigationSuccess(
       route: route ?? this.route,
       index: index ?? this.index,
+      newPage: newPage ?? false,
     );
   }
 
@@ -50,11 +54,13 @@ class NavigationLoading extends NavigationSuccess {
   NavigationLoading({
     required super.route,
     required super.index,
+    super.newPage = false,
   });
 
   NavigationSuccess copyToSuccess() => NavigationSuccess(
         route: route,
         index: index,
+        newPage: false,
       );
 }
 
@@ -73,6 +79,7 @@ class NavigationCubit extends Cubit<NavigationState> {
       NavigationSuccess(
         route: RouteState.journalSelected,
         index: 0,
+        newPage: false,
       ),
     );
   }
@@ -93,6 +100,7 @@ class NavigationCubit extends Cubit<NavigationState> {
         currentState.copyWith(
           index: newIndex,
           route: RouteState.pageSelected,
+          newPage: true,
         ),
       );
     }

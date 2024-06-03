@@ -127,6 +127,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
           color: widget.inFocus
               ? Colors.black.withOpacity(0.03)
               : Colors.transparent,
+          borderRadius: BorderRadius.circular(3),
           //border: Border(
           //  bottom: BorderSide(color: Colors.grey[300]!, width: 0.5),
           //),

@@ -50,6 +50,7 @@ class KeyboardInterceptor extends StatelessWidget {
             const SyncIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowUp): const LineUpIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowDown): const LineDownIntent(),
+        LogicalKeySet(LogicalKeyboardKey.enter): const LineDownIntent(),
         LogicalKeySet(LogicalKeyboardKey.tab): const IndentIncreaseIntent(),
         LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab):
             const IndentDecreaseIntent(),

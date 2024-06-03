@@ -108,7 +108,8 @@ class _PageDetail extends StatelessWidget {
             padding: const EdgeInsets.only(top: 16.0),
             child: ListTile(
               title: _PageTitleEditor(
-                title: context.read<PageCubit>().state.title,
+                title: state.title,
+                index: state.index,
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -134,7 +135,8 @@ class _PageDetail extends StatelessWidget {
 
 class _PageTitleEditor extends StatefulWidget {
   final String title;
-  const _PageTitleEditor({required this.title});
+  final int index;
+  const _PageTitleEditor({required this.title, required this.index});
 
   @override
   State<_PageTitleEditor> createState() => _PageTitleEditorState();
@@ -142,16 +144,26 @@ class _PageTitleEditor extends StatefulWidget {
 
 class _PageTitleEditorState extends State<_PageTitleEditor> {
   late final TextEditingController _controller;
+  final _node = FocusNode();
 
   @override
   void initState() {
     _controller = TextEditingController(text: widget.title);
+    if (widget.index == -1) {
+      _node.requestFocus();
+    }
+    _node.addListener(() {
+      if (_node.hasFocus) {
+        context.read<PageCubit>().index(-1);
+      }
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      focusNode: _node,
       controller: _controller,
       style: Theme.of(context).textTheme.headlineLarge,
       decoration: const InputDecoration(

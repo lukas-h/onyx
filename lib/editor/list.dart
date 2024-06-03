@@ -69,7 +69,11 @@ class ListEditorState extends State<ListEditor> {
               ),
             Material(
               elevation: 0,
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withOpacity(0.03),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(3),
+                topRight: Radius.circular(3),
+              ),
               child: Row(
                 children: [
                   IconButton(
@@ -86,6 +90,7 @@ class ListEditorState extends State<ListEditor> {
                   IconButton(
                     icon: const Icon(Icons.keyboard_arrow_left),
                     onPressed: state.items.isNotEmpty &&
+                            state.index >= 0 &&
                             state.items[state.index].indent > 0
                         ? () {
                             cubit.decreaseIndent();

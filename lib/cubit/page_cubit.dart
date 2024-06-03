@@ -187,7 +187,7 @@ class PageCubit extends Cubit<PageState> {
   }
 
   void index(int i) {
-    if (i < state.items.length && i >= 0) {
+    if (i < state.items.length && i >= -1) {
       emit(state.copyWith(index: i));
     }
   }

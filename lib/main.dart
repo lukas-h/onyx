@@ -70,6 +70,9 @@ class _CounterNoteAppState extends State<CounterNoteApp> {
             final currentPage = context.read<NavigationCubit>().currentPage;
             if (currentPage != null) {
               context.read<PageCubit>().selectPage(currentPage);
+              if (state is NavigationSuccess && state.newPage) {
+                context.read<PageCubit>().index(-1);
+              }
             }
           },
           builder: (context, state) => state is NavigationSuccess
