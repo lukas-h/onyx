@@ -14,6 +14,8 @@ class ListEditor extends StatefulWidget {
 
 class ListEditorState extends State<ListEditor> {
   bool _eventHandled = false;
+  bool _previouslyEmpty = true;
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PageCubit>();
@@ -22,17 +24,27 @@ class ListEditorState extends State<ListEditor> {
       builder: (content, state) {
         return Focus(
           onKeyEvent: (node, event) {
-            if (state.currentItem?.fullText.isEmpty == true &&
+            if (event.logicalKey != LogicalKeyboardKey.backspace) {
+              return KeyEventResult.ignored;
+            }
+            final currentlyEmpty = state.currentItem?.fullText.isEmpty == true;
+
+            if (currentlyEmpty &&
                 state.index > 0 &&
-                event.logicalKey == LogicalKeyboardKey.backspace &&
-                !_eventHandled) {
+                !_eventHandled &&
+                _previouslyEmpty) {
+              _previouslyEmpty = true;
               _eventHandled = true;
               context.read<PageCubit>().removeCurrent();
-              Future.delayed(const Duration(milliseconds: 100), () {
+              Future.delayed(const Duration(milliseconds: 150), () {
                 _eventHandled = false;
               });
+              _previouslyEmpty = currentlyEmpty;
               return KeyEventResult.handled;
+            } else {
+              _previouslyEmpty = currentlyEmpty;
             }
+
             return KeyEventResult.ignored;
           },
           child: Column(
