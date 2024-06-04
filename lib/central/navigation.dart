@@ -59,7 +59,19 @@ class CentralNavigation extends StatelessWidget {
                             icon: const Icon(Icons.search),
                             active: false,
                             onTap: () {
-                              openSearchMenu(context);
+                              openSearchMenu(
+                                context,
+                                onSelect: (context, state) {
+                                  Navigator.pop(context);
+                                  final cubit = context.read<NavigationCubit>();
+                                  if (state == null) return;
+                                  if (state.isJournal) {
+                                    cubit.switchToJournal(state.uid);
+                                  } else {
+                                    cubit.switchToPage(state.uid);
+                                  }
+                                },
+                              );
                             },
                           ),
                         ),

@@ -63,7 +63,14 @@ class _PagesList extends StatelessWidget {
         Expanded(
           child: NarrowBody(
             child: ListView.builder(
-              itemBuilder: (context, index) => _PageCard(state: pages[index]),
+              itemBuilder: (context, index) => PageCard(
+                state: pages[index],
+                onTap: () {
+                  context
+                      .read<NavigationCubit>()
+                      .switchToPage(pages[index].uid);
+                },
+              ),
               itemCount: pages.length,
             ),
           ),
@@ -73,9 +80,18 @@ class _PagesList extends StatelessWidget {
   }
 }
 
-class _PageCard extends StatelessWidget {
+class PageCard extends StatelessWidget {
   final PageState state;
-  const _PageCard({required this.state});
+  final VoidCallback onTap;
+  final Icon? icon;
+  final bool small;
+  const PageCard({
+    super.key,
+    required this.state,
+    required this.onTap,
+    this.icon,
+    this.small = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -87,11 +103,11 @@ class _PageCard extends StatelessWidget {
       ),
       child: ListTile(
         title: Text(state.title),
-        subtitle: Text(DateFormat.yMMMMd().format(state.created)),
-        leading: const Icon(Icons.summarize_outlined),
-        onTap: () {
-          context.read<NavigationCubit>().switchToPage(state.uid);
-        },
+        dense: small,
+        subtitle:
+            small ? null : Text(DateFormat.yMMMMd().format(state.created)),
+        leading: icon ?? const Icon(Icons.summarize_outlined),
+        onTap: onTap,
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:counter_note/central/search.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/editor/item.dart';
 import 'package:counter_note/editor/model.dart';
@@ -139,6 +140,17 @@ class ListEditorState extends State<ListEditor> {
                       onPressed: state.items.isNotEmpty
                           ? () {
                               cubit.insertImage();
+                            }
+                          : null,
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.data_array_outlined),
+                      onPressed: state.items.isNotEmpty
+                          ? () async {
+                              final page = await openInsertMenu(context);
+                              if (page != null) {
+                                cubit.insertInternalLink(page.title);
+                              }
                             }
                           : null,
                     ),

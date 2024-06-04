@@ -1,16 +1,50 @@
+import 'package:counter_note/cubit/navigation_cubit.dart';
+import 'package:counter_note/cubit/page_cubit.dart';
+import 'package:counter_note/screens/pages.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-openSearchMenu(BuildContext context) async => showDialog(
+extension on List {
+  List only(int max) => max >= (length - 1) ? this : sublist(0, max);
+}
+
+typedef OnPageSelected = void Function(BuildContext context, PageState? state);
+
+Future<void> openSearchMenu(
+  BuildContext context, {
+  required OnPageSelected onSelect,
+}) async =>
+    showDialog(
       context: context,
-      builder: (context) => const SearchMenu(),
+      builder: (context) => SearchMenu(
+        onSelect: onSelect,
+      ),
     );
 
-class SearchMenu extends StatelessWidget {
-  const SearchMenu({super.key});
+Future<PageState?> openInsertMenu(BuildContext context) async =>
+    showDialog<PageState>(
+      context: context,
+      builder: (context) => SearchMenu(
+        onSelect: (context, state) {
+          if (state != null) Navigator.pop(context, state);
+        },
+      ),
+    );
+
+class SearchMenu extends StatefulWidget {
+  final OnPageSelected onSelect;
+  const SearchMenu({super.key, required this.onSelect});
+
+  @override
+  State<SearchMenu> createState() => _SearchMenuState();
+}
+
+class _SearchMenuState extends State<SearchMenu> {
+  String query = '';
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<NavigationCubit>();
     return IconTheme(
       data: const IconThemeData(size: 15),
       child: AlertDialog(
@@ -22,12 +56,17 @@ class SearchMenu extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const TextField(
-                decoration: InputDecoration(
+              TextField(
+                decoration: const InputDecoration(
                   border: InputBorder.none,
                   hintText: 'Search...',
                 ),
                 cursorColor: Colors.black,
+                onChanged: (v) {
+                  setState(() {
+                    query = v.trimLeft();
+                  });
+                },
               ),
               const Divider(),
               const ListTile(
@@ -38,6 +77,33 @@ class SearchMenu extends StatelessWidget {
                 ),
                 dense: true,
               ),
+              if (query.isEmpty)
+                ...cubit.pages.only(3).map(
+                      (e) => PageCard(
+                        small: true,
+                        state: e,
+                        onTap: () {
+                          widget.onSelect(context, e);
+                        },
+                      ),
+                    ),
+              if (query.isNotEmpty)
+                ...cubit.pages
+                    .where(
+                      (e) => e.title
+                          .trim()
+                          .toLowerCase()
+                          .contains(query.trim().toLowerCase()),
+                    )
+                    .map(
+                      (e) => PageCard(
+                        small: true,
+                        state: e,
+                        onTap: () {
+                          widget.onSelect(context, e);
+                        },
+                      ),
+                    ),
               const Divider(),
               const ListTile(
                 leading: Icon(Icons.calendar_today_outlined),
@@ -47,32 +113,35 @@ class SearchMenu extends StatelessWidget {
                 ),
                 dense: true,
               ),
-              ListTile(
-                leading: const Icon(
-                  Icons.calendar_today_outlined,
-                  color: Colors.white,
-                ),
-                title: Text(DateFormat.yMMMMd().format(DateTime.now())),
-                dense: true,
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.calendar_today_outlined,
-                  color: Colors.white,
-                ),
-                title: Text(DateFormat.yMMMMd()
-                    .format(DateTime.now().subtract(const Duration(days: 1)))),
-                dense: true,
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.calendar_today_outlined,
-                  color: Colors.white,
-                ),
-                title: Text(DateFormat.yMMMMd()
-                    .format(DateTime.now().subtract(const Duration(days: 2)))),
-                dense: true,
-              ),
+              if (query.isEmpty)
+                ...cubit.journals.only(3).map(
+                      (e) => PageCard(
+                        icon: const Icon(Icons.calendar_today_outlined),
+                        state: e,
+                        small: true,
+                        onTap: () {
+                          widget.onSelect(context, e);
+                        },
+                      ),
+                    ),
+              if (query.isNotEmpty)
+                ...cubit.journals
+                    .where(
+                      (e) => e.title
+                          .trim()
+                          .toLowerCase()
+                          .contains(query.trim().toLowerCase()),
+                    )
+                    .map(
+                      (e) => PageCard(
+                        icon: const Icon(Icons.calendar_today_outlined),
+                        state: e,
+                        small: true,
+                        onTap: () {
+                          widget.onSelect(context, e);
+                        },
+                      ),
+                    ),
             ],
           ),
         ),

@@ -292,5 +292,17 @@ class PageCubit extends Cubit<PageState> {
     );
   }
 
+  void insertInternalLink(String link) => emit(
+        state.copyWith(
+          items: state.items
+              .map((e) => e.index == state.index
+                  ? Parser.parse(
+                      e.copyWith(fullText: '${e.fullText} [[$link]]'),
+                    )
+                  : e.copyWith())
+              .toList(),
+        ),
+      );
+
   ImageModel? getImage(String name) => imageStore.getImageByName(name);
 }

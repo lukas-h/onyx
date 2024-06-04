@@ -45,6 +45,10 @@ class PreviousJournalIntent extends Intent {
   const PreviousJournalIntent();
 }
 
+class PageInsertIntent extends Intent {
+  const PageInsertIntent();
+}
+
 class KeyboardInterceptor extends StatelessWidget {
   final Widget child;
 
@@ -71,11 +75,13 @@ class KeyboardInterceptor extends StatelessWidget {
             const NextJournalIntent(),
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowDown):
             const PreviousJournalIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyP):
+            const PageInsertIntent(),
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
           SearchIntent: CallbackAction<Intent>(
-            onInvoke: (_) => _showDialog(context),
+            onInvoke: (_) => _showSearchMenu(context),
           ),
           DeleteLineIntent: CallbackAction<Intent>(
             onInvoke: (_) => context.read<PageCubit>().removeCurrent(),
@@ -106,6 +112,9 @@ class KeyboardInterceptor extends StatelessWidget {
             onInvoke: (_) =>
                 context.read<NavigationCubit>().switchToPreviousJournal(),
           ),
+          PageInsertIntent: CallbackAction<Intent>(
+            onInvoke: (_) => _showInsertMenu(context),
+          ),
         },
         child: FocusScope(
           autofocus: true,
@@ -115,5 +124,25 @@ class KeyboardInterceptor extends StatelessWidget {
     );
   }
 
-  Future<dynamic> _showDialog(BuildContext context) => openSearchMenu(context);
+  Future<dynamic> _showSearchMenu(BuildContext context) => openSearchMenu(
+        context,
+        onSelect: (context, state) {
+          Navigator.pop(context);
+          final cubit = context.read<NavigationCubit>();
+          if (state == null) return;
+          if (state.isJournal) {
+            cubit.switchToJournal(state.uid);
+          } else {
+            cubit.switchToPage(state.uid);
+          }
+        },
+      );
+
+  Future<dynamic> _showInsertMenu(BuildContext context) async {
+    final cubit = context.read<PageCubit>();
+    final page = await openInsertMenu(context);
+    if (page != null) {
+      cubit.insertInternalLink(page.title);
+    }
+  }
 }

@@ -119,6 +119,19 @@ class NavigationCubit extends Cubit<NavigationState> {
     }
   }
 
+  void switchToJournal(String uid) {
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      final newIndex = store.getJournalIndex(uid);
+      emit(
+        currentState.copyWith(
+          index: newIndex,
+          route: RouteState.journalSelected,
+        ),
+      );
+    }
+  }
+
   void switchToTodaysJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
@@ -194,4 +207,7 @@ class NavigationCubit extends Cubit<NavigationState> {
 
   List<PageState> get pages =>
       store.pages.map((e) => e.toPageState(false)).toList();
+
+  List<PageState> get journals =>
+      store.journals.map((e) => e.toPageState(true)).toList();
 }
