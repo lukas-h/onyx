@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
 
 class ImageModel {
@@ -38,11 +39,11 @@ class ImageStore {
     images.removeWhere((e) => e.uid == uid);
   }
 
-  ImageModel getImageById(String uid) {
-    return images.singleWhere((e) => e.uid == uid);
+  ImageModel? getImageById(String uid) {
+    return images.singleWhereOrNull((e) => e.uid == uid);
   }
 
-  ImageModel getImageByName(String name) {
-    return images.singleWhere((e) => e.title == name);
+  ImageModel? getImageByName(String name) {
+    return images.singleWhereOrNull((e) => e.title == name);
   }
 }

@@ -37,6 +37,14 @@ class ImageInsertIntent extends Intent {
   const ImageInsertIntent();
 }
 
+class NextJournalIntent extends Intent {
+  const NextJournalIntent();
+}
+
+class PreviousJournalIntent extends Intent {
+  const PreviousJournalIntent();
+}
+
 class KeyboardInterceptor extends StatelessWidget {
   final Widget child;
 
@@ -59,6 +67,10 @@ class KeyboardInterceptor extends StatelessWidget {
             const IndentDecreaseIntent(),
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyI):
             const ImageInsertIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowUp):
+            const NextJournalIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowDown):
+            const PreviousJournalIntent(),
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
@@ -85,6 +97,14 @@ class KeyboardInterceptor extends StatelessWidget {
           ),
           ImageInsertIntent: CallbackAction<Intent>(
             onInvoke: (_) => context.read<PageCubit>().insertImage(),
+          ),
+          NextJournalIntent: CallbackAction<Intent>(
+            onInvoke: (_) =>
+                context.read<NavigationCubit>().switchToNextJournal(),
+          ),
+          PreviousJournalIntent: CallbackAction<Intent>(
+            onInvoke: (_) =>
+                context.read<NavigationCubit>().switchToPreviousJournal(),
           ),
         },
         child: FocusScope(

@@ -292,5 +292,5 @@ class PageCubit extends Cubit<PageState> {
     );
   }
 
-  ImageModel getImage(String name) => imageStore.getImageByName(name);
+  ImageModel? getImage(String name) => imageStore.getImageByName(name);
 }

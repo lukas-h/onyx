@@ -1,10 +1,7 @@
-import 'dart:typed_data';
-
 import 'package:counter_note/cubit/page_cubit.dart';
+import 'package:counter_note/editor/image_builder.dart';
 import 'package:counter_note/editor/model.dart';
-import 'package:counter_note/store/image_store.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 class ListItemEditor extends StatefulWidget {
@@ -101,12 +98,8 @@ class _ListItemEditorState extends State<ListItemEditor> {
         Expanded(
           child: MarkdownBody(
             data: model.textPart,
-            imageBuilder: (uri, title, alt) {
-              final name = uri.toString();
-              print(name);
-              final image = context.read<PageCubit>().getImage(name);
-              return Image.memory(image.bytes);
-            },
+            imageBuilder: (uri, title, alt) =>
+                ImageBuilder(uri: uri, title: title, alt: alt),
             styleSheet: MarkdownStyleSheet(
               p: const TextStyle(fontSize: 16),
               codeblockDecoration: BoxDecoration(
