@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:counter_note/store/page_store.dart';
 
 import 'package:counter_note/cubit/page_cubit.dart';
@@ -185,6 +186,19 @@ class NavigationCubit extends Cubit<NavigationState> {
           route: newRoute,
         ),
       );
+    }
+  }
+
+  void openPageOrJournal(String text) {
+    final page = store.pages.firstWhereOrNull((e) => e.title == text)?.uid;
+    if (page != null) {
+      switchToPage(page);
+    } else {
+      final journal =
+          store.journals.firstWhereOrNull((e) => e.title == text)?.uid;
+      if (journal != null) {
+        switchToJournal(journal);
+      }
     }
   }
 

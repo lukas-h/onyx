@@ -1,7 +1,10 @@
+import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/editor/image_builder.dart';
+import 'package:counter_note/editor/markdown.dart';
 import 'package:counter_note/editor/model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -106,6 +109,10 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 launchUrlString(href!);
               }
             },
+            onTapInternalLink: (text) {
+              context.read<NavigationCubit>().openPageOrJournal(text);
+            },
+            extensionSet: onyxFlavored,
             styleSheet: MarkdownStyleSheet(
               p: const TextStyle(fontSize: 16),
               codeblockDecoration: BoxDecoration(

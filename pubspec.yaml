@@ -40,11 +40,16 @@ dependencies:
   bloc: ^8.1.2
   meta: ^1.9.1
   equatable: ^2.0.5
-  flutter_markdown: ^0.7.1
+  flutter_markdown:
+    # path: ../flutter_packages/packages/flutter_markdown
+    git:
+      url: https://github.com/lukas-h/flutter_packages
+      path: packages/flutter_markdown
   intl: ^0.19.0
   image_picker: ^1.1.2
   collection: ^1.18.0
   url_launcher: ^6.3.0
+  markdown: ^7.2.2
 
 dev_dependencies:
   flutter_test:
