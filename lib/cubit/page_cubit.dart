@@ -3,9 +3,9 @@ import 'package:counter_note/editor/parser.dart';
 import 'package:counter_note/store/image_store.dart';
 import 'package:counter_note/store/page_store.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nanoid/nanoid.dart';
+import 'package:replay_bloc/replay_bloc.dart';
 
 class PageState extends Equatable {
   final bool isJournal;
@@ -68,7 +68,7 @@ class PageState extends Equatable {
       );
 }
 
-class PageCubit extends Cubit<PageState> {
+class PageCubit extends ReplayCubit<PageState> {
   final PageStore store;
   final ImageStore imageStore;
   PageCubit(

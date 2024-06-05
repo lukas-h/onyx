@@ -58,6 +58,14 @@ class HelpIntent extends Intent {
   const HelpIntent();
 }
 
+class UndoIntent extends Intent {
+  const UndoIntent();
+}
+
+class RedoIntent extends Intent {
+  const RedoIntent();
+}
+
 class KeyboardInterceptor extends StatelessWidget {
   final Widget child;
 
@@ -65,6 +73,7 @@ class KeyboardInterceptor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<PageCubit>();
     return Shortcuts(
       shortcuts: <LogicalKeySet, Intent>{
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyK):
@@ -75,6 +84,13 @@ class KeyboardInterceptor extends StatelessWidget {
             const SyncIntent(),
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyH):
             const HelpIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ):
+            const UndoIntent(),
+        LogicalKeySet(
+          LogicalKeyboardKey.meta,
+          LogicalKeyboardKey.shift,
+          LogicalKeyboardKey.keyZ,
+        ): const RedoIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowUp): const LineUpIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowDown): const LineDownIntent(),
         LogicalKeySet(LogicalKeyboardKey.tab): const IndentIncreaseIntent(),
@@ -86,7 +102,7 @@ class KeyboardInterceptor extends StatelessWidget {
             const NextJournalIntent(),
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowDown):
             const PreviousJournalIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyP):
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyR):
             const PageInsertIntent(),
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyL):
             const LinkInsertIntent(),
@@ -130,6 +146,22 @@ class KeyboardInterceptor extends StatelessWidget {
           ),
           HelpIntent: CallbackAction<Intent>(
             onInvoke: (_) => openHelpMenu(context),
+          ),
+          UndoIntent: CallbackAction<Intent>(
+            onInvoke: (_) {
+              if (cubit.canUndo) {
+                cubit.undo();
+              }
+              return;
+            },
+          ),
+          RedoIntent: CallbackAction<Intent>(
+            onInvoke: (_) {
+              if (cubit.canRedo) {
+                cubit.redo();
+              }
+              return;
+            },
           ),
         },
         child: FocusScope(

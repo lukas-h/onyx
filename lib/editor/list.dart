@@ -169,6 +169,22 @@ class ListEditorState extends State<ListEditor> {
                               }
                             : null,
                       ),
+                      IconButton(
+                        icon: const Icon(Icons.undo),
+                        onPressed: cubit.canUndo
+                            ? () {
+                                cubit.undo();
+                              }
+                            : null,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.redo),
+                        onPressed: cubit.canRedo
+                            ? () {
+                                cubit.redo();
+                              }
+                            : null,
+                      ),
                       Expanded(child: Container()),
                       IconButton(
                         icon: const Icon(Icons.keyboard_arrow_up),
