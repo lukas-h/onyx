@@ -52,9 +52,9 @@ class _SearchMenuState extends State<SearchMenu> {
           constraints: const BoxConstraints(
             maxWidth: 350,
             minWidth: 350, // TODO adaptive width
+            maxHeight: 650,
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 decoration: const InputDecoration(
@@ -68,78 +68,87 @@ class _SearchMenuState extends State<SearchMenu> {
                   });
                 },
               ),
-              const ListTile(
-                //leading: Icon(Icons.summarize_outlined),
-                title: Text(
-                  'Pages',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const ListTile(
+                        //leading: Icon(Icons.summarize_outlined),
+                        title: Text(
+                          'Pages',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        dense: true,
+                      ),
+                      if (query.isEmpty)
+                        ...cubit.pages.only(5).map(
+                              (e) => PageCard(
+                                small: true,
+                                state: e,
+                                onTap: () {
+                                  widget.onSelect(context, e);
+                                },
+                              ),
+                            ),
+                      if (query.isNotEmpty)
+                        ...cubit.pages
+                            .where(
+                              (e) => e.title
+                                  .trim()
+                                  .toLowerCase()
+                                  .contains(query.trim().toLowerCase()),
+                            )
+                            .map(
+                              (e) => PageCard(
+                                small: true,
+                                state: e,
+                                onTap: () {
+                                  widget.onSelect(context, e);
+                                },
+                              ),
+                            ),
+                      const ListTile(
+                        //leading: Icon(Icons.calendar_today_outlined),
+                        title: Text(
+                          'Journals',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        dense: true,
+                      ),
+                      if (query.isEmpty)
+                        ...cubit.journals.only(5).map(
+                              (e) => PageCard(
+                                icon: const Icon(Icons.calendar_today_outlined),
+                                state: e,
+                                small: true,
+                                onTap: () {
+                                  widget.onSelect(context, e);
+                                },
+                              ),
+                            ),
+                      if (query.isNotEmpty)
+                        ...cubit.journals
+                            .where(
+                              (e) => e.title
+                                  .trim()
+                                  .toLowerCase()
+                                  .contains(query.trim().toLowerCase()),
+                            )
+                            .map(
+                              (e) => PageCard(
+                                icon: const Icon(Icons.calendar_today_outlined),
+                                state: e,
+                                small: true,
+                                onTap: () {
+                                  widget.onSelect(context, e);
+                                },
+                              ),
+                            ),
+                    ],
+                  ),
                 ),
-                dense: true,
               ),
-              if (query.isEmpty)
-                ...cubit.pages.only(3).map(
-                      (e) => PageCard(
-                        small: true,
-                        state: e,
-                        onTap: () {
-                          widget.onSelect(context, e);
-                        },
-                      ),
-                    ),
-              if (query.isNotEmpty)
-                ...cubit.pages
-                    .where(
-                      (e) => e.title
-                          .trim()
-                          .toLowerCase()
-                          .contains(query.trim().toLowerCase()),
-                    )
-                    .map(
-                      (e) => PageCard(
-                        small: true,
-                        state: e,
-                        onTap: () {
-                          widget.onSelect(context, e);
-                        },
-                      ),
-                    ),
-              const ListTile(
-                //leading: Icon(Icons.calendar_today_outlined),
-                title: Text(
-                  'Journals',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                dense: true,
-              ),
-              if (query.isEmpty)
-                ...cubit.journals.only(3).map(
-                      (e) => PageCard(
-                        icon: const Icon(Icons.calendar_today_outlined),
-                        state: e,
-                        small: true,
-                        onTap: () {
-                          widget.onSelect(context, e);
-                        },
-                      ),
-                    ),
-              if (query.isNotEmpty)
-                ...cubit.journals
-                    .where(
-                      (e) => e.title
-                          .trim()
-                          .toLowerCase()
-                          .contains(query.trim().toLowerCase()),
-                    )
-                    .map(
-                      (e) => PageCard(
-                        icon: const Icon(Icons.calendar_today_outlined),
-                        state: e,
-                        small: true,
-                        onTap: () {
-                          widget.onSelect(context, e);
-                        },
-                      ),
-                    ),
             ],
           ),
         ),

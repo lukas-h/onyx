@@ -50,18 +50,35 @@ class _LinkMenuState extends State<LinkMenu> {
         ),
       ),
       actions: [
-        Button(
-          'Insert link',
-          icon: const Icon(Icons.done),
-          active: false,
-          onTap: () {
-            final rec = (_textController.text, _hrefController.text);
-            Navigator.pop(
-              context,
-              rec,
-            );
-          },
-        ),
+        Row(children: [
+          Expanded(
+            flex: 1,
+            child: Button(
+              'Close',
+              icon: const Icon(Icons.close),
+              active: false,
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 1,
+            child: Button(
+              'Insert link',
+              icon: const Icon(Icons.done),
+              active: false,
+              onTap: () {
+                final rec = (_textController.text, _hrefController.text);
+                Navigator.pop(
+                  context,
+                  rec,
+                );
+              },
+            ),
+          ),
+        ]),
       ],
     );
   }
