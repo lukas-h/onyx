@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:counter_note/store/page_store.dart';
 
 import 'package:counter_note/cubit/page_cubit.dart';
+import 'package:replay_bloc/replay_bloc.dart';
 
 class NavigationState {}
 
@@ -65,7 +66,7 @@ class NavigationLoading extends NavigationSuccess {
       );
 }
 
-class NavigationCubit extends Cubit<NavigationState> {
+class NavigationCubit extends ReplayCubit<NavigationState> {
   final PageStore store;
   NavigationCubit({
     required this.store,

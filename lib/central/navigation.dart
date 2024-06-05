@@ -26,6 +26,46 @@ class CentralNavigation extends StatelessWidget {
                 child: Column(
                   children: [
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 35,
+                          child: Button(
+                            '',
+                            icon: const Icon(Icons.keyboard_arrow_left),
+                            active: false,
+                            onTap: context.read<NavigationCubit>().canUndo
+                                ? () {
+                                    context.read<NavigationCubit>().undo();
+                                  }
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        SizedBox(
+                          width: 35,
+                          child: Button(
+                            '',
+                            icon: const Icon(Icons.keyboard_arrow_right),
+                            active: false,
+                            onTap: context.read<NavigationCubit>().canRedo
+                                ? () {
+                                    context.read<NavigationCubit>().redo();
+                                  }
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Divider(
+                      height: 12,
+                      endIndent: 0,
+                      thickness: 1,
+                      color: Colors.black.withOpacity(0.08),
+                    ),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
@@ -98,7 +138,7 @@ class CentralNavigation extends StatelessWidget {
                             .navigateTo(RouteState.pages);
                       },
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Divider(
                       height: 12,
                       endIndent: 0,

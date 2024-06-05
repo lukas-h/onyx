@@ -38,18 +38,20 @@ class Button extends StatelessWidget {
           child: Row(
             children: [
               IconTheme(
-                  data: IconThemeData(
-                    size: 15,
-                    color: onTap != null ? Colors.black : Colors.black38,
-                  ),
-                  child: icon),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: TextStyle(
+                data: IconThemeData(
+                  size: 15,
                   color: onTap != null ? Colors.black : Colors.black38,
                 ),
+                child: icon,
               ),
+              if (title.isNotEmpty) const SizedBox(width: 8),
+              if (title.isNotEmpty)
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: onTap != null ? Colors.black : Colors.black38,
+                  ),
+                ),
             ],
           ),
         ),

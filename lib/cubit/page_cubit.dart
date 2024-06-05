@@ -297,7 +297,7 @@ class PageCubit extends ReplayCubit<PageState> {
           items: state.items
               .map((e) => e.index == state.index
                   ? Parser.parse(
-                      e.copyWith(fullText: '${e.fullText} [[$link]]'),
+                      e.copyWith(fullText: '${e.fullText}[[$link]]'),
                     )
                   : e.copyWith())
               .toList(),
@@ -309,7 +309,7 @@ class PageCubit extends ReplayCubit<PageState> {
           items: state.items
               .map((e) => e.index == state.index
                   ? Parser.parse(
-                      e.copyWith(fullText: '${e.fullText} [$text]($href)'),
+                      e.copyWith(fullText: '${e.fullText}[$text]($href)'),
                     )
                   : e.copyWith())
               .toList(),
