@@ -125,7 +125,8 @@ class _ListItemEditorState extends State<ListItemEditor> {
               code: const TextStyle(
                 fontSize: 16,
                 fontFamily: 'monospace',
-                color: Colors.black,
+                color: Colors.white,
+                backgroundColor: Colors.blueGrey,
                 wordSpacing: 3,
               ),
             ),
