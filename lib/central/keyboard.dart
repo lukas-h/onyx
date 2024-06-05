@@ -49,6 +49,10 @@ class PageInsertIntent extends Intent {
   const PageInsertIntent();
 }
 
+class LinkInsertIntent extends Intent {
+  const LinkInsertIntent();
+}
+
 class KeyboardInterceptor extends StatelessWidget {
   final Widget child;
 
@@ -77,6 +81,8 @@ class KeyboardInterceptor extends StatelessWidget {
             const PreviousJournalIntent(),
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyP):
             const PageInsertIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyL):
+            const LinkInsertIntent(),
       },
       child: Actions(
         actions: <Type, Action<Intent>>{

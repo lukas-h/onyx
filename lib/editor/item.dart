@@ -3,6 +3,7 @@ import 'package:counter_note/editor/image_builder.dart';
 import 'package:counter_note/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class ListItemEditor extends StatefulWidget {
   final ListItemState model;
@@ -100,6 +101,11 @@ class _ListItemEditorState extends State<ListItemEditor> {
             data: model.textPart,
             imageBuilder: (uri, title, alt) =>
                 ImageBuilder(uri: uri, title: title, alt: alt),
+            onTapLink: (text, href, title) {
+              if (Uri.tryParse(href ?? '') != null) {
+                launchUrlString(href!);
+              }
+            },
             styleSheet: MarkdownStyleSheet(
               p: const TextStyle(fontSize: 16),
               codeblockDecoration: BoxDecoration(
