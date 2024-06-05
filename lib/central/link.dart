@@ -1,6 +1,14 @@
 import 'package:counter_note/widgets/button.dart';
 import 'package:flutter/material.dart';
 
+Future<(String, String)?> openExternalLinkInsertMenu(
+    BuildContext context) async {
+  return showDialog<(String, String)>(
+    context: context,
+    builder: (context) => const LinkMenu(),
+  );
+}
+
 class LinkMenu extends StatefulWidget {
   const LinkMenu({super.key});
 
@@ -9,8 +17,8 @@ class LinkMenu extends StatefulWidget {
 }
 
 class _LinkMenuState extends State<LinkMenu> {
-  final _altController = TextEditingController();
-  final _linkController = TextEditingController();
+  final _textController = TextEditingController();
+  final _hrefController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -23,22 +31,35 @@ class _LinkMenuState extends State<LinkMenu> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: _altController,
+              controller: _textController,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Title...',
+              ),
+              cursorColor: Colors.black,
             ),
             TextField(
-              controller: _linkController,
+              controller: _hrefController,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'URL...',
+              ),
+              cursorColor: Colors.black,
             ),
-            const Divider(),
           ],
         ),
       ),
       actions: [
         Button(
-          'Insert',
+          'Insert link',
           icon: const Icon(Icons.done),
           active: false,
           onTap: () {
-            Navigator.pop(context);
+            final rec = (_textController.text, _hrefController.text);
+            Navigator.pop(
+              context,
+              rec,
+            );
           },
         ),
       ],

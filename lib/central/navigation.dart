@@ -1,3 +1,4 @@
+import 'package:counter_note/central/help.dart';
 import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/screens/journals.dart';
 import 'package:counter_note/screens/pages.dart';
@@ -97,16 +98,63 @@ class CentralNavigation extends StatelessWidget {
                             .navigateTo(RouteState.pages);
                       },
                     ),
-                    Expanded(child: Container()),
+                    SizedBox(height: 8),
+                    Divider(
+                      height: 12,
+                      endIndent: 0,
+                      thickness: 1,
+                      color: Colors.black.withOpacity(0.08),
+                    ),
                     Button(
-                      'Settings',
-                      icon: const Icon(Icons.settings_outlined),
-                      active: state.settingsNav,
-                      onTap: () {
-                        context
-                            .read<NavigationCubit>()
-                            .navigateTo(RouteState.settings);
-                      },
+                      'Favorites',
+                      icon: const Icon(Icons.favorite_border),
+                      active: false,
+                      onTap: () {},
+                    ),
+                    Button(
+                      'Recent edits',
+                      icon: const Icon(Icons.history),
+                      active: false,
+                      onTap: () {},
+                    ),
+                    if (state.route != RouteState.pages &&
+                        state.route != RouteState.settings)
+                      Button(
+                        'References',
+                        icon: const Icon(Icons.hub_outlined),
+                        active: false,
+                        onTap: () {},
+                      ),
+                    Expanded(child: Container()),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Button(
+                            'Settings',
+                            icon: const Icon(Icons.settings_outlined),
+                            active: state.settingsNav,
+                            onTap: () {
+                              context
+                                  .read<NavigationCubit>()
+                                  .navigateTo(RouteState.settings);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          flex: 1,
+                          child: Button(
+                            '⌘',
+                            icon: const Icon(Icons.help_outline_outlined),
+                            active: false,
+                            onTap: () {
+                              openHelpMenu(context);
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                   ],

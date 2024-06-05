@@ -68,9 +68,8 @@ class _SearchMenuState extends State<SearchMenu> {
                   });
                 },
               ),
-              const Divider(),
               const ListTile(
-                leading: Icon(Icons.summarize_outlined),
+                //leading: Icon(Icons.summarize_outlined),
                 title: Text(
                   'Pages',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -104,9 +103,8 @@ class _SearchMenuState extends State<SearchMenu> {
                         },
                       ),
                     ),
-              const Divider(),
               const ListTile(
-                leading: Icon(Icons.calendar_today_outlined),
+                //leading: Icon(Icons.calendar_today_outlined),
                 title: Text(
                   'Journals',
                   style: TextStyle(fontWeight: FontWeight.bold),

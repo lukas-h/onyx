@@ -1,3 +1,4 @@
+import 'package:counter_note/central/help.dart';
 import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/central/search.dart';
@@ -53,6 +54,10 @@ class LinkInsertIntent extends Intent {
   const LinkInsertIntent();
 }
 
+class HelpIntent extends Intent {
+  const HelpIntent();
+}
+
 class KeyboardInterceptor extends StatelessWidget {
   final Widget child;
 
@@ -68,6 +73,8 @@ class KeyboardInterceptor extends StatelessWidget {
             const DeleteLineIntent(),
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyS):
             const SyncIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyH):
+            const HelpIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowUp): const LineUpIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowDown): const LineDownIntent(),
         LogicalKeySet(LogicalKeyboardKey.tab): const IndentIncreaseIntent(),
@@ -120,6 +127,9 @@ class KeyboardInterceptor extends StatelessWidget {
           ),
           PageInsertIntent: CallbackAction<Intent>(
             onInvoke: (_) => _showInsertMenu(context),
+          ),
+          HelpIntent: CallbackAction<Intent>(
+            onInvoke: (_) => openHelpMenu(context),
           ),
         },
         child: FocusScope(

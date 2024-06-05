@@ -91,6 +91,10 @@ class PageStore {
     journals[journals.indexWhere((e) => e.uid == model.uid)] = model;
   }
 
+  void deletePage(String uid) {
+    pages.removeWhere((e) => e.uid == uid);
+  }
+
   int getPageIndex(String uid) => pages.indexWhere((e) => e.uid == uid);
 
   int getJournalIndex(String uid) => journals.indexWhere((e) => e.uid == uid);

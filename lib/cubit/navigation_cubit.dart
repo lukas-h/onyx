@@ -93,6 +93,19 @@ class NavigationCubit extends Cubit<NavigationState> {
     }
   }
 
+  Future<void> deletePage(String uid) async {
+    if (state is NavigationSuccess) {
+      final currentState = state as NavigationSuccess;
+      store.deletePage(uid);
+      emit(
+        currentState.copyWith(
+          index: 0,
+          route: RouteState.pages,
+        ),
+      );
+    }
+  }
+
   void createPage() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
