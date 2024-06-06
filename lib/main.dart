@@ -59,7 +59,7 @@ class _OnyxAppState extends State<OnyxApp> {
         ),
       ],
       child: MaterialApp(
-        title: 'Counter Note',
+        title: 'onyx',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
