@@ -1,13 +1,9 @@
 import 'package:collection/collection.dart';
-import 'package:counter_note/cubit/favorites_cubit.dart';
 import 'package:counter_note/cubit/navigation_cubit.dart';
+import 'package:counter_note/utils/utils.dart';
 import 'package:counter_note/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-extension on String {
-  String only(int max) => max >= (length - 1) ? this : substring(0, max);
-}
 
 class RecentsList extends StatefulWidget {
   const RecentsList({super.key});

@@ -51,14 +51,23 @@ class Button extends StatelessWidget {
               children: [
                 icon,
                 if (title.isNotEmpty) const SizedBox(width: 8),
-                if (title.isNotEmpty)
+                if (title.isNotEmpty && maxWidth)
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        color: onTap != null ? Colors.black : Colors.black38,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                if (title.isNotEmpty && !maxWidth)
                   Text(
                     title,
                     style: TextStyle(
                       color: onTap != null ? Colors.black : Colors.black38,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
                   ),
                 if (trailingIcon != null && title.isNotEmpty) trailingIcon!,
               ],

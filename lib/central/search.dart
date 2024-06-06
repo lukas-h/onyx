@@ -1,12 +1,9 @@
 import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/screens/pages.dart';
+import 'package:counter_note/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-extension on List {
-  List only(int max) => max >= (length - 1) ? this : sublist(0, max);
-}
 
 typedef OnPageSelected = void Function(BuildContext context, PageState? state);
 

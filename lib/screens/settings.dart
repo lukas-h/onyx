@@ -162,66 +162,70 @@ class _PocketBaseFormState extends State<_PocketBaseForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        TextField(
-          controller: _urlController,
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            hintText: 'Pocketbase instance URL...',
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _urlController,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Pocketbase instance URL...',
+            ),
+            cursorColor: Colors.black,
+            onChanged: (v) {
+              setState(() {
+                changed = true;
+              });
+            },
           ),
-          cursorColor: Colors.black,
-          onChanged: (v) {
-            setState(() {
-              changed = true;
-            });
-          },
-        ),
-        TextField(
-          controller: _emailController,
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            hintText: 'Admin account email',
+          TextField(
+            controller: _emailController,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Admin account email',
+            ),
+            cursorColor: Colors.black,
+            onChanged: (v) {
+              setState(() {
+                changed = true;
+              });
+            },
           ),
-          cursorColor: Colors.black,
-          onChanged: (v) {
-            setState(() {
-              changed = true;
-            });
-          },
-        ),
-        TextField(
-          controller: _passwordController,
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            hintText: 'Admin account password',
+          TextField(
+            controller: _passwordController,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Admin account password',
+            ),
+            obscureText: true,
+            cursorColor: Colors.black,
+            onChanged: (v) {
+              setState(() {
+                changed = true;
+              });
+            },
           ),
-          obscureText: true,
-          cursorColor: Colors.black,
-          onChanged: (v) {
-            setState(() {
-              changed = true;
-            });
-          },
-        ),
-        Button(
-          widget.saveButtonText,
-          maxWidth: false,
-          icon: const Icon(Icons.done),
-          active: false,
-          onTap: changed
-              ? () {
-                  final pbCubit = context.read<PocketBaseCubit>();
-                  pbCubit.setCredentials(
-                    url: _urlController.text,
-                    email: _emailController.text,
-                    password: _passwordController.text,
-                  );
-                }
-              : null,
-        ),
-      ],
+          Button(
+            widget.saveButtonText,
+            maxWidth: false,
+            icon: const Icon(Icons.done),
+            active: false,
+            onTap: changed
+                ? () {
+                    final pbCubit = context.read<PocketBaseCubit>();
+                    pbCubit.setCredentials(
+                      url: _urlController.text,
+                      email: _emailController.text,
+                      password: _passwordController.text,
+                    );
+                  }
+                : null,
+          ),
+        ],
+      ),
     );
   }
 }
