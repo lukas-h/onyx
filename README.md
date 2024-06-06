@@ -1,4 +1,4 @@
-# counter_note
+# onyx
 
 A new Flutter project.
 

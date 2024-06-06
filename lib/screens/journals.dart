@@ -1,9 +1,9 @@
-import 'package:counter_note/cubit/navigation_cubit.dart';
-import 'package:counter_note/cubit/page_cubit.dart';
-import 'package:counter_note/editor/list.dart';
-import 'package:counter_note/utils/utils.dart';
-import 'package:counter_note/widgets/button.dart';
-import 'package:counter_note/widgets/narrow_body.dart';
+import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/cubit/page_cubit.dart';
+import 'package:onyx/editor/list.dart';
+import 'package:onyx/utils/utils.dart';
+import 'package:onyx/widgets/button.dart';
+import 'package:onyx/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

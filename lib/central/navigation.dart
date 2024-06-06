@@ -1,12 +1,12 @@
-import 'package:counter_note/central/favorites.dart';
-import 'package:counter_note/central/help.dart';
-import 'package:counter_note/central/recents.dart';
-import 'package:counter_note/cubit/navigation_cubit.dart';
-import 'package:counter_note/screens/journals.dart';
-import 'package:counter_note/screens/pages.dart';
-import 'package:counter_note/screens/settings.dart';
-import 'package:counter_note/central/search.dart';
-import 'package:counter_note/widgets/button.dart';
+import 'package:onyx/central/favorites.dart';
+import 'package:onyx/central/help.dart';
+import 'package:onyx/central/recents.dart';
+import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/screens/journals.dart';
+import 'package:onyx/screens/pages.dart';
+import 'package:onyx/screens/settings.dart';
+import 'package:onyx/central/search.dart';
+import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

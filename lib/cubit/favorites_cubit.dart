@@ -1,4 +1,4 @@
-import 'package:counter_note/store/favorite_store.dart';
+import 'package:onyx/store/favorite_store.dart';
 import 'package:replay_bloc/replay_bloc.dart';
 
 class FavoritesCubit extends Cubit<List<String>> {

@@ -1,4 +1,4 @@
-import 'package:counter_note/widgets/button.dart';
+import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
 
 void openHelpMenu(BuildContext context) => showDialog(

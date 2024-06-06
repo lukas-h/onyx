@@ -1,4 +1,4 @@
-import 'package:counter_note/store/pocketbase.dart';
+import 'package:onyx/store/pocketbase.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:replay_bloc/replay_bloc.dart';

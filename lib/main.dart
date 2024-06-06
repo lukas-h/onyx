@@ -1,30 +1,30 @@
-import 'package:counter_note/cubit/favorites_cubit.dart';
-import 'package:counter_note/cubit/navigation_cubit.dart';
-import 'package:counter_note/cubit/page_cubit.dart';
-import 'package:counter_note/central/keyboard.dart';
-import 'package:counter_note/central/navigation.dart';
-import 'package:counter_note/cubit/pb_cubit.dart';
-import 'package:counter_note/store/favorite_store.dart';
-import 'package:counter_note/store/image_store.dart';
-import 'package:counter_note/store/page_store.dart';
-import 'package:counter_note/screens/loading.dart';
+import 'package:onyx/cubit/favorites_cubit.dart';
+import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/cubit/page_cubit.dart';
+import 'package:onyx/central/keyboard.dart';
+import 'package:onyx/central/navigation.dart';
+import 'package:onyx/cubit/pb_cubit.dart';
+import 'package:onyx/store/favorite_store.dart';
+import 'package:onyx/store/image_store.dart';
+import 'package:onyx/store/page_store.dart';
+import 'package:onyx/screens/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  runApp(const CounterNoteApp());
+  runApp(const OnyxApp());
 }
 
-class CounterNoteApp extends StatefulWidget {
-  const CounterNoteApp({
+class OnyxApp extends StatefulWidget {
+  const OnyxApp({
     super.key,
   });
 
   @override
-  State<CounterNoteApp> createState() => _CounterNoteAppState();
+  State<OnyxApp> createState() => _OnyxAppState();
 }
 
-class _CounterNoteAppState extends State<CounterNoteApp> {
+class _OnyxAppState extends State<OnyxApp> {
   final store = PageStore();
   final favoriteStore = FavoriteStore([]);
   final imageStore = ImageStore([]);

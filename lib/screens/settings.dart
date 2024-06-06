@@ -1,6 +1,6 @@
-import 'package:counter_note/cubit/pb_cubit.dart';
-import 'package:counter_note/widgets/button.dart';
-import 'package:counter_note/widgets/narrow_body.dart';
+import 'package:onyx/cubit/pb_cubit.dart';
+import 'package:onyx/widgets/button.dart';
+import 'package:onyx/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

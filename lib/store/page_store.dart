@@ -2,9 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
-import 'package:counter_note/cubit/page_cubit.dart';
-import 'package:counter_note/store/pocketbase.dart';
-import 'package:counter_note/utils/utils.dart';
+import 'package:onyx/cubit/page_cubit.dart';
+import 'package:onyx/store/pocketbase.dart';
+import 'package:onyx/utils/utils.dart';
 
 class PageModel {
   final String uid;

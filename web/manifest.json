@@ -1,6 +1,6 @@
 {
-    "name": "counter_note",
-    "short_name": "counter_note",
+    "name": "onyx",
+    "short_name": "onyx",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

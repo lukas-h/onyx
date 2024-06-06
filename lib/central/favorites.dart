@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
-import 'package:counter_note/cubit/favorites_cubit.dart';
-import 'package:counter_note/cubit/navigation_cubit.dart';
-import 'package:counter_note/widgets/button.dart';
+import 'package:onyx/cubit/favorites_cubit.dart';
+import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:counter_note/utils/utils.dart';
+import 'package:onyx/utils/utils.dart';
 
 class FavoritesList extends StatefulWidget {
   const FavoritesList({super.key});

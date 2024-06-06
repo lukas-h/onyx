@@ -1,7 +1,7 @@
-import 'package:counter_note/editor/model.dart';
-import 'package:counter_note/editor/parser.dart';
-import 'package:counter_note/store/image_store.dart';
-import 'package:counter_note/store/page_store.dart';
+import 'package:onyx/editor/model.dart';
+import 'package:onyx/editor/parser.dart';
+import 'package:onyx/store/image_store.dart';
+import 'package:onyx/store/page_store.dart';
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nanoid/nanoid.dart';

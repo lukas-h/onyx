@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "counter_note" "\0"
+            VALUE "FileDescription", "onyx" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "counter_note" "\0"
+            VALUE "InternalName", "onyx" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "counter_note.exe" "\0"
-            VALUE "ProductName", "counter_note" "\0"
+            VALUE "OriginalFilename", "onyx.exe" "\0"
+            VALUE "ProductName", "onyx" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

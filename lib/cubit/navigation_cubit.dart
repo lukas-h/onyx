@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
-import 'package:counter_note/store/page_store.dart';
+import 'package:onyx/store/page_store.dart';
 
-import 'package:counter_note/cubit/page_cubit.dart';
+import 'package:onyx/cubit/page_cubit.dart';
 import 'package:replay_bloc/replay_bloc.dart';
 
 class NavigationState {}

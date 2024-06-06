@@ -1,8 +1,8 @@
-import 'package:counter_note/central/link.dart';
-import 'package:counter_note/central/search.dart';
-import 'package:counter_note/cubit/page_cubit.dart';
-import 'package:counter_note/editor/item.dart';
-import 'package:counter_note/editor/model.dart';
+import 'package:onyx/central/link.dart';
+import 'package:onyx/central/search.dart';
+import 'package:onyx/cubit/page_cubit.dart';
+import 'package:onyx/editor/item.dart';
+import 'package:onyx/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

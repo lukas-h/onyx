@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:counter_note/store/page_store.dart';
+import 'package:onyx/store/page_store.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 class PocketBaseService {
