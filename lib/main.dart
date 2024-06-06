@@ -2,6 +2,7 @@ import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/central/keyboard.dart';
 import 'package:counter_note/central/navigation.dart';
+import 'package:counter_note/cubit/pb_cubit.dart';
 import 'package:counter_note/store/image_store.dart';
 import 'package:counter_note/store/page_store.dart';
 import 'package:counter_note/screens/loading.dart';
@@ -22,16 +23,16 @@ class CounterNoteApp extends StatefulWidget {
 }
 
 class _CounterNoteAppState extends State<CounterNoteApp> {
-  final store = PageStore(
-    [],
-    [],
-  );
+  final store = PageStore();
   final imageStore = ImageStore([]);
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider(
+          create: (context) => PocketBaseCubit(),
+        ),
         BlocProvider(
           create: (context) => NavigationCubit(store: store),
         ),
@@ -68,23 +69,35 @@ class _CounterNoteAppState extends State<CounterNoteApp> {
             ),
           ),
         ),
-        home: BlocConsumer<NavigationCubit, NavigationState>(
+        home: BlocListener<PocketBaseCubit, PocketBaseState>(
           listener: (context, state) {
-            final currentPage = context.read<NavigationCubit>().currentPage;
-            if (currentPage != null) {
-              context.read<PageCubit>().selectPage(currentPage);
-              if (state is NavigationSuccess && state.newPage) {
-                context.read<PageCubit>().index(-1);
-              }
+            final navCubit = context.read<NavigationCubit>();
+            if (state is PocketBaseSuccess) {
+              store.pbService = state.service;
+              navCubit.init();
+            }
+            if (state is PocketBasePrompt) {
+              navCubit.navigateTo(RouteState.settings);
             }
           },
-          builder: (context, state) => state is NavigationSuccess
-              ? const Scaffold(
-                  body: KeyboardInterceptor(
-                    child: CentralNavigation(),
-                  ),
-                )
-              : const LoadingScreen(),
+          child: BlocConsumer<NavigationCubit, NavigationState>(
+            listener: (context, state) {
+              final currentPage = context.read<NavigationCubit>().currentPage;
+              if (currentPage != null) {
+                context.read<PageCubit>().selectPage(currentPage);
+                if (state is NavigationSuccess && state.newPage) {
+                  context.read<PageCubit>().index(-1);
+                }
+              }
+            },
+            builder: (context, state) => state is NavigationSuccess
+                ? const Scaffold(
+                    body: KeyboardInterceptor(
+                      child: CentralNavigation(),
+                    ),
+                  )
+                : const LoadingScreen(),
+          ),
         ),
       ),
     );

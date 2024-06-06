@@ -29,7 +29,7 @@ class ImageStore {
       ImageModel(
         bytes: bytes,
         title: title,
-        uid: nanoid(),
+        uid: nanoid(15),
       ),
     );
     return images.length - 1;

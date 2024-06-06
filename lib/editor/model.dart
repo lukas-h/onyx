@@ -27,7 +27,7 @@ class ListItemState {
     required this.index,
     required this.fullText,
     this.checked = false,
-  }) : uid = nanoid();
+  }) : uid = nanoid(15);
 
   factory ListItemState.unparsed({
     required int index,

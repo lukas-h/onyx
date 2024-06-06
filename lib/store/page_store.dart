@@ -1,7 +1,10 @@
-import 'package:counter_note/cubit/page_cubit.dart';
-import 'package:counter_note/utils/utils.dart';
+import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
+
+import 'package:counter_note/cubit/page_cubit.dart';
+import 'package:counter_note/store/pocketbase.dart';
+import 'package:counter_note/utils/utils.dart';
 
 class PageModel {
   final String uid;
@@ -47,26 +50,62 @@ ${fullText.join('\n')}
 
   PageState toPageState(bool isJournal) =>
       PageState.fromPageModel(this, isJournal);
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'uid': uid,
+        'id': uid,
+        'body': fullText.join('\n'),
+      };
+
+  PageModel copyWith({
+    String? uid,
+    String? title,
+    DateTime? created,
+    List<String>? fullText,
+  }) {
+    return PageModel(
+      uid: uid ?? this.uid,
+      title: title ?? this.title,
+      created: created ?? this.created,
+      fullText: fullText ?? this.fullText,
+    );
+  }
 }
 
 class PageStore {
-  final List<PageModel> pages;
-  final List<PageModel> journals;
+  PocketBaseService? _pbService;
+  final List<PageModel> pages = [];
+  final List<PageModel> journals = [];
 
-  PageStore(this.pages, this.journals);
+  PageStore({PocketBaseService? pbService}) : _pbService = pbService;
+
+  set pbService(PocketBaseService pbService) {
+    _pbService = pbService;
+  }
 
   Future<void> init() async {
+    // TODO check for local changes that aren't online yet
+    final dbPages = await _pbService?.getPages() ?? [];
+    pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
+    pages.addAll(dbPages);
+
+    final dbJournals = await _pbService?.getJournals() ?? [];
+    journals.clear();
     journals.addAll([
       ...List.generate(
         30,
         (index) {
           final date = DateTime.now().subtract(Duration(days: index));
-          return PageModel(
-            fullText: const [''],
-            title: DateFormat.yMMMMd().format(date),
-            created: date,
-            uid: nanoid(),
-          );
+          final title = DateFormat.yMMMMd().format(date);
+          final journal = dbJournals.singleWhereOrNull((e) => e.title == title);
+          return journal?.copyWith(created: date) ??
+              PageModel(
+                fullText: const [''],
+                title: title,
+                created: date,
+                uid: nanoid(15),
+              );
         },
       ),
     ]);
@@ -77,22 +116,26 @@ class PageStore {
       fullText: const [''],
       title: '',
       created: DateTime.now(),
-      uid: nanoid(),
+      uid: nanoid(15),
     );
     pages.add(page);
+    _pbService?.createPage(page);
     return pages.length - 1;
   }
 
   void updatePage(PageModel model) {
     pages[pages.indexWhere((e) => e.uid == model.uid)] = model;
+    _pbService?.updatePage(model);
   }
 
   void updateJournal(PageModel model) {
     journals[journals.indexWhere((e) => e.uid == model.uid)] = model;
+    _pbService?.updateJournal(model);
   }
 
   void deletePage(String uid) {
     pages.removeWhere((e) => e.uid == uid);
+    _pbService?.deletePage(uid);
   }
 
   int getPageIndex(String uid) => pages.indexWhere((e) => e.uid == uid);

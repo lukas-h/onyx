@@ -1,4 +1,3 @@
-import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:counter_note/store/page_store.dart';
 
@@ -75,21 +74,24 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   }
   Future<void> init() async {
     await store.init();
-    await Future.delayed(const Duration(seconds: 1));
 
-    emit(
-      NavigationSuccess(
-        route: RouteState.journalSelected,
-        index: 0,
-        newPage: false,
-      ),
-    );
+    if (state is NavigationSuccess) {
+      emit((state as NavigationSuccess).copyWith());
+    } else {
+      emit(
+        NavigationSuccess(
+          route: RouteState.journalSelected,
+          index: 0,
+          newPage: false,
+        ),
+      );
+    }
   }
 
   Future<void> sync() async {
     if (state is NavigationSuccess) {
       emit((state as NavigationSuccess).copyToLoading());
-      await Future.delayed(const Duration(seconds: 3));
+      await store.init();
       emit((state as NavigationLoading).copyToSuccess());
     }
   }
