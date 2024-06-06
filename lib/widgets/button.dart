@@ -7,6 +7,8 @@ class Button extends StatelessWidget {
   final double? width;
   final VoidCallback? onTap;
   final Color? borderColor;
+  final Widget? trailingIcon;
+  final bool maxWidth;
 
   // ignore: use_key_in_widget_constructors
   const Button(
@@ -16,6 +18,8 @@ class Button extends StatelessWidget {
     required this.onTap,
     this.width,
     this.borderColor,
+    this.trailingIcon,
+    required this.maxWidth,
   });
 
   @override
@@ -37,24 +41,28 @@ class Button extends StatelessWidget {
             ),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: Row(
-            children: [
-              IconTheme(
-                data: IconThemeData(
-                  size: 15,
-                  color: onTap != null ? Colors.black : Colors.black38,
-                ),
-                child: icon,
-              ),
-              if (title.isNotEmpty) const SizedBox(width: 8),
-              if (title.isNotEmpty)
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: onTap != null ? Colors.black : Colors.black38,
+          child: IconTheme(
+            data: IconThemeData(
+              size: 15,
+              color: onTap != null ? Colors.black : Colors.black38,
+            ),
+            child: Row(
+              mainAxisSize: maxWidth ? MainAxisSize.max : MainAxisSize.min,
+              children: [
+                icon,
+                if (title.isNotEmpty) const SizedBox(width: 8),
+                if (title.isNotEmpty)
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: onTap != null ? Colors.black : Colors.black38,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                ),
-            ],
+                if (trailingIcon != null && title.isNotEmpty) trailingIcon!,
+              ],
+            ),
           ),
         ),
       ),

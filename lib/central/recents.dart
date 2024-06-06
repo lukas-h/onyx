@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:counter_note/cubit/favorites_cubit.dart';
 import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/widgets/button.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -10,43 +9,44 @@ extension on String {
   String only(int max) => max >= (length - 1) ? this : substring(0, max);
 }
 
-class FavoritesList extends StatefulWidget {
-  const FavoritesList({super.key});
+class RecentsList extends StatefulWidget {
+  const RecentsList({super.key});
 
   @override
-  State<FavoritesList> createState() => _FavoritesListState();
+  State<RecentsList> createState() => _RecentsListState();
 }
 
-class _FavoritesListState extends State<FavoritesList> {
-  bool favoritesExtended = false;
+class _RecentsListState extends State<RecentsList> {
+  bool recentExtended = false;
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FavoritesCubit, List<String>>(
+    return BlocBuilder<NavigationCubit, NavigationState>(
       builder: (context, state) {
         final navCubit = context.read<NavigationCubit>();
         final pages = navCubit.pages;
+        final recents = navCubit.recentPages;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Button(
-              'Favorites',
+              'Recents',
               maxWidth: true,
-              icon: const Icon(Icons.favorite_border),
+              icon: const Icon(Icons.history),
+              active: false,
               trailingIcon: AnimatedRotation(
-                turns: favoritesExtended ? 0.5 : 0,
+                turns: recentExtended ? 0.5 : 0,
                 duration: const Duration(milliseconds: 150),
                 child: const Icon(Icons.arrow_drop_down),
               ),
-              active: false,
               onTap: () {
                 setState(() {
-                  favoritesExtended = !favoritesExtended;
+                  recentExtended = !recentExtended;
                 });
               },
             ),
-            if (favoritesExtended)
-              ...state.map((e) {
+            if (recentExtended)
+              ...recents.map((e) {
                 final page = pages.singleWhereOrNull((k) => k.uid == e);
                 if (page == null) return Container();
                 return Padding(

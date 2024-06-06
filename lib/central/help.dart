@@ -118,6 +118,7 @@ class HelpMenu extends StatelessWidget {
       actions: [
         Button(
           'Close help menu',
+          maxWidth: false,
           icon: const Icon(Icons.close),
           active: false,
           onTap: () {

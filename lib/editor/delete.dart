@@ -15,6 +15,7 @@ class DeleteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Button(
       'Delete page',
+      maxWidth: false,
       icon: const Icon(Icons.delete_outline_outlined),
       onTap: () async {
         final delete = await showDialog(
@@ -49,31 +50,26 @@ class DeleteDialog extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              flex: 1,
-              child: Button(
-                'Cancel',
-                icon: const Icon(Icons.close),
-                active: false,
-                onTap: () {
-                  Navigator.pop(context, false);
-                },
-              ),
+            Button(
+              'Cancel',
+              maxWidth: false,
+              icon: const Icon(Icons.close),
+              active: false,
+              onTap: () {
+                Navigator.pop(context, false);
+              },
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              flex: 1,
-              child: Button(
-                'Delete page',
-                icon: const Icon(
-                  Icons.delete_outline_outlined,
-                  color: Colors.red,
-                ),
-                active: false,
-                onTap: () {
-                  Navigator.pop(context, true);
-                },
+            Button(
+              'Delete page',
+              maxWidth: false,
+              icon: const Icon(
+                Icons.delete_outline_outlined,
+                color: Colors.red,
               ),
+              active: false,
+              onTap: () {
+                Navigator.pop(context, true);
+              },
             ),
           ],
         ),

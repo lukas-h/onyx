@@ -1,5 +1,6 @@
 import 'package:counter_note/central/favorites.dart';
 import 'package:counter_note/central/help.dart';
+import 'package:counter_note/central/recents.dart';
 import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/screens/journals.dart';
 import 'package:counter_note/screens/pages.dart';
@@ -33,6 +34,7 @@ class CentralNavigation extends StatelessWidget {
                           width: 35,
                           child: Button(
                             '',
+                            maxWidth: false,
                             icon: const Icon(Icons.keyboard_arrow_left),
                             active: false,
                             onTap: context.read<NavigationCubit>().canUndo
@@ -47,6 +49,7 @@ class CentralNavigation extends StatelessWidget {
                           width: 35,
                           child: Button(
                             '',
+                            maxWidth: false,
                             icon: const Icon(Icons.keyboard_arrow_right),
                             active: false,
                             onTap: context.read<NavigationCubit>().canRedo
@@ -73,6 +76,7 @@ class CentralNavigation extends StatelessWidget {
                           flex: 1,
                           child: Button(
                             'Sync',
+                            maxWidth: true,
                             icon: BlocBuilder<NavigationCubit, NavigationState>(
                               builder: (context, state) {
                                 return state is NavigationLoading
@@ -98,6 +102,7 @@ class CentralNavigation extends StatelessWidget {
                           flex: 1,
                           child: Button(
                             '⌘K',
+                            maxWidth: true,
                             icon: const Icon(Icons.search),
                             active: false,
                             onTap: () {
@@ -121,6 +126,7 @@ class CentralNavigation extends StatelessWidget {
                     ),
                     Button(
                       'Journals',
+                      maxWidth: true,
                       icon: const Icon(Icons.calendar_today_outlined),
                       active: state.journalNav,
                       onTap: () {
@@ -131,6 +137,7 @@ class CentralNavigation extends StatelessWidget {
                     ),
                     Button(
                       'Pages',
+                      maxWidth: true,
                       icon: const Icon(Icons.summarize_outlined),
                       active: state.pagesNav,
                       onTap: () {
@@ -147,16 +154,12 @@ class CentralNavigation extends StatelessWidget {
                       color: Colors.black.withOpacity(0.08),
                     ),
                     const FavoritesList(),
-                    Button(
-                      'Recent edits',
-                      icon: const Icon(Icons.history),
-                      active: false,
-                      onTap: () {},
-                    ),
+                    const RecentsList(),
                     if (state.route != RouteState.pages &&
                         state.route != RouteState.settings)
                       Button(
                         'References',
+                        maxWidth: true,
                         icon: const Icon(Icons.hub_outlined),
                         active: false,
                         onTap: () {},
@@ -169,6 +172,7 @@ class CentralNavigation extends StatelessWidget {
                           flex: 2,
                           child: Button(
                             'Settings',
+                            maxWidth: true,
                             icon: const Icon(Icons.settings_outlined),
                             active: state.settingsNav,
                             onTap: () {
@@ -183,6 +187,7 @@ class CentralNavigation extends StatelessWidget {
                           flex: 1,
                           child: Button(
                             '⌘',
+                            maxWidth: true,
                             icon: const Icon(Icons.help_outline_outlined),
                             active: false,
                             onTap: () {

@@ -17,6 +17,7 @@ class FavoriteButton extends StatelessWidget {
       builder: (context, state) {
         return Button(
           '${state ? 'Remove' : 'Add'} favorite',
+          maxWidth: false,
           icon: Icon(state ? Icons.favorite : Icons.favorite_outline),
           active: false,
           onTap: () {

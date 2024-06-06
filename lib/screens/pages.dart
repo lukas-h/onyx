@@ -52,6 +52,7 @@ class _PagesList extends StatelessWidget {
               children: [
                 Button(
                   'New Page',
+                  maxWidth: false,
                   icon: const Icon(Icons.note_add_outlined),
                   active: false,
                   onTap: () {

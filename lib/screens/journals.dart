@@ -30,6 +30,7 @@ class JournalsScreen extends StatelessWidget {
                       builder: (context, state) {
                         return Button(
                           'Today',
+                          maxWidth: false,
                           icon: const Icon(Icons.today_outlined),
                           onTap: isToday(state.created)
                               ? null
@@ -45,6 +46,7 @@ class JournalsScreen extends StatelessWidget {
                     const SizedBox(width: 8),
                     Button(
                       'Next',
+                      maxWidth: false,
                       icon: const Icon(Icons.keyboard_arrow_up),
                       onTap: isToday(state.created)
                           ? null
@@ -58,6 +60,7 @@ class JournalsScreen extends StatelessWidget {
                     const SizedBox(width: 8),
                     Button(
                       'Previous',
+                      maxWidth: false,
                       icon: const Icon(Icons.keyboard_arrow_down),
                       onTap: () {
                         context

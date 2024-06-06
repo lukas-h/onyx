@@ -207,6 +207,7 @@ class _PocketBaseFormState extends State<_PocketBaseForm> {
         ),
         Button(
           widget.saveButtonText,
+          maxWidth: false,
           icon: const Icon(Icons.done),
           active: false,
           onTap: changed

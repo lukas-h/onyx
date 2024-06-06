@@ -67,6 +67,9 @@ class NavigationLoading extends NavigationSuccess {
 
 class NavigationCubit extends ReplayCubit<NavigationState> {
   final PageStore store;
+  final Set<String> _recentPages = {};
+  List<String> get recentPages => _recentPages.toList();
+
   NavigationCubit({
     required this.store,
   }) : super(NavigationInitial()) {
@@ -120,6 +123,8 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
           newPage: true,
         ),
       );
+      final uid = store.getPage(newIndex)?.uid;
+      if (uid != null) _recentPages.add(uid);
     }
   }
 
@@ -133,6 +138,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
           route: RouteState.pageSelected,
         ),
       );
+      _recentPages.add(uid);
     }
   }
 
