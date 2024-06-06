@@ -6,6 +6,7 @@ class Button extends StatelessWidget {
   final bool active;
   final double? width;
   final VoidCallback? onTap;
+  final Color? borderColor;
 
   // ignore: use_key_in_widget_constructors
   const Button(
@@ -14,6 +15,7 @@ class Button extends StatelessWidget {
     required this.active,
     required this.onTap,
     this.width,
+    this.borderColor,
   });
 
   @override
@@ -31,7 +33,7 @@ class Button extends StatelessWidget {
             borderRadius: BorderRadius.circular(3),
             border: Border.all(
               width: 1,
-              color: Colors.black.withOpacity(0.08),
+              color: borderColor ?? Colors.black.withOpacity(0.08),
             ),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

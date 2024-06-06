@@ -1,8 +1,10 @@
+import 'package:counter_note/cubit/favorites_cubit.dart';
 import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/cubit/page_cubit.dart';
 import 'package:counter_note/central/keyboard.dart';
 import 'package:counter_note/central/navigation.dart';
 import 'package:counter_note/cubit/pb_cubit.dart';
+import 'package:counter_note/store/favorite_store.dart';
 import 'package:counter_note/store/image_store.dart';
 import 'package:counter_note/store/page_store.dart';
 import 'package:counter_note/screens/loading.dart';
@@ -24,6 +26,7 @@ class CounterNoteApp extends StatefulWidget {
 
 class _CounterNoteAppState extends State<CounterNoteApp> {
   final store = PageStore();
+  final favoriteStore = FavoriteStore([]);
   final imageStore = ImageStore([]);
 
   @override
@@ -35,6 +38,9 @@ class _CounterNoteAppState extends State<CounterNoteApp> {
         ),
         BlocProvider(
           create: (context) => NavigationCubit(store: store),
+        ),
+        BlocProvider(
+          create: (context) => FavoritesCubit(store: favoriteStore),
         ),
         BlocProvider(
           create: (context) => PageCubit(
@@ -76,7 +82,7 @@ class _CounterNoteAppState extends State<CounterNoteApp> {
               store.pbService = state.service;
               navCubit.init();
             }
-            if (state is PocketBasePrompt) {
+            if (state is PocketBasePrompt || state is PocketBaseError) {
               navCubit.navigateTo(RouteState.settings);
             }
           },

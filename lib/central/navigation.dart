@@ -1,3 +1,4 @@
+import 'package:counter_note/central/favorites.dart';
 import 'package:counter_note/central/help.dart';
 import 'package:counter_note/cubit/navigation_cubit.dart';
 import 'package:counter_note/screens/journals.dart';
@@ -145,12 +146,7 @@ class CentralNavigation extends StatelessWidget {
                       thickness: 1,
                       color: Colors.black.withOpacity(0.08),
                     ),
-                    Button(
-                      'Favorites',
-                      icon: const Icon(Icons.favorite_border),
-                      active: false,
-                      onTap: () {},
-                    ),
+                    const FavoritesList(),
                     Button(
                       'Recent edits',
                       icon: const Icon(Icons.history),
