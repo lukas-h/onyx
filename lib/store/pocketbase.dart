@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:pocketbase/pocketbase.dart';
+import 'package:http/http.dart' as http;
 
 class PocketBaseService {
   final PocketBase pb;
@@ -56,4 +58,42 @@ class PocketBaseService {
   }
 
   Future<void> deletePage(String uid) => pb.collection('pages').delete(uid);
+
+  Future<void> createImage(ImageModel image) async =>
+      pb.collection('assets').create(
+        body: {
+          'title': image.title,
+          'id': image.uid,
+        },
+        files: [
+          http.MultipartFile.fromBytes(
+            'file',
+            await image.bytes,
+            filename: image.title,
+          ),
+        ],
+      );
+
+  Future<void> deleteImage(String uid) => pb.collection('assets').delete(uid);
+
+  Future<List<ImageModel>> getImages() async {
+    final assets = await pb.collection('assets').getList();
+    final list = <ImageModel>[];
+    for (final item in assets.items) {
+      final fileName = item.getStringValue('file');
+
+      final url = pb.files.getUrl(item, fileName, download: true);
+
+      final resp = http.get(url).then((v) => v.bodyBytes);
+
+      list.add(
+        ImageModel(
+          bytes: resp,
+          title: item.getStringValue('title'),
+          uid: item.id,
+        ),
+      );
+    }
+    return list;
+  }
 }

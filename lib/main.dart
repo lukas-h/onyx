@@ -37,7 +37,10 @@ class _OnyxAppState extends State<OnyxApp> {
           create: (context) => PocketBaseCubit(),
         ),
         BlocProvider(
-          create: (context) => NavigationCubit(store: store),
+          create: (context) => NavigationCubit(
+            store: store,
+            imageStore: imageStore,
+          ),
         ),
         BlocProvider(
           create: (context) => FavoritesCubit(store: favoriteStore),
@@ -80,6 +83,7 @@ class _OnyxAppState extends State<OnyxApp> {
             final navCubit = context.read<NavigationCubit>();
             if (state is PocketBaseSuccess) {
               store.pbService = state.service;
+              imageStore.pbService = state.service;
               navCubit.init();
             }
             if (state is PocketBasePrompt || state is PocketBaseError) {

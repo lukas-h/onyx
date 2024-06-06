@@ -1,10 +1,12 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
+import 'package:onyx/store/pocketbase.dart';
 
 class ImageModel {
-  Uint8List bytes;
+  Future<Uint8List> bytes;
   String title;
   String uid;
 
@@ -16,34 +18,42 @@ class ImageModel {
 }
 
 class ImageStore {
+  PocketBaseService? _pbService;
   final List<ImageModel> images;
 
-  ImageStore(this.images);
+  ImageStore(this.images, {PocketBaseService? pbService})
+      : _pbService = pbService;
+
+  set pbService(PocketBaseService pbService) {
+    _pbService = pbService;
+  }
 
   Future<void> init() async {
-    images.addAll([]);
+    final dbImages = await _pbService?.getImages();
+    images.addAll([
+      ...?dbImages,
+    ]);
   }
 
   Future<int> addImage(Uint8List bytes, String title) async {
-    images.add(
-      ImageModel(
-        bytes: bytes,
-        title: title,
-        uid: nanoid(15),
-      ),
+    final model = ImageModel(
+      bytes: Future.value(bytes),
+      title: title,
+      uid: nanoid(15),
     );
+    images.add(model);
+    _pbService?.createImage(model);
     return images.length - 1;
   }
 
-  void removeImage(String uid) {
+  Future<void> removeImage(String uid) async {
     images.removeWhere((e) => e.uid == uid);
+    _pbService?.deleteImage(uid);
   }
 
-  ImageModel? getImageById(String uid) {
-    return images.singleWhereOrNull((e) => e.uid == uid);
-  }
+  Future<ImageModel?> getImageById(String uid) async =>
+      images.singleWhereOrNull((e) => e.uid == uid);
 
-  ImageModel? getImageByName(String name) {
-    return images.singleWhereOrNull((e) => e.title == name);
-  }
+  Future<ImageModel?> getImageByTitle(String title) async =>
+      images.singleWhereOrNull((e) => e.title == title);
 }

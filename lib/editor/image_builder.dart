@@ -1,10 +1,13 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class _ErrorBuilder extends StatelessWidget {
   final String name;
-  const _ErrorBuilder({super.key, required this.name});
+  const _ErrorBuilder({required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +17,20 @@ class _ErrorBuilder extends StatelessWidget {
         color: Colors.red,
       ),
       title: const Text('Image URL unparseable'),
+      subtitle: Text(name),
+    );
+  }
+}
+
+class _LoadingBuilder extends StatelessWidget {
+  final String name;
+  const _LoadingBuilder({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: const CircularProgressIndicator(),
+      title: const Text('Image is loading'),
       subtitle: Text(name),
     );
   }
@@ -34,18 +51,31 @@ class ImageBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = uri.toString();
-    final image = context.read<PageCubit>().getImage(name);
-    if (image != null) {
-      return Image.memory(image.bytes);
-    } else if (Uri.tryParse(name) != null) {
-      return Image.network(
-        name,
-        errorBuilder: (context, error, stackTrace) => _ErrorBuilder(
-          name: error.toString(),
-        ),
-      );
-    } else {
-      return _ErrorBuilder(name: name);
-    }
+    final cubit = context.read<PageCubit>();
+    return FutureBuilder<Uint8List>(
+        future: cubit.getImage(name).then((image) {
+          if (image == null) throw PathNotFoundException(name, const OSError());
+          return image.bytes;
+        }),
+        builder: (context, snap) {
+          if (snap.connectionState == ConnectionState.done && snap.hasData) {
+            return Image.memory(snap.data!);
+          } else if (snap.hasError && snap.error is PathNotFoundException) {
+            if (Uri.tryParse(name) != null) {
+              return Image.network(
+                name,
+                errorBuilder: (context, error, stackTrace) => _ErrorBuilder(
+                  name: error.toString(),
+                ),
+              );
+            } else {
+              return _ErrorBuilder(name: name);
+            }
+          } else if (snap.connectionState != ConnectionState.done) {
+            return _LoadingBuilder(name: name);
+          } else {
+            return _ErrorBuilder(name: name);
+          }
+        });
   }
 }

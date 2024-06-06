@@ -53,6 +53,7 @@ dependencies:
   replay_bloc: ^0.2.7
   pocketbase: ^0.18.1
   flutter_secure_storage: ^9.2.2
+  http: ^1.2.1
 
 dev_dependencies:
   flutter_test:

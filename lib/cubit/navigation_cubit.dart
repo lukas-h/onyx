@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 
 import 'package:onyx/cubit/page_cubit.dart';
@@ -67,16 +68,19 @@ class NavigationLoading extends NavigationSuccess {
 
 class NavigationCubit extends ReplayCubit<NavigationState> {
   final PageStore store;
+  final ImageStore imageStore;
   final Set<String> _recentPages = {};
   List<String> get recentPages => _recentPages.toList();
 
   NavigationCubit({
     required this.store,
+    required this.imageStore,
   }) : super(NavigationInitial()) {
     init();
   }
   Future<void> init() async {
     await store.init();
+    await imageStore.init();
 
     if (state is NavigationSuccess) {
       emit((state as NavigationSuccess).copyWith());

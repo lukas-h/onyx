@@ -193,7 +193,8 @@ class PageCubit extends ReplayCubit<PageState> {
   }
 
   void index(int i) {
-    if (i < state.items.length && i >= -1) {
+    if (i < state.items.length &&
+        ((i > -1 && state.isJournal) || (i >= -1 && !state.isJournal))) {
       emit(state.copyWith(index: i));
     }
   }
@@ -316,5 +317,5 @@ class PageCubit extends ReplayCubit<PageState> {
         ),
       );
 
-  ImageModel? getImage(String name) => imageStore.getImageByName(name);
+  Future<ImageModel?> getImage(String name) => imageStore.getImageByTitle(name);
 }
