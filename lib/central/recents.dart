@@ -42,7 +42,7 @@ class _RecentsListState extends State<RecentsList> {
               },
             ),
             if (recentExtended)
-              ...recents.map((e) {
+              ...recents.only(10).map((e) {
                 final page = pages.singleWhereOrNull((k) => k.uid == e);
                 if (page == null) return Container();
                 return Padding(
