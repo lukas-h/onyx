@@ -14,6 +14,7 @@ class PageState extends Equatable {
   final String uid;
   final List<ListItemState> items;
   final int index;
+  final int pos;
   final num sum;
 
   ListItemState? get currentItem => index >= 0 ? items[index] : null;
@@ -26,6 +27,7 @@ class PageState extends Equatable {
     required this.title,
     required this.created,
     required this.uid,
+    required this.pos,
   });
 
   @override
@@ -34,6 +36,7 @@ class PageState extends Equatable {
   PageState copyWith({
     List<ListItemState>? items,
     int? index,
+    int? pos,
     String? title,
   }) {
     return PageState(
@@ -44,6 +47,7 @@ class PageState extends Equatable {
       title: title ?? this.title,
       isJournal: isJournal,
       uid: uid,
+      pos: pos ?? this.pos,
     );
   }
 
@@ -60,6 +64,7 @@ class PageState extends Equatable {
             ),
         ],
         index: 0, // TODO use actual index
+        pos: 0,
         sum: 0,
         title: model.title,
         isJournal: isJournal,
@@ -128,6 +133,7 @@ class PageCubit extends ReplayCubit<PageState> {
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,
+        pos: 0, // TODO
       ),
     );
   }
@@ -153,6 +159,7 @@ class PageCubit extends ReplayCubit<PageState> {
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,
+        pos: items.last.fullText.length - 1,
       ),
     );
   }
@@ -181,14 +188,15 @@ class PageCubit extends ReplayCubit<PageState> {
     items.add(item);
     emit(
       PageState(
-        items: items,
-        index: items.length - 1,
-        sum: calculateUntil(items, items.length),
-        created: state.created,
-        title: state.title,
-        isJournal: state.isJournal,
-        uid: state.uid,
-      ),
+          items: items,
+          index: items.length - 1,
+          sum: calculateUntil(items, items.length),
+          created: state.created,
+          title: state.title,
+          isJournal: state.isJournal,
+          uid: state.uid,
+          pos: 0 // TODO
+          ),
     );
   }
 
@@ -239,6 +247,7 @@ class PageCubit extends ReplayCubit<PageState> {
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,
+        pos: 0, // TODO
       ),
     );
   }

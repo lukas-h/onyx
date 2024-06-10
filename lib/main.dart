@@ -50,6 +50,7 @@ class _OnyxAppState extends State<OnyxApp> {
             PageState(
               isJournal: true,
               index: 0,
+              pos: 0,
               items: const [],
               created: DateTime.now(),
               title: '',
