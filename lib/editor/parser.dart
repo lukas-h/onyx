@@ -1,6 +1,6 @@
 import 'package:onyx/editor/model.dart';
 
-final expression = RegExp(r'^[0-9]+(([\.\,])+[0-9]+)?');
+final expression = RegExp(r'^\:[0-9]+(([\.\,])+[0-9]+)?');
 
 abstract class Parser {
   static ListItemState parse(ListItemState model) {
@@ -27,8 +27,9 @@ abstract class Parser {
 
     num? number;
     if (hasMatch(source)) {
+      print('yes, match');
       var match = getMatch(source);
-      number = num.tryParse(match);
+      number = num.tryParse(match.substring(1));
       if (number != null) {
         updatedModel = updatedModel.copyWith(number: number);
         if (operator == Operator.none) {
