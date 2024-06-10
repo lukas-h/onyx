@@ -26,7 +26,7 @@ class OnyxApp extends StatefulWidget {
 
 class _OnyxAppState extends State<OnyxApp> {
   final store = PageStore();
-  final favoriteStore = FavoriteStore([]);
+  final favoriteStore = FavoriteStore();
   final imageStore = ImageStore([]);
 
   @override
@@ -81,10 +81,13 @@ class _OnyxAppState extends State<OnyxApp> {
         home: BlocListener<PocketBaseCubit, PocketBaseState>(
           listener: (context, state) {
             final navCubit = context.read<NavigationCubit>();
+            final favCubit = context.read<FavoritesCubit>();
             if (state is PocketBaseSuccess) {
               store.pbService = state.service;
               imageStore.pbService = state.service;
+              favoriteStore.pbService = state.service;
               navCubit.init();
+              favCubit.init();
             }
             if (state is PocketBasePrompt || state is PocketBaseError) {
               navCubit.navigateTo(RouteState.settings);

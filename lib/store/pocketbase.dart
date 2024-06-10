@@ -10,6 +10,11 @@ class PocketBaseService {
 
   PocketBaseService(this.pb);
 
+  Future<List<String>> getFavorites() async {
+    final list = await pb.collection('favorites').getList();
+    return list.items.map((e) => e.getStringValue('uid')).toList();
+  }
+
   Future<List<PageModel>> _getModels(String collection) async {
     final list = await pb.collection(collection).getList();
     return list.items
@@ -58,6 +63,23 @@ class PocketBaseService {
   }
 
   Future<void> deletePage(String uid) => pb.collection('pages').delete(uid);
+
+  Future<void> createFavorite(String uid) =>
+      pb.collection('favorites').create(body: {
+        'uid': uid,
+      });
+
+  Future<void> deleteFavorite(String uid) async {
+    final list = await pb.collection('favorites').getList(
+          filter: 'uid = "$uid"',
+          page: 1,
+          perPage: 1,
+        );
+    if (list.items.isNotEmpty) {
+      final id = list.items.first.id;
+      await pb.collection('favorites').delete(id);
+    }
+  }
 
   Future<void> createImage(ImageModel image) async =>
       pb.collection('assets').create(
