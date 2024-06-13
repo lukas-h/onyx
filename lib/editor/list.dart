@@ -24,7 +24,6 @@ class ListEditorState extends State<ListEditor> {
     if (scrollController.offset > 0) {
       scrollOffset = scrollController.offset;
     }
-    print('offset: $scrollOffset');
   }
 
   @override
