@@ -1,4 +1,4 @@
-import 'package:onyx/central/link.dart';
+import 'package:onyx/editor/link.dart';
 import 'package:onyx/central/search.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/editor/item.dart';
