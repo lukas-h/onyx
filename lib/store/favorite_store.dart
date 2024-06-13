@@ -1,4 +1,4 @@
-import 'package:onyx/store/pocketbase.dart';
+import 'package:onyx/service/pb_service.dart';
 
 class FavoriteStore {
   PocketBaseService? _pbService;

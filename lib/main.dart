@@ -1,9 +1,11 @@
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/central/keyboard.dart';
 import 'package:onyx/central/navigation.dart';
-import 'package:onyx/cubit/pb_cubit.dart';
+import 'package:onyx/cubit/origin/pb_cubit.dart';
+import 'package:onyx/service/pb_service.dart';
 import 'package:onyx/store/favorite_store.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
@@ -78,18 +80,19 @@ class _OnyxAppState extends State<OnyxApp> {
             ),
           ),
         ),
-        home: BlocListener<PocketBaseCubit, PocketBaseState>(
+        home: BlocListener<PocketBaseCubit, OriginState>(
           listener: (context, state) {
             final navCubit = context.read<NavigationCubit>();
             final favCubit = context.read<FavoritesCubit>();
-            if (state is PocketBaseSuccess) {
+            if (state
+                is OriginSuccess<PocketBaseCredentials, PocketBaseService>) {
               store.pbService = state.service;
               imageStore.pbService = state.service;
               favoriteStore.pbService = state.service;
               navCubit.init();
               favCubit.init();
             }
-            if (state is PocketBasePrompt || state is PocketBaseError) {
+            if (state is OriginPrompt || state is OriginError) {
               navCubit.navigateTo(RouteState.settings);
             }
           },
