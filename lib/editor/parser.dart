@@ -22,7 +22,7 @@ abstract class Parser {
     });
 
     if (operator != Operator.none) {
-      source = source.substring(2).trim();
+      source = ':${source.substring(2).trim()}';
     }
 
     num? number;
