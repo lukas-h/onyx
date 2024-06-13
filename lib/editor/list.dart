@@ -45,7 +45,7 @@ class ListEditorState extends State<ListEditor> {
       child: BlocConsumer<PageCubit, PageState>(
         bloc: cubit,
         listener: (context, state) {
-          scrollController.jumpTo(scrollOffset);
+          //scrollController.jumpTo(scrollOffset);
         },
         builder: (context, state) {
           return Focus(
@@ -80,8 +80,23 @@ class ListEditorState extends State<ListEditor> {
                   child: ReorderableListView.builder(
                     scrollController: scrollController,
                     buildDefaultDragHandles: false,
+                    proxyDecorator: (child, index, animation) {
+                      return Material(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 1,
+                              color: Colors.black.withOpacity(0.08),
+                            ),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: child,
+                        ),
+                      );
+                    },
                     itemBuilder: (context, index) {
                       final item = state.items[index];
+
                       return ListItemEditor(
                         cubit: cubit,
                         key: ValueKey(item.uid),

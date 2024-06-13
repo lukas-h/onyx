@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:nanoid/nanoid.dart';
 
 enum Operator {
@@ -18,6 +19,7 @@ class ListItemState {
   final String uid;
   final int indent;
   final bool checked;
+  final FocusNode focusNode;
 
   ListItemState({
     this.indent = 0,
@@ -27,7 +29,9 @@ class ListItemState {
     required this.index,
     required this.fullText,
     this.checked = false,
-  }) : uid = nanoid(15);
+    FocusNode? focusNode,
+  })  : uid = nanoid(15),
+        focusNode = focusNode ?? FocusNode();
 
   factory ListItemState.unparsed({
     required int index,
@@ -58,5 +62,6 @@ class ListItemState {
         number: number ?? this.number,
         indent: indent ?? this.indent,
         checked: checked ?? this.checked,
+        focusNode: focusNode,
       );
 }

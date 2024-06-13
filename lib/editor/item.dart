@@ -37,12 +37,13 @@ class ListItemEditor extends StatefulWidget {
 }
 
 class _ListItemEditorState extends State<ListItemEditor> {
-  final _node = FocusNode();
+  late final FocusNode _node;
   final _controller = TextEditingController();
   bool hasMatch = false;
   String match = '';
   @override
   void initState() {
+    _node = widget.model.focusNode;
     if (widget.inFocus) {
       _node.requestFocus();
     }
@@ -139,7 +140,10 @@ class _ListItemEditorState extends State<ListItemEditor> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: () {
+        _node.requestFocus();
+        widget.onTap();
+      },
       child: Container(
         constraints: const BoxConstraints(minHeight: 44),
         padding: const EdgeInsets.all(10),
