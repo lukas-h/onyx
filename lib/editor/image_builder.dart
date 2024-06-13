@@ -60,8 +60,10 @@ class ImageBuilder extends StatelessWidget {
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.done && snap.hasData) {
             return ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 750),
-                child: Image.memory(snap.data!));
+              key: ValueKey(name),
+              constraints: const BoxConstraints(maxHeight: 750),
+              child: Image.memory(snap.data!),
+            );
           } else if (snap.hasError && snap.error is PathNotFoundException) {
             if (Uri.tryParse(name) != null) {
               return ConstrainedBox(

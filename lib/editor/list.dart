@@ -17,14 +17,38 @@ class ListEditor extends StatefulWidget {
 class ListEditorState extends State<ListEditor> {
   bool _eventHandled = false;
   bool _previouslyEmpty = true;
+  double scrollOffset = 0;
+  final scrollController = ScrollController(keepScrollOffset: true);
+
+  void _scrollListener() {
+    if (scrollController.offset > 0) {
+      scrollOffset = scrollController.offset;
+    }
+    print('offset: $scrollOffset');
+  }
+
+  @override
+  void initState() {
+    scrollController.addListener(_scrollListener);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    scrollController.removeListener(_scrollListener);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PageCubit>();
     return SelectionArea(
-      child: BlocBuilder<PageCubit, PageState>(
+      child: BlocConsumer<PageCubit, PageState>(
         bloc: cubit,
-        builder: (content, state) {
+        listener: (context, state) {
+          scrollController.jumpTo(scrollOffset);
+        },
+        builder: (context, state) {
           return Focus(
             onKeyEvent: (node, event) {
               if (event.logicalKey != LogicalKeyboardKey.backspace) {
@@ -55,51 +79,57 @@ class ListEditorState extends State<ListEditor> {
               children: [
                 Expanded(
                   child: ReorderableListView.builder(
+                    scrollController: scrollController,
                     buildDefaultDragHandles: false,
-                    itemBuilder: (context, index) => ListItemEditor(
-                      cubit: cubit,
-                      key: UniqueKey(),
-                      model: state.items[index],
-                      inFocus: state.index == index,
-                      onTap: () {
-                        cubit.index(index);
-                      },
-                      onChecked: (i) {
-                        cubit.check(i);
-                      },
-                      onChanged: (value) {
-                        cubit.update(index, value);
-                      },
-                      onDeleted: () {
-                        cubit.remove(index);
-                      },
-                      onNext: () {
-                        cubit.skipToNext();
-                      },
-                      index: index,
-                    ),
+                    itemBuilder: (context, index) {
+                      final item = state.items[index];
+                      return ListItemEditor(
+                        cubit: cubit,
+                        key: ValueKey(item.uid),
+                        model: item,
+                        inFocus: state.index == index,
+                        onTap: () {
+                          cubit.index(index);
+                        },
+                        onChecked: (i) {
+                          cubit.check(i);
+                        },
+                        onChanged: (value) {
+                          cubit.update(index, value);
+                        },
+                        onDeleted: () {
+                          cubit.remove(index);
+                        },
+                        onNext: () {
+                          cubit.skipToNext();
+                        },
+                        index: index,
+                      );
+                    },
                     itemCount: state.items.length,
                     onReorder: cubit.reorder,
+                    footer: (state.sum > 0)
+                        ? Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                top: BorderSide(
+                                    width: 0.5, color: Colors.grey[300]!),
+                              ),
+                            ),
+                            child: ListTile(
+                              leading: const Icon(Icons.functions),
+                              title: Padding(
+                                padding: const EdgeInsets.only(left: 6.0),
+                                child: Text(
+                                  state.sum.toDouble().toStringAsFixed(2),
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Container(),
                   ),
                 ),
-                if (state.sum > 0)
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(width: 0.5, color: Colors.grey[300]!),
-                      ),
-                    ),
-                    child: ListTile(
-                      leading: const Icon(Icons.functions),
-                      title: Padding(
-                        padding: const EdgeInsets.only(left: 6.0),
-                        child: Text(
-                          state.sum.toDouble().toStringAsFixed(2),
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  ),
                 Material(
                   elevation: 0,
                   color: Colors.black.withOpacity(0.03),

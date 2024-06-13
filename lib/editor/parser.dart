@@ -8,7 +8,8 @@ abstract class Parser {
       final leadingWhitespace = RegExp(r'^\s+');
       final match = leadingWhitespace.firstMatch(fullText);
       final count = match?.group(0)?.length ?? 0;
-      return (count / 2).round();
+
+      return (count / 2).round().clamp(0, 12);
     }
 
     var updatedModel = model;
@@ -30,12 +31,11 @@ abstract class Parser {
     });
 
     if (operator != Operator.none) {
-      source = ':${source.substring(2).trim()}';
+      source = ':${source.substring(2)}';
     }
 
     num? number;
     if (hasMatch(source)) {
-      print('yes, match');
       var match = getMatch(source);
       number = num.tryParse(match.substring(1));
       if (number != null) {

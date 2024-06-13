@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:onyx/editor/model.dart';
 import 'package:onyx/editor/parser.dart';
 import 'package:onyx/store/image_store.dart';
@@ -229,11 +230,17 @@ class PageCubit extends ReplayCubit<PageState> {
   void reorder(int oldIndex, int newIndex) {
     final items = List.of(state.items, growable: true);
     final item = items.removeAt(oldIndex);
-    items.insert(newIndex, item);
+
+    if (newIndex < items.length) {
+      items.insert(newIndex, item);
+    } else {
+      items.add(item);
+    }
+
     emit(
       PageState(
-        items: items,
-        index: newIndex,
+        items: items.mapIndexed((i, e) => e.copyWith(index: i)).toList(),
+        index: items.indexOf(item),
         sum: calculateUntil(items, items.length),
         created: state.created,
         title: state.title,
