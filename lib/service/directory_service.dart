@@ -5,130 +5,165 @@ import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/service/service.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as p;
+import 'package:yaml/yaml.dart' as y;
 
 class DirectoryService extends OriginService {
   final Directory directory;
   DirectoryService(this.directory);
 
-  @override
-  Future<List<String>> getFavorites() async {
-    final list = await pb.collection('favorites').getList();
-    return list.items.map((e) => e.getStringValue('uid')).toList();
-  }
-
   Future<List<PageModel>> _getModels(String collection) async {
-    final list = await pb.collection(collection).getList();
-    return list.items
-        .map(
-          (e) => PageModel(
-            uid: e.id,
-            title: e.data['title'],
-            fullText: e.data['body'].toString().split('\n'),
-            created: DateTime.tryParse(e.created) ?? DateTime.now(),
-          ),
-        )
-        .toList();
+    final modelsDir = Directory(p.join(directory.path, collection));
+    if (!await modelsDir.exists()) {
+      await modelsDir.create();
+      return [];
+    }
+    final list = modelsDir.list();
+
+    final models = <PageModel>[];
+    await for (final item in list) {
+      if (item is! File) continue;
+      final content = await item.readAsString();
+      models.add(PageModel.fromMarkdown(content));
+    }
+    return models;
   }
 
   @override
-  Future<List<PageModel>> getPages() => _getModels('pages');
+  Future<List<PageModel>> getPages() => _getModels('_pages');
 
   @override
-  Future<List<PageModel>> getJournals() => _getModels('journals');
+  Future<List<PageModel>> getJournals() => _getModels('_journals');
 
-  @override
-  Future<void> createPage(PageModel model) => pb.collection('pages').create(
-        body: model.toJson(),
-      );
+  Future<void> _writePage(String collection, PageModel model) async {
+    final page = File(
+      p.join(
+        directory.path,
+        collection,
+        '${model.uid}.md',
+      ),
+    );
+    if (!await page.exists()) {
+      await page.create();
+    }
+    await page.writeAsString(model.toMarkdown());
+  }
 
-  @override
-  Future<void> createJournal(PageModel model) =>
-      pb.collection('journals').create(
-            body: model.toJson(),
-          );
-
-  @override
-  Future<void> updatePage(PageModel model) => pb.collection('pages').update(
-        model.uid,
-        body: model.toJson(),
-      );
-
-  @override
-  Future<void> updateJournal(PageModel model) async {
-    final coll = pb.collection('journals');
-    try {
-      final item = await coll.getFirstListItem('title = "${model.title}"');
-      final id = item.id;
-      final updatedModel = model.copyWith(uid: id);
-      await coll.update(
-        id,
-        body: updatedModel.toJson(),
-      );
-    } catch (e) {
-      await coll.create(body: model.toJson());
+  Future<void> _deleteItem(String collection, String uid) async {
+    final page = File(
+      p.join(
+        directory.path,
+        'assets',
+        '$uid.md',
+      ),
+    );
+    if (await page.exists()) {
+      await page.delete();
     }
   }
 
   @override
-  Future<void> deletePage(String uid) => pb.collection('pages').delete(uid);
+  Future<void> createPage(PageModel model) => _writePage('_pages', model);
 
   @override
-  Future<void> createFavorite(String uid) =>
-      pb.collection('favorites').create(body: {
-        'uid': uid,
-      });
+  Future<void> createJournal(PageModel model) => _writePage('_journals', model);
+
+  @override
+  Future<void> updatePage(PageModel model) => _writePage('_pages', model);
+
+  @override
+  Future<void> updateJournal(PageModel model) => _writePage('_journals', model);
+
+  @override
+  Future<void> deletePage(String uid) => _deleteItem('_pages', uid);
+
+  Future<(List<String>, File)> _getFavoritesImpl() async {
+    final file = File(p.join(directory.path, 'favorites.md'));
+    if (!await file.exists()) {
+      await file.create();
+      await file.writeAsString('favorites: []');
+      return (<String>[], file);
+    }
+    final content = await file.readAsString();
+    final yaml = y.loadYaml(content);
+    final list = (yaml['favorites'] as List).cast<String>();
+    return (list, file);
+  }
+
+  String _toYaml(Iterable<String> list) {
+    final buf = StringBuffer();
+    buf.writeln('favorites:');
+    for (final item in list) {
+      buf.writeln('  - $item');
+    }
+    return buf.toString();
+  }
+
+  @override
+  Future<List<String>> getFavorites() async {
+    final result = await _getFavoritesImpl();
+    return result.$1;
+  }
+
+  @override
+  Future<void> createFavorite(String uid) async {
+    final result = await _getFavoritesImpl();
+    final set = result.$1.toSet()..add(uid);
+    final file = result.$2;
+    await file.writeAsString(_toYaml(set));
+  }
 
   @override
   Future<void> deleteFavorite(String uid) async {
-    final list = await pb.collection('favorites').getList(
-          filter: 'uid = "$uid"',
-          page: 1,
-          perPage: 1,
-        );
-    if (list.items.isNotEmpty) {
-      final id = list.items.first.id;
-      await pb.collection('favorites').delete(id);
-    }
+    final result = await _getFavoritesImpl();
+    final set = result.$1.toSet()..add(uid);
+    final file = result.$2;
+    set.remove(uid);
+    await file.writeAsString(_toYaml(set));
   }
 
   @override
-  Future<void> createImage(ImageModel image) async =>
-      pb.collection('assets').create(
-        body: {
-          'title': image.title,
-          'id': image.uid,
-        },
-        files: [
-          http.MultipartFile.fromBytes(
-            'file',
-            await image.bytes,
-            filename: image.title,
-          ),
-        ],
-      );
+  Future<void> createImage(ImageModel image) async {
+    final page = File(
+      p.join(
+        directory.path,
+        'assets',
+        '${image.uid}.${image.title.split('.').last}',
+      ),
+    );
+    if (!await page.exists()) {
+      await page.create();
+    }
+    await page.writeAsBytes(await image.bytes);
+  }
 
   @override
-  Future<void> deleteImage(String uid) => pb.collection('assets').delete(uid);
+  Future<void> deleteImage(String uid) => _deleteItem('assets', uid);
 
   @override
   Future<List<ImageModel>> getImages() async {
-    final assets = await pb.collection('assets').getList();
-    final list = <ImageModel>[];
-    for (final item in assets.items) {
-      final fileName = item.getStringValue('file');
+    final modelsDir = Directory(p.join(directory.path, 'assets'));
+    if (!await modelsDir.exists()) {
+      await modelsDir.create();
+      return [];
+    }
+    final list = modelsDir.list();
 
-      final url = pb.files.getUrl(item, fileName, download: true);
+    final models = <ImageModel>[];
+    await for (final item in list) {
+      if (item is! File) continue;
+      final content = item.readAsBytes();
+      final fragments = item.path.split('/');
+      String uid = fragments.last.split('.').first;
 
-      final resp = http.get(url).then((v) => v.bodyBytes);
-
-      list.add(
+      models.add(
         ImageModel(
-          bytes: resp,
-          title: item.getStringValue('title'),
-          uid: item.id,
+          bytes: content,
+          title: fragments.last,
+          uid: uid,
         ),
       );
     }
-    return list;
+    return models;
   }
 }
