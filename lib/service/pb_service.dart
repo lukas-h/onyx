@@ -2,14 +2,15 @@ import 'dart:async';
 
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
+import 'package:onyx/service/service.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:http/http.dart' as http;
 
-class PocketBaseService {
+class PocketBaseService extends OriginService {
   final PocketBase pb;
-
   PocketBaseService(this.pb);
 
+  @override
   Future<List<String>> getFavorites() async {
     final list = await pb.collection('favorites').getList();
     return list.items.map((e) => e.getStringValue('uid')).toList();
@@ -29,24 +30,30 @@ class PocketBaseService {
         .toList();
   }
 
+  @override
   Future<List<PageModel>> getPages() => _getModels('pages');
 
+  @override
   Future<List<PageModel>> getJournals() => _getModels('journals');
 
+  @override
   Future<void> createPage(PageModel model) => pb.collection('pages').create(
         body: model.toJson(),
       );
 
+  @override
   Future<void> createJournal(PageModel model) =>
       pb.collection('journals').create(
             body: model.toJson(),
           );
 
+  @override
   Future<void> updatePage(PageModel model) => pb.collection('pages').update(
         model.uid,
         body: model.toJson(),
       );
 
+  @override
   Future<void> updateJournal(PageModel model) async {
     final coll = pb.collection('journals');
     try {
@@ -62,13 +69,16 @@ class PocketBaseService {
     }
   }
 
+  @override
   Future<void> deletePage(String uid) => pb.collection('pages').delete(uid);
 
+  @override
   Future<void> createFavorite(String uid) =>
       pb.collection('favorites').create(body: {
         'uid': uid,
       });
 
+  @override
   Future<void> deleteFavorite(String uid) async {
     final list = await pb.collection('favorites').getList(
           filter: 'uid = "$uid"',
@@ -81,6 +91,7 @@ class PocketBaseService {
     }
   }
 
+  @override
   Future<void> createImage(ImageModel image) async =>
       pb.collection('assets').create(
         body: {
@@ -96,8 +107,10 @@ class PocketBaseService {
         ],
       );
 
+  @override
   Future<void> deleteImage(String uid) => pb.collection('assets').delete(uid);
 
+  @override
   Future<List<ImageModel>> getImages() async {
     final assets = await pb.collection('assets').getList();
     final list = <ImageModel>[];

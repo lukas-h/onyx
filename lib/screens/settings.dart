@@ -1,4 +1,6 @@
-import 'package:onyx/cubit/pb_cubit.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
+import 'package:onyx/cubit/origin/pb_cubit.dart';
+import 'package:onyx/service/pb_service.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:onyx/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
@@ -41,9 +43,11 @@ class SettingsScreen extends StatelessWidget {
           child: NarrowBody(
             child: ListView(
               children: [
-                BlocBuilder<PocketBaseCubit, PocketBaseState>(
+                BlocBuilder<PocketBaseCubit, OriginState>(
                   builder: (context, state) {
-                    if (state is PocketBaseSuccess) {
+                    if (state is OriginSuccess<PocketBaseCredentials,
+                        PocketBaseService>) {
+                      final cred = state.credentials;
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -54,18 +58,19 @@ class SettingsScreen extends StatelessWidget {
                                 color: Colors.green,
                               ),
                               title: const Text('Pocketbase connection active'),
-                              subtitle: Text(state.url),
+                              subtitle: Text(cred.url),
                             ),
                           ),
                           _PocketBaseForm(
-                            initialUrl: state.url,
-                            initialEmail: state.email,
-                            initialPassword: state.password,
+                            initialUrl: cred.url,
+                            initialEmail: cred.email,
+                            initialPassword: cred.password,
                             saveButtonText: 'Update credentials',
                           ),
                         ],
                       );
-                    } else if (state is PocketBaseError) {
+                    } else if (state is OriginError<PocketBaseCredentials>) {
+                      final cred = state.credentials;
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -80,14 +85,14 @@ class SettingsScreen extends StatelessWidget {
                             ),
                           ),
                           _PocketBaseForm(
-                            initialUrl: state.url,
-                            initialEmail: state.email,
-                            initialPassword: state.password,
+                            initialUrl: cred?.url ?? '',
+                            initialEmail: cred?.email ?? '',
+                            initialPassword: cred?.password ?? '',
                             saveButtonText: 'Fix credentials',
                           ),
                         ],
                       );
-                    } else if (state is PocketBasePrompt) {
+                    } else if (state is OriginPrompt) {
                       return const Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -217,9 +222,11 @@ class _PocketBaseFormState extends State<_PocketBaseForm> {
                 ? () {
                     final pbCubit = context.read<PocketBaseCubit>();
                     pbCubit.setCredentials(
-                      url: _urlController.text,
-                      email: _emailController.text,
-                      password: _passwordController.text,
+                      PocketBaseCredentials(
+                        url: _urlController.text,
+                        email: _emailController.text,
+                        password: _passwordController.text,
+                      ),
                     );
                   }
                 : null,
