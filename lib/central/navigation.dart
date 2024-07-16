@@ -203,7 +203,7 @@ class CentralNavigation extends StatelessWidget {
               ),
               const VerticalDivider(
                 width: 1,
-                color: Colors.black38,
+                color: Colors.black26,
                 thickness: 1,
               ),
               Expanded(child: buildBody(state)),

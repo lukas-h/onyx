@@ -20,6 +20,7 @@ abstract class PageExtension {
     BuildContext context,
     PageState state,
     bool opened,
+    VoidCallback onOpen,
   );
 
   Widget buildBody(

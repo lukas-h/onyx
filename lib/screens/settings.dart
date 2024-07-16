@@ -1,4 +1,5 @@
 import 'package:onyx/cubit/pb_cubit.dart';
+import 'package:onyx/extensions/extensions_registry.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:onyx/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
@@ -41,90 +42,116 @@ class SettingsScreen extends StatelessWidget {
           child: NarrowBody(
             child: ListView(
               children: [
-                BlocBuilder<PocketBaseCubit, PocketBaseState>(
-                  builder: (context, state) {
-                    if (state is PocketBaseSuccess) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _SettingsCard(
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.done_all,
-                                color: Colors.green,
-                              ),
-                              title: const Text('Pocketbase connection active'),
-                              subtitle: Text(state.url),
-                            ),
-                          ),
-                          _PocketBaseForm(
-                            initialUrl: state.url,
-                            initialEmail: state.email,
-                            initialPassword: state.password,
-                            saveButtonText: 'Update credentials',
-                          ),
-                        ],
-                      );
-                    } else if (state is PocketBaseError) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _SettingsCard(
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.warning_amber_outlined,
-                                color: Colors.red,
-                              ),
-                              title: const Text('Pocketbase connection error'),
-                              subtitle: Text(state.message),
-                            ),
-                          ),
-                          _PocketBaseForm(
-                            initialUrl: state.url,
-                            initialEmail: state.email,
-                            initialPassword: state.password,
-                            saveButtonText: 'Fix credentials',
-                          ),
-                        ],
-                      );
-                    } else if (state is PocketBasePrompt) {
-                      return const Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _SettingsCard(
-                            child: ListTile(
-                              leading: Icon(
-                                Icons.info_outline,
-                                color: Colors.yellow,
-                              ),
-                              title: Text('Pocketbase configuration'),
-                              subtitle: Text('Please provide your credentials'),
-                            ),
-                          ),
-                          _PocketBaseForm(
-                            initialUrl: '',
-                            initialEmail: '',
-                            initialPassword: '',
-                            saveButtonText: 'Set credentials',
-                          ),
-                        ],
-                      );
-                    } else {
-                      return const _SettingsCard(
-                        child: ListTile(
-                          leading: CircularProgressIndicator(),
-                          title: Text('Pocketbase connection loading'),
-                          subtitle: Text('Trying to connect to service'),
-                        ),
-                      );
-                    }
-                  },
-                ),
+                const _PocketBaseSettings(),
+                for (final ext in context
+                    .read<ExtensionsRegistry>()
+                    .settingsExtensions) ...[
+                  const SizedBox(height: 32),
+                  _SettingsCard(
+                    child: ListTile(
+                      leading: ext.icon,
+                      title: Text(ext.title),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: ext.buildBody(context),
+                  ),
+                ]
               ],
             ),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PocketBaseSettings extends StatelessWidget {
+  const _PocketBaseSettings({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<PocketBaseCubit, PocketBaseState>(
+      builder: (context, state) {
+        if (state is PocketBaseSuccess) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _SettingsCard(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.done_all,
+                    color: Colors.green,
+                  ),
+                  title: const Text('Pocketbase connection active'),
+                  subtitle: Text(state.url),
+                ),
+              ),
+              _PocketBaseForm(
+                initialUrl: state.url,
+                initialEmail: state.email,
+                initialPassword: state.password,
+                saveButtonText: 'Update credentials',
+              ),
+            ],
+          );
+        } else if (state is PocketBaseError) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _SettingsCard(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.warning_amber_outlined,
+                    color: Colors.red,
+                  ),
+                  title: const Text('Pocketbase connection error'),
+                  subtitle: Text(state.message),
+                ),
+              ),
+              _PocketBaseForm(
+                initialUrl: state.url,
+                initialEmail: state.email,
+                initialPassword: state.password,
+                saveButtonText: 'Fix credentials',
+              ),
+            ],
+          );
+        } else if (state is PocketBasePrompt) {
+          return const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _SettingsCard(
+                child: ListTile(
+                  leading: Icon(
+                    Icons.info_outline,
+                    color: Colors.yellow,
+                  ),
+                  title: Text('Pocketbase configuration'),
+                  subtitle: Text('Please provide your credentials'),
+                ),
+              ),
+              _PocketBaseForm(
+                initialUrl: '',
+                initialEmail: '',
+                initialPassword: '',
+                saveButtonText: 'Set credentials',
+              ),
+            ],
+          );
+        } else {
+          return const _SettingsCard(
+            child: ListTile(
+              leading: CircularProgressIndicator(),
+              title: Text('Pocketbase connection loading'),
+              subtitle: Text('Trying to connect to service'),
+            ),
+          );
+        }
+      },
     );
   }
 }
@@ -163,7 +190,7 @@ class _PocketBaseFormState extends State<_PocketBaseForm> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8.0, right: 8),
+      padding: const EdgeInsets.only(left: 8, right: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
