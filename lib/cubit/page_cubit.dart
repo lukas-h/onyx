@@ -88,11 +88,6 @@ class PageCubit extends ReplayCubit<PageState> {
     super.emit(state);
   }
 
-  void _focus() {
-    state.items[state.index].focusNode
-        .requestFocus(); // TODO find better technical solution
-  }
-
   void selectPage(PageState newPage) {
     emit(newPage);
   }
@@ -202,7 +197,6 @@ class PageCubit extends ReplayCubit<PageState> {
     if (i < state.items.length &&
         ((i > -1 && state.isJournal) || (i >= -1 && !state.isJournal))) {
       emit(state.copyWith(index: i));
-      _focus();
     }
   }
 
@@ -267,7 +261,6 @@ class PageCubit extends ReplayCubit<PageState> {
             .toList(),
       ),
     );
-    _focus();
   }
 
   void decreaseIndent() {
@@ -281,7 +274,6 @@ class PageCubit extends ReplayCubit<PageState> {
             .toList(),
       ),
     );
-    _focus();
   }
 
   Future<void> insertImage() async {

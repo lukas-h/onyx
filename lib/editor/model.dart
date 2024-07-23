@@ -19,7 +19,6 @@ class ListItemState {
   final String uid;
   final int indent;
   final bool checked;
-  final FocusNode focusNode;
 
   ListItemState({
     this.indent = 0,
@@ -29,9 +28,7 @@ class ListItemState {
     required this.index,
     required this.fullText,
     this.checked = false,
-    FocusNode? focusNode,
-  })  : uid = nanoid(15),
-        focusNode = focusNode ?? FocusNode();
+  }) : uid = nanoid(15);
 
   factory ListItemState.unparsed({
     required int index,
@@ -62,6 +59,5 @@ class ListItemState {
         number: number ?? this.number,
         indent: indent ?? this.indent,
         checked: checked ?? this.checked,
-        focusNode: focusNode,
       );
 }

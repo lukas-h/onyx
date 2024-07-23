@@ -43,10 +43,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
   String match = '';
   @override
   void initState() {
-    _node = widget.model.focusNode;
-    if (widget.inFocus) {
-      _node.requestFocus();
-    }
+    _node = FocusNode();
     _controller.text = widget.model.fullText;
     super.initState();
   }
@@ -139,6 +136,11 @@ class _ListItemEditorState extends State<ListItemEditor> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.inFocus) {
+        _node.requestFocus();
+      }
+    });
     return GestureDetector(
       onTap: () {
         _node.requestFocus();
