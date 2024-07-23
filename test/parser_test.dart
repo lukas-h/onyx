@@ -7,14 +7,16 @@ void main() {
     test(
         'correctly identifies and assigns operator when source starts with operator',
         () {
+      const text = ':+ 5';
       final model = ListItemState(
         index: 0,
-        fullText: ':+ 5',
+        fullText: text,
         textPart: '',
         checked: false,
         operator: Operator.none,
         number: 0,
         indent: 0,
+        position: text.length - 1, // TODO
       );
 
       final result = Parser.parse(model);
@@ -32,6 +34,7 @@ void main() {
         checked: false,
         operator: Operator.none,
         number: 0,
+        position: 0,
         indent: 0,
       );
 
@@ -43,14 +46,16 @@ void main() {
     });
 
     test('test indent paser', () {
+      const text = '    hello';
       final model = ListItemState(
         index: 0,
-        fullText: '    hello',
+        fullText: text,
         textPart: '',
         checked: false,
         operator: Operator.none,
         number: 0,
         indent: 0,
+        position: text.length - 1, //TODO
       );
 
       final result = Parser.parse(model);

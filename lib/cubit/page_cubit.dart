@@ -57,6 +57,7 @@ class PageState extends Equatable {
               ListItemState.unparsed(
                 fullText: model.fullText[i],
                 index: i,
+                position: model.fullText[i].length - 1, // TODO
               ),
             ),
         ],
@@ -222,6 +223,7 @@ class PageCubit extends ReplayCubit<PageState> {
         ListItemState.unparsed(
           index: state.items.length,
           fullText: '',
+          position: 0,
         ),
       );
     }

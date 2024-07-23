@@ -160,6 +160,7 @@ class ListEditorState extends State<ListEditor> {
                             ListItemState.unparsed(
                               index: state.items.length,
                               fullText: '',
+                              position: 0,
                             ),
                           );
                         },

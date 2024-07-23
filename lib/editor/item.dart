@@ -45,6 +45,8 @@ class _ListItemEditorState extends State<ListItemEditor> {
   void initState() {
     _node = FocusNode();
     _controller.text = widget.model.fullText;
+    _controller.selection =
+        TextSelection.fromPosition(TextPosition(offset: widget.model.position));
     super.initState();
   }
 
@@ -201,6 +203,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                             widget.model.copyWith(
                               fullText: _controller.text,
                               textPart: _controller.text,
+                              position: _controller.selection.baseOffset,
                             ),
                           );
                         }),

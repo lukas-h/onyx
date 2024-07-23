@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:nanoid/nanoid.dart';
 
 enum Operator {
@@ -19,6 +18,7 @@ class ListItemState {
   final String uid;
   final int indent;
   final bool checked;
+  final int position;
 
   ListItemState({
     this.indent = 0,
@@ -26,12 +26,14 @@ class ListItemState {
     required this.operator,
     required this.number,
     required this.index,
+    required this.position,
     required this.fullText,
     this.checked = false,
   }) : uid = nanoid(15);
 
   factory ListItemState.unparsed({
     required int index,
+    required int position,
     required String fullText,
   }) =>
       ListItemState(
@@ -40,6 +42,7 @@ class ListItemState {
         number: null,
         index: index,
         fullText: fullText,
+        position: position,
       );
 
   ListItemState copyWith({
@@ -50,6 +53,7 @@ class ListItemState {
     Operator? operator,
     num? number,
     int? indent,
+    int? position,
   }) =>
       ListItemState(
         index: index ?? this.index,
@@ -59,5 +63,6 @@ class ListItemState {
         number: number ?? this.number,
         indent: indent ?? this.indent,
         checked: checked ?? this.checked,
+        position: position ?? this.position,
       );
 }
