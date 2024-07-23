@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
 import 'package:onyx/cubit/page_cubit.dart';
-import 'package:onyx/service/pb_service.dart';
+import 'package:onyx/service/service.dart';
 import 'package:onyx/utils/utils.dart';
 
 class PageModel {
@@ -74,23 +74,24 @@ ${fullText.join('\n')}
 }
 
 class PageStore {
-  PocketBaseService? _pbService;
+  List<OriginService>? _originServices;
   final List<PageModel> pages = [];
   final List<PageModel> journals = [];
 
-  PageStore({PocketBaseService? pbService}) : _pbService = pbService;
+  PageStore({List<OriginService>? originServices})
+      : _originServices = originServices;
 
-  set pbService(PocketBaseService pbService) {
-    _pbService = pbService;
+  set originServices(List<OriginService> originServices) {
+    _originServices = originServices;
   }
 
   Future<void> init() async {
     // TODO check for local changes that aren't online yet
-    final dbPages = await _pbService?.getPages() ?? [];
+    final dbPages = await _originServices?.firstOrNull?.getPages() ?? [];
     pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
     pages.addAll(dbPages);
 
-    final dbJournals = await _pbService?.getJournals() ?? [];
+    final dbJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
     journals.clear();
     journals.addAll([
       ...List.generate(
@@ -119,23 +120,23 @@ class PageStore {
       uid: nanoid(15),
     );
     pages.add(page);
-    _pbService?.createPage(page);
+    _originServices?.firstOrNull?.createPage(page);
     return pages.length - 1;
   }
 
   void updatePage(PageModel model) {
     pages[pages.indexWhere((e) => e.uid == model.uid)] = model;
-    _pbService?.updatePage(model);
+    _originServices?.firstOrNull?.updatePage(model);
   }
 
   void updateJournal(PageModel model) {
     journals[journals.indexWhere((e) => e.uid == model.uid)] = model;
-    _pbService?.updateJournal(model);
+    _originServices?.firstOrNull?.updateJournal(model);
   }
 
   void deletePage(String uid) {
     pages.removeWhere((e) => e.uid == uid);
-    _pbService?.deletePage(uid);
+    _originServices?.firstOrNull?.deletePage(uid);
   }
 
   int getPageIndex(String uid) => pages.indexWhere((e) => e.uid == uid);

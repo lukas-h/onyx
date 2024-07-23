@@ -86,9 +86,9 @@ class _OnyxAppState extends State<OnyxApp> {
             final favCubit = context.read<FavoritesCubit>();
             if (state
                 is OriginSuccess<PocketBaseCredentials, PocketBaseService>) {
-              store.pbService = state.service;
-              imageStore.pbService = state.service;
-              favoriteStore.pbService = state.service;
+              store.originServices = [state.service];
+              imageStore.originServices = [state.service];
+              favoriteStore.originServices = [state.service];
               navCubit.init();
               favCubit.init();
             }

@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/service/service.dart';
-import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart' as y;
 
