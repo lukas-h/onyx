@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 
 enum ExtensionDisplayType {
@@ -11,6 +12,7 @@ abstract class PageExtension {
   final bool activeOnPages;
   final bool activeOnJournals;
   final ExtensionDisplayType extensionType;
+
   PageExtension({
     required this.activeOnPages,
     required this.activeOnJournals,
@@ -27,4 +29,8 @@ abstract class PageExtension {
     BuildContext context,
     PageState state,
   ); // only builds when opened
+
+  List<BlocProvider> registerBlocProviders(BuildContext context);
+
+  List<RepositoryProvider> registerRepositoryProviders(BuildContext context);
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/extensions/page_extension.dart';
 import 'package:onyx/extensions/settings_extension.dart';
@@ -34,6 +33,13 @@ class ChatPageExtension extends PageExtension {
       maxWidth: false,
     );
   }
+
+  @override
+  List<BlocProvider> registerBlocProviders(BuildContext context) => [];
+
+  @override
+  List<RepositoryProvider> registerRepositoryProviders(BuildContext context) =>
+      [];
 }
 
 class ChatSettingsExtension extends SettingsExtension {
@@ -55,4 +61,11 @@ class ChatSettingsExtension extends SettingsExtension {
       onChanged: (v) {},
     );
   }
+
+  @override
+  List<BlocProvider> registerBlocProviders(BuildContext context) => [];
+
+  @override
+  List<RepositoryProvider> registerRepositoryProviders(BuildContext context) =>
+      [];
 }

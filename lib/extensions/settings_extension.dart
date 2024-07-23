@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class SettingsExtension {
   final String title;
@@ -9,4 +10,8 @@ abstract class SettingsExtension {
   });
 
   Widget buildBody(BuildContext context); // only builds when opened
+
+  List<BlocProvider> registerBlocProviders(BuildContext context);
+
+  List<RepositoryProvider> registerRepositoryProviders(BuildContext context);
 }
