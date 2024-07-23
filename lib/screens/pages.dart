@@ -100,19 +100,22 @@ class PageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(width: 0.5, color: Colors.grey[300]!),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(width: 0.5, color: Colors.grey[300]!),
+          ),
         ),
-      ),
-      child: ListTile(
-        title: Text(state.title),
-        dense: small,
-        subtitle:
-            small ? null : Text(DateFormat.yMMMMd().format(state.created)),
-        leading: icon ?? const Icon(Icons.summarize_outlined),
-        onTap: onTap,
+        child: ListTile(
+          title: Text(state.title),
+          dense: small,
+          subtitle:
+              small ? null : Text(DateFormat.yMMMMd().format(state.created)),
+          leading: icon ?? const Icon(Icons.summarize_outlined),
+          onTap: onTap,
+        ),
       ),
     );
   }

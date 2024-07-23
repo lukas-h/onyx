@@ -57,7 +57,7 @@ class PageState extends Equatable {
               ListItemState.unparsed(
                 fullText: model.fullText[i],
                 index: i,
-                position: model.fullText[i].length - 1, // TODO
+                position: model.fullText[i].length,
               ),
             ),
         ],

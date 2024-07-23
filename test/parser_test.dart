@@ -16,7 +16,7 @@ void main() {
         operator: Operator.none,
         number: 0,
         indent: 0,
-        position: text.length - 1, // TODO
+        position: text.length,
       );
 
       final result = Parser.parse(model);
