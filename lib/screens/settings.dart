@@ -193,12 +193,11 @@ class SettingsScreen extends StatelessWidget {
                         ],
                       );
                     } else {
-                      return _SettingsCard(
+                      return const _SettingsCard(
                         child: ListTile(
                           leading: CircularProgressIndicator(),
                           title: Text('Directory sync loading'),
-                          subtitle: Text(
-                              'Trying to setup folder ${state.runtimeType}'),
+                          subtitle: Text('Trying to setup folder'),
                         ),
                       );
                     }

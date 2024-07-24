@@ -6,7 +6,7 @@ import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/central/keyboard.dart';
 import 'package:onyx/central/navigation.dart';
 import 'package:onyx/cubit/origin/pb_cubit.dart';
-import 'package:onyx/service/pb_service.dart';
+import 'package:onyx/service/directory_service.dart';
 import 'package:onyx/store/favorite_store.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
@@ -84,12 +84,12 @@ class _OnyxAppState extends State<OnyxApp> {
             ),
           ),
         ),
-        home: BlocListener<PocketBaseCubit, OriginState>(
+        home: BlocListener<DirectoryCubit, OriginState>(
           listener: (context, state) {
             final navCubit = context.read<NavigationCubit>();
             final favCubit = context.read<FavoritesCubit>();
             if (state
-                is OriginSuccess<PocketBaseCredentials, PocketBaseService>) {
+                is OriginSuccess<DirectoryCredentials, DirectoryService>) {
               store.originServices = [state.service];
               imageStore.originServices = [state.service];
               favoriteStore.originServices = [state.service];
