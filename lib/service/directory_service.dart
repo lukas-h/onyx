@@ -77,7 +77,7 @@ class DirectoryService extends OriginService {
   Future<void> deletePage(String uid) => _deleteItem('_pages', uid);
 
   Future<(List<String>, File)> _getFavoritesImpl() async {
-    final file = File(p.join(directory.path, 'favorites.md'));
+    final file = File(p.join(directory.path, 'favorites.yaml'));
     if (!await file.exists()) {
       await file.create();
       await file.writeAsString('favorites: []');
