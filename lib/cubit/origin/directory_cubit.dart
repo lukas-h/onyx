@@ -22,7 +22,7 @@ class DirectoryCubit extends OriginCubit<DirectoryCredentials> {
       if (!(await dir.exists())) {
         dir = await dir.create();
       }
-      return OriginSuccess(
+      return OriginSuccess<DirectoryCredentials, DirectoryService>(
         credentials: DirectoryCredentials(
           path: path,
         ),
