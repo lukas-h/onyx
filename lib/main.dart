@@ -1,5 +1,6 @@
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/cubit/origin/directory_cubit.dart';
 import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/central/keyboard.dart';
@@ -37,6 +38,9 @@ class _OnyxAppState extends State<OnyxApp> {
       providers: [
         BlocProvider(
           create: (context) => PocketBaseCubit(),
+        ),
+        BlocProvider(
+          create: (context) => DirectoryCubit(),
         ),
         BlocProvider(
           create: (context) => NavigationCubit(

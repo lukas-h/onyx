@@ -1,5 +1,7 @@
+import 'package:onyx/cubit/origin/directory_cubit.dart';
 import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/cubit/origin/pb_cubit.dart';
+import 'package:onyx/service/directory_service.dart';
 import 'package:onyx/service/pb_service.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:onyx/widgets/narrow_body.dart';
@@ -125,6 +127,83 @@ class SettingsScreen extends StatelessWidget {
                     }
                   },
                 ),
+                BlocBuilder<DirectoryCubit, OriginState>(
+                  builder: (context, state) {
+                    if (state is OriginSuccess<DirectoryCredentials,
+                        DirectoryService>) {
+                      final cred = state.credentials;
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _SettingsCard(
+                            child: ListTile(
+                              leading: const Icon(
+                                Icons.done_all,
+                                color: Colors.green,
+                              ),
+                              title: const Text('Directory sync path set'),
+                              subtitle: Text(cred.path),
+                            ),
+                          ),
+                          _DirectoryForm(
+                            initialPath: cred.path,
+                            saveButtonText: 'Update path',
+                          ),
+                        ],
+                      );
+                    } else if (state is OriginError<DirectoryCredentials>) {
+                      final cred = state.credentials;
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _SettingsCard(
+                            child: ListTile(
+                              leading: const Icon(
+                                Icons.warning_amber_outlined,
+                                color: Colors.red,
+                              ),
+                              title: const Text('Directory sync path error'),
+                              subtitle: Text(state.message),
+                            ),
+                          ),
+                          _DirectoryForm(
+                            initialPath: cred?.path ?? '',
+                            saveButtonText: 'Fix path',
+                          ),
+                        ],
+                      );
+                    } else if (state is OriginPrompt) {
+                      return const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _SettingsCard(
+                            child: ListTile(
+                              leading: Icon(
+                                Icons.info_outline,
+                                color: Colors.yellow,
+                              ),
+                              title: Text('Directory sync configuration'),
+                              subtitle: Text('Please provide your path'),
+                            ),
+                          ),
+                          _DirectoryForm(
+                            initialPath: '',
+                            saveButtonText: 'Set path',
+                          ),
+                        ],
+                      );
+                    } else {
+                      return _SettingsCard(
+                        child: ListTile(
+                          leading: CircularProgressIndicator(),
+                          title: Text('Directory sync loading'),
+                          subtitle: Text(
+                              'Trying to setup folder ${state.runtimeType}'),
+                        ),
+                      );
+                    }
+                  },
+                ),
               ],
             ),
           ),
@@ -226,6 +305,72 @@ class _PocketBaseFormState extends State<_PocketBaseForm> {
                         url: _urlController.text,
                         email: _emailController.text,
                         password: _passwordController.text,
+                      ),
+                    );
+                  }
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DirectoryForm extends StatefulWidget {
+  final String initialPath;
+  final String saveButtonText;
+
+  const _DirectoryForm({
+    required this.initialPath,
+    required this.saveButtonText,
+  });
+
+  @override
+  State<_DirectoryForm> createState() => _DirectoryFormState();
+}
+
+class _DirectoryFormState extends State<_DirectoryForm> {
+  late final TextEditingController _pathController;
+  bool changed = false;
+
+  @override
+  void initState() {
+    _pathController = TextEditingController(text: widget.initialPath);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8.0, right: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _pathController,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Directory sync path...',
+            ),
+            cursorColor: Colors.black,
+            onChanged: (v) {
+              setState(() {
+                changed = true;
+              });
+            },
+          ),
+          Button(
+            widget.saveButtonText,
+            maxWidth: false,
+            icon: const Icon(Icons.done),
+            active: false,
+            onTap: changed
+                ? () {
+                    final pbCubit = context.read<DirectoryCubit>();
+                    pbCubit.setCredentials(
+                      DirectoryCredentials(
+                        path: _pathController.text,
                       ),
                     );
                   }
