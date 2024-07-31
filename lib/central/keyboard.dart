@@ -30,6 +30,10 @@ class CreateNewLineIntent extends Intent {
   const CreateNewLineIntent();
 }
 
+class LineFeedIntent extends Intent {
+  const LineFeedIntent();
+}
+
 class IndentIncreaseIntent extends Intent {
   const IndentIncreaseIntent();
 }
@@ -98,7 +102,9 @@ class KeyboardInterceptor extends StatelessWidget {
         ): const RedoIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowUp): const LineUpIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowDown): const LineDownIntent(),
-        LogicalKeySet(LogicalKeyboardKey.enter): const CreateNewLineIntent(),
+        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.enter):
+            const CreateNewLineIntent(),
+        LogicalKeySet(LogicalKeyboardKey.enter): const LineFeedIntent(),
         LogicalKeySet(LogicalKeyboardKey.tab): const IndentIncreaseIntent(),
         LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab):
             const IndentDecreaseIntent(),
@@ -129,6 +135,9 @@ class KeyboardInterceptor extends StatelessWidget {
           ),
           CreateNewLineIntent: CallbackAction<Intent>(
             onInvoke: (_) => cubit.skipToNext(),
+          ),
+          LineFeedIntent: CallbackAction<Intent>(
+            onInvoke: (_) => cubit.insertLineFeed(),
           ),
           IndentIncreaseIntent: CallbackAction<Intent>(
             onInvoke: (_) => cubit.increaseIndent(),

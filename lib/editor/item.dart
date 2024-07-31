@@ -189,6 +189,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   constraints: const BoxConstraints(minHeight: 0),
                   padding: const EdgeInsets.only(bottom: 0, left: 29),
                   child: TextField(
+                      textInputAction: TextInputAction.none,
                       minLines: 1,
                       maxLines: 100,
                       cursorColor: Colors.black,
@@ -202,7 +203,6 @@ class _ListItemEditorState extends State<ListItemEditor> {
                       scrollPadding: EdgeInsets.zero,
                       textAlign: TextAlign.start,
                       textAlignVertical: TextAlignVertical.top,
-                      textInputAction: TextInputAction.search,
                       //onSubmitted: (value) {
                       //  widget.onNext();
                       //},

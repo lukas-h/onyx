@@ -178,13 +178,17 @@ class PageCubit extends ReplayCubit<PageState> {
     final items = List.of(state.items, growable: true);
     var item = Parser.parse(model);
     if (state.items.isNotEmpty) {
-      item = item.copyWith(indent: state.items.last.indent);
+      item = item.copyWith(indent: state.items[state.index].indent);
     }
-    items.add(item);
+    if (state.index < (items.length - 1)) {
+      items.insert(state.index + 1, item);
+    } else {
+      items.add(item);
+    }
     emit(
       PageState(
         items: items,
-        index: items.length - 1,
+        index: items.length == 1 ? 0 : state.index + 1,
         sum: calculateUntil(items, items.length),
         created: state.created,
         title: state.title,
@@ -320,6 +324,21 @@ class PageCubit extends ReplayCubit<PageState> {
               .map((e) => e.index == state.index
                   ? Parser.parse(
                       e.copyWith(fullText: '${e.fullText}[$text]($href)'),
+                    )
+                  : e.copyWith())
+              .toList(),
+        ),
+      );
+
+  void insertLineFeed() => emit(
+        state.copyWith(
+          items: state.items
+              .map((e) => e.index == state.index
+                  ? Parser.parse(
+                      e.copyWith(
+                        fullText: '${e.fullText}\n',
+                        position: e.position + 1,
+                      ),
                     )
                   : e.copyWith())
               .toList(),
