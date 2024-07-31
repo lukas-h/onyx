@@ -38,3 +38,14 @@ String getCodeblockLanguage(String markdown) {
 
   return (before, code, after);
 }
+
+List<String> parseMarkdownBody(String body) {
+  final (before, code, after) = getCodeblockBeforeAfter(body, codeblockExp);
+  final beforeList = before.trimRight().split('\n');
+  final afterList = after?.trimLeft().split('\n');
+  return [
+    ...beforeList,
+    if (code != null) code,
+    ...?afterList,
+  ];
+}

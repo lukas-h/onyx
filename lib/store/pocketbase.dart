@@ -20,19 +20,10 @@ class PocketBaseService {
     final list = await pb.collection(collection).getList();
     return list.items.map(
       (e) {
-        final (before, code, after) =
-            getCodeblockBeforeAfter(e.data['body'].toString(), codeblockExp);
-        final beforeList = before.trimRight().split('\n');
-        final afterList = after?.trimLeft().split('\n');
-        final splitted = [
-          ...beforeList,
-          if (code != null) code,
-          ...?afterList,
-        ];
         return PageModel(
           uid: e.id,
           title: e.data['title'],
-          fullText: splitted,
+          fullText: parseMarkdownBody(e.data['body'].toString()),
           created: DateTime.tryParse(e.created) ?? DateTime.now(),
         );
       },
