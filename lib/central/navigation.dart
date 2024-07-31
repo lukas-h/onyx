@@ -135,8 +135,8 @@ class _CentralNavigationState extends State<CentralNavigation> {
                                       maxWidth: true,
                                       icon: BlocBuilder<NavigationCubit,
                                           NavigationState>(
-                                        builder: (context, state) {
-                                          return state is NavigationLoading
+                                        builder: (context, navState) {
+                                          return navState is NavigationLoading
                                               ? const SizedBox(
                                                   width: 15,
                                                   height: 15,
@@ -146,7 +146,12 @@ class _CentralNavigationState extends State<CentralNavigation> {
                                                     strokeWidth: 2,
                                                   ),
                                                 )
-                                              : const Icon(Icons.sync);
+                                              : Icon(
+                                                  state
+                                                      ? Icons.sync
+                                                      : Icons
+                                                          .cloud_off_outlined,
+                                                );
                                         },
                                       ),
                                       active: false,
