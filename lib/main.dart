@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
@@ -16,6 +17,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   runApp(const OnyxApp());
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.white,
+      statusBarBrightness: Brightness.dark,
+    ),
+  );
 }
 
 class OnyxApp extends StatefulWidget {
@@ -94,38 +101,41 @@ class _OnyxAppState extends State<OnyxApp> {
             ),
             fontFamily: 'Futura',
           ),
-          home: BlocListener<PocketBaseCubit, PocketBaseState>(
-            listener: (context, state) {
-              final navCubit = context.read<NavigationCubit>();
-              final favCubit = context.read<FavoritesCubit>();
-              if (state is PocketBaseSuccess) {
-                store.pbService = state.service;
-                imageStore.pbService = state.service;
-                favoriteStore.pbService = state.service;
-                navCubit.init();
-                favCubit.init();
-              }
-              if (state is PocketBasePrompt || state is PocketBaseError) {
-                navCubit.navigateTo(RouteState.settings);
-              }
-            },
-            child: BlocConsumer<NavigationCubit, NavigationState>(
+          home: SafeArea(
+            child: BlocListener<PocketBaseCubit, PocketBaseState>(
               listener: (context, state) {
-                final currentPage = context.read<NavigationCubit>().currentPage;
-                if (currentPage != null) {
-                  context.read<PageCubit>().selectPage(currentPage);
-                  if (state is NavigationSuccess && state.newPage) {
-                    context.read<PageCubit>().index(-1);
-                  }
+                final navCubit = context.read<NavigationCubit>();
+                final favCubit = context.read<FavoritesCubit>();
+                if (state is PocketBaseSuccess) {
+                  store.pbService = state.service;
+                  imageStore.pbService = state.service;
+                  favoriteStore.pbService = state.service;
+                  navCubit.init();
+                  favCubit.init();
+                }
+                if (state is PocketBasePrompt || state is PocketBaseError) {
+                  navCubit.navigateTo(RouteState.settings);
                 }
               },
-              builder: (context, state) => state is NavigationSuccess
-                  ? const Scaffold(
-                      body: KeyboardInterceptor(
-                        child: CentralNavigation(),
-                      ),
-                    )
-                  : const LoadingScreen(),
+              child: BlocConsumer<NavigationCubit, NavigationState>(
+                listener: (context, state) {
+                  final currentPage =
+                      context.read<NavigationCubit>().currentPage;
+                  if (currentPage != null) {
+                    context.read<PageCubit>().selectPage(currentPage);
+                    if (state is NavigationSuccess && state.newPage) {
+                      context.read<PageCubit>().index(-1);
+                    }
+                  }
+                },
+                builder: (context, state) => state is NavigationSuccess
+                    ? const Scaffold(
+                        body: KeyboardInterceptor(
+                          child: CentralNavigation(),
+                        ),
+                      )
+                    : const LoadingScreen(),
+              ),
             ),
           ),
         ),
