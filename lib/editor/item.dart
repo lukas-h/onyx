@@ -125,14 +125,17 @@ class _ListItemEditorState extends State<ListItemEditor> {
             ),
           if (hasCode)
             Expanded(
-              child: HighlightView(
-                getCodeblockContent(model.textPart),
-                language: getCodeblockLanguage(model.textPart),
-                theme: githubTheme,
-                padding: const EdgeInsets.all(12),
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Source Code Pro',
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: HighlightView(
+                  getCodeblockContent(model.textPart),
+                  language: getCodeblockLanguage(model.textPart),
+                  theme: githubTheme,
+                  padding: const EdgeInsets.all(12),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Source Code Pro',
+                  ),
                 ),
               ),
             ),
@@ -157,7 +160,6 @@ class _ListItemEditorState extends State<ListItemEditor> {
                     height: 1.6,
                     letterSpacing: 0,
                   ),
-                  codeblockDecoration: const BoxDecoration(),
                   code: const TextStyle(
                     fontSize: 16,
                     fontFamily: 'Source Code Pro',
