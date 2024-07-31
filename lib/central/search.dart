@@ -69,6 +69,7 @@ class _SearchMenuState extends State<SearchMenu> {
                     query = v.trimLeft();
                   });
                 },
+                textInputAction: TextInputAction.next,
               ),
               Expanded(
                 child: SingleChildScrollView(
