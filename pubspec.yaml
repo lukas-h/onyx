@@ -54,6 +54,7 @@ dependencies:
   pocketbase: ^0.18.1
   flutter_secure_storage: ^9.2.2
   http: ^1.2.1
+  connectivity_plus: ^6.0.4
 
 dev_dependencies:
   flutter_test:

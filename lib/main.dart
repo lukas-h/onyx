@@ -1,3 +1,4 @@
+import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
@@ -44,6 +45,9 @@ class _OnyxAppState extends State<OnyxApp> {
       ),
       child: MultiBlocProvider(
         providers: [
+          BlocProvider(
+            create: (context) => ConnectivityCubit(),
+          ),
           BlocProvider(
             create: (context) => PocketBaseCubit(),
           ),
