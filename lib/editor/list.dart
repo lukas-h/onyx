@@ -96,7 +96,6 @@ class ListEditorState extends State<ListEditor> {
                     },
                     itemBuilder: (context, index) {
                       final item = state.items[index];
-
                       return ListItemEditor(
                         cubit: cubit,
                         key: ValueKey(item.uid),

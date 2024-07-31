@@ -26,6 +26,10 @@ class LineDownIntent extends Intent {
   const LineDownIntent();
 }
 
+class CreateNewLineIntent extends Intent {
+  const CreateNewLineIntent();
+}
+
 class IndentIncreaseIntent extends Intent {
   const IndentIncreaseIntent();
 }
@@ -74,6 +78,7 @@ class KeyboardInterceptor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PageCubit>();
+    final navCubit = context.read<NavigationCubit>();
     return Shortcuts(
       shortcuts: <LogicalKeySet, Intent>{
         LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyK):
@@ -93,6 +98,7 @@ class KeyboardInterceptor extends StatelessWidget {
         ): const RedoIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowUp): const LineUpIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowDown): const LineDownIntent(),
+        LogicalKeySet(LogicalKeyboardKey.enter): const CreateNewLineIntent(),
         LogicalKeySet(LogicalKeyboardKey.tab): const IndentIncreaseIntent(),
         LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab):
             const IndentDecreaseIntent(),
@@ -113,33 +119,34 @@ class KeyboardInterceptor extends StatelessWidget {
             onInvoke: (_) => _showSearchMenu(context),
           ),
           DeleteLineIntent: CallbackAction<Intent>(
-            onInvoke: (_) => context.read<PageCubit>().removeCurrent(),
+            onInvoke: (_) => cubit.removeCurrent(),
           ),
           LineUpIntent: CallbackAction<Intent>(
-            onInvoke: (_) => context.read<PageCubit>().indexUp(),
+            onInvoke: (_) => cubit.indexUp(),
           ),
           LineDownIntent: CallbackAction<Intent>(
-            onInvoke: (_) => context.read<PageCubit>().indexDown(),
+            onInvoke: (_) => cubit.indexDown(),
+          ),
+          CreateNewLineIntent: CallbackAction<Intent>(
+            onInvoke: (_) => cubit.skipToNext(),
           ),
           IndentIncreaseIntent: CallbackAction<Intent>(
-            onInvoke: (_) => context.read<PageCubit>().increaseIndent(),
+            onInvoke: (_) => cubit.increaseIndent(),
           ),
           IndentDecreaseIntent: CallbackAction<Intent>(
-            onInvoke: (_) => context.read<PageCubit>().decreaseIndent(),
+            onInvoke: (_) => cubit.decreaseIndent(),
           ),
           SyncIntent: CallbackAction<Intent>(
-            onInvoke: (_) => context.read<NavigationCubit>().sync(),
+            onInvoke: (_) => navCubit.sync(),
           ),
           ImageInsertIntent: CallbackAction<Intent>(
-            onInvoke: (_) => context.read<PageCubit>().insertImage(),
+            onInvoke: (_) => cubit.insertImage(),
           ),
           NextJournalIntent: CallbackAction<Intent>(
-            onInvoke: (_) =>
-                context.read<NavigationCubit>().switchToNextJournal(),
+            onInvoke: (_) => navCubit.switchToNextJournal(),
           ),
           PreviousJournalIntent: CallbackAction<Intent>(
-            onInvoke: (_) =>
-                context.read<NavigationCubit>().switchToPreviousJournal(),
+            onInvoke: (_) => navCubit.switchToPreviousJournal(),
           ),
           PageInsertIntent: CallbackAction<Intent>(
             onInvoke: (_) => _showInsertMenu(context),
