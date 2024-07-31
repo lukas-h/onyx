@@ -56,3 +56,8 @@ flutter:
         - asset: fonts/Futura.ttf
         - asset: fonts/Futura-Italic.ttf
           style: italic
+    - family: Source Code Pro
+      fonts:
+        - asset: fonts/SCP.ttf
+        - asset: fonts/SCP-Italic.ttf
+          style: italic

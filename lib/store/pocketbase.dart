@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:onyx/editor/codeblock.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:pocketbase/pocketbase.dart';
@@ -17,16 +18,25 @@ class PocketBaseService {
 
   Future<List<PageModel>> _getModels(String collection) async {
     final list = await pb.collection(collection).getList();
-    return list.items
-        .map(
-          (e) => PageModel(
-            uid: e.id,
-            title: e.data['title'],
-            fullText: e.data['body'].toString().split('\n'),
-            created: DateTime.tryParse(e.created) ?? DateTime.now(),
-          ),
-        )
-        .toList();
+    return list.items.map(
+      (e) {
+        final (before, code, after) =
+            getCodeblockBeforeAfter(e.data['body'].toString(), codeblockExp);
+        final beforeList = before.trimRight().split('\n');
+        final afterList = after?.trimLeft().split('\n');
+        final splitted = [
+          ...beforeList,
+          if (code != null) code,
+          ...?afterList,
+        ];
+        return PageModel(
+          uid: e.id,
+          title: e.data['title'],
+          fullText: splitted,
+          created: DateTime.tryParse(e.created) ?? DateTime.now(),
+        );
+      },
+    ).toList();
   }
 
   Future<List<PageModel>> getPages() => _getModels('pages');

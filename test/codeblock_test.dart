@@ -16,6 +16,15 @@ const codeblockWithoutLang = '''
 }
 ```
 ''';
+const codeblockBeforeAfter = '''
+hello
+```
+{
+    "key": "value"
+}
+```
+world
+''';
 
 const codeblockContent = '''{
     "key": "value"
@@ -73,6 +82,16 @@ void main() {
       expect(hasCodeblock('```random string'), false);
       expect(hasCodeblock('random string ```bla```'), false);
       expect(hasCodeblock('```'), false);
+    });
+
+    test('codeblock before after', () {
+      final (before, code, after) =
+          getCodeblockBeforeAfter(codeblockBeforeAfter, codeblockExp);
+      expect(codeblockBeforeAfter, before + code! + after!);
+      expect(
+        code,
+        codeblockWithoutLang.trim(),
+      );
     });
   });
 }

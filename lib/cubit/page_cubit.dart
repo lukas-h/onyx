@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:onyx/editor/model.dart';
 import 'package:onyx/editor/parser.dart';
 import 'package:onyx/store/image_store.dart';
@@ -330,20 +331,29 @@ class PageCubit extends ReplayCubit<PageState> {
         ),
       );
 
-  void insertLineFeed() => emit(
-        state.copyWith(
-          items: state.items
-              .map((e) => e.index == state.index
-                  ? Parser.parse(
-                      e.copyWith(
-                        fullText: '${e.fullText}\n',
-                        position: e.position + 1,
-                      ),
-                    )
-                  : e.copyWith())
-              .toList(),
-        ),
-      );
+  void insertLineFeed() {
+    emit(
+      state.copyWith(
+        items: state.items.map((e) {
+          if (e.index == state.index) {
+            final chars = e.fullText.characters.toList();
+            chars.insert(e.position, '\n');
+            print(
+                'length: ${e.fullText.length} pos: ${e.position} index: ${e.index}');
+
+            return Parser.parse(
+              e.copyWith(
+                fullText: chars.join(''),
+                position: e.position + 1,
+              ),
+            );
+          } else {
+            return e.copyWith();
+          }
+        }).toList(),
+      ),
+    );
+  }
 
   Future<ImageModel?> getImage(String name) => imageStore.getImageByTitle(name);
 }

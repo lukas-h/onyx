@@ -1,5 +1,8 @@
+import 'package:flutter_highlight/flutter_highlight.dart';
+import 'package:flutter_highlight/themes/github.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
+import 'package:onyx/editor/codeblock.dart';
 import 'package:onyx/editor/image_builder.dart';
 import 'package:onyx/editor/markdown.dart';
 import 'package:onyx/editor/model.dart';
@@ -41,16 +44,35 @@ class _ListItemEditorState extends State<ListItemEditor> {
   final _controller = TextEditingController();
   bool hasMatch = false;
   String match = '';
+
+  void updatePos() {
+    widget.onChanged(
+      widget.model.copyWith(
+        fullText: _controller.text,
+        textPart: _controller.text,
+        position: _controller.selection.baseOffset,
+      ),
+    );
+  }
+
   @override
   void initState() {
     _node = FocusNode();
     _controller.text = widget.model.fullText;
     _controller.selection =
         TextSelection.fromPosition(TextPosition(offset: widget.model.position));
+    _controller.addListener(updatePos);
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _controller.removeListener(updatePos);
+    super.dispose();
+  }
+
   Widget _buildParsedPart(ListItemState model, int index) {
+    final hasCode = hasCodeblock(model.textPart);
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
       child: Row(
@@ -101,43 +123,49 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 style: const TextStyle(fontSize: 16),
               ),
             ),
-          Expanded(
-            child: MarkdownBody(
-              data: model.textPart,
-              imageBuilder: (uri, title, alt) =>
-                  ImageBuilder(uri: uri, title: title, alt: alt),
-              onTapLink: (text, href, title) {
-                if (Uri.tryParse(href ?? '') != null) {
-                  launchUrlString(href!);
-                }
-              },
-              onTapInternalLink: (text) {
-                context.read<NavigationCubit>().openPageOrJournal(text);
-              },
-              extensionSet: onyxFlavored,
-              styleSheet: MarkdownStyleSheet(
-                p: const TextStyle(
+          if (hasCode)
+            Expanded(
+              child: HighlightView(
+                getCodeblockContent(model.textPart),
+                language: getCodeblockLanguage(model.textPart),
+                theme: githubTheme,
+                padding: const EdgeInsets.all(12),
+                textStyle: const TextStyle(
                   fontSize: 16,
-                  height: 1.6,
-                  letterSpacing: 0,
-                ),
-                codeblockDecoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.blueGrey,
-                  border: Border.all(color: Colors.red, width: 10),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                codeblockPadding: const EdgeInsets.all(10),
-                code: const TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'monospace',
-                  color: Colors.white,
-                  backgroundColor: Colors.blueGrey,
-                  wordSpacing: 3,
+                  fontFamily: 'Source Code Pro',
                 ),
               ),
             ),
-          ),
+          if (!hasCode)
+            Expanded(
+              child: MarkdownBody(
+                data: model.textPart,
+                imageBuilder: (uri, title, alt) =>
+                    ImageBuilder(uri: uri, title: title, alt: alt),
+                onTapLink: (text, href, title) {
+                  if (Uri.tryParse(href ?? '') != null) {
+                    launchUrlString(href!);
+                  }
+                },
+                onTapInternalLink: (text) {
+                  context.read<NavigationCubit>().openPageOrJournal(text);
+                },
+                extensionSet: onyxFlavored,
+                styleSheet: MarkdownStyleSheet(
+                  p: const TextStyle(
+                    fontSize: 16,
+                    height: 1.6,
+                    letterSpacing: 0,
+                  ),
+                  codeblockDecoration: const BoxDecoration(),
+                  code: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Source Code Pro',
+                    backgroundColor: Color(0xffddffdd),
+                  ),
+                ),
+              ),
+            ),
           const SizedBox(width: 64),
         ],
       ),
@@ -189,35 +217,23 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   constraints: const BoxConstraints(minHeight: 0),
                   padding: const EdgeInsets.only(bottom: 0, left: 29),
                   child: TextField(
-                      textInputAction: TextInputAction.none,
-                      minLines: 1,
-                      maxLines: 100,
-                      cursorColor: Colors.black,
-                      decoration:
-                          const InputDecoration(border: InputBorder.none),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        height: 1.6,
-                        letterSpacing: 0,
-                      ),
-                      scrollPadding: EdgeInsets.zero,
-                      textAlign: TextAlign.start,
-                      textAlignVertical: TextAlignVertical.top,
-                      //onSubmitted: (value) {
-                      //  widget.onNext();
-                      //},
-                      expands: false,
-                      focusNode: _node,
-                      controller: _controller,
-                      onChanged: (v) {
-                        widget.onChanged(
-                          widget.model.copyWith(
-                            fullText: _controller.text,
-                            textPart: _controller.text,
-                            position: _controller.selection.baseOffset,
-                          ),
-                        );
-                      }),
+                    textInputAction: TextInputAction.none,
+                    minLines: 1,
+                    maxLines: 100,
+                    cursorColor: Colors.black,
+                    decoration: const InputDecoration(border: InputBorder.none),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.6,
+                      letterSpacing: 0,
+                    ),
+                    scrollPadding: EdgeInsets.zero,
+                    textAlign: TextAlign.start,
+                    textAlignVertical: TextAlignVertical.top,
+                    expands: false,
+                    focusNode: _node,
+                    controller: _controller,
+                  ),
                 ),
               ),
             if (!widget.inFocus)

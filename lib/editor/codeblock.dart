@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 final codeblockExp = RegExp(r"```(?:\w+)?\s*\n([\s\S]*?)\n```");
 
 final codeblockStartExp = RegExp(r"(```(?:\w+)?\s)");
@@ -24,11 +22,19 @@ String getCodeblockLanguage(String markdown) {
   return RegExp(r"(\w+)").stringMatch(result) ?? 'plaintext';
 }
 
-class CodeblockRenderer extends StatelessWidget {
-  const CodeblockRenderer({super.key});
+(String, String?, String?) getCodeblockBeforeAfter(String input, RegExp regex) {
+  Match? match = regex.firstMatch(input);
 
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+  if (match == null) {
+    return (input, null, null);
   }
+
+  int start = match.start;
+  int end = match.end;
+
+  String before = input.substring(0, start);
+  String code = input.substring(match.start, match.end);
+  String after = input.substring(end);
+
+  return (before, code, after);
 }
