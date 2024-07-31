@@ -118,8 +118,8 @@ class _ListItemEditorState extends State<ListItemEditor> {
               styleSheet: MarkdownStyleSheet(
                 p: const TextStyle(
                   fontSize: 16,
-                  height: 1.3,
-                  letterSpacing: 1,
+                  height: 1.6,
+                  letterSpacing: 0,
                 ),
                 codeblockDecoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -197,8 +197,8 @@ class _ListItemEditorState extends State<ListItemEditor> {
                           const InputDecoration(border: InputBorder.none),
                       style: const TextStyle(
                         fontSize: 16,
-                        height: 1.3,
-                        letterSpacing: 1,
+                        height: 1.6,
+                        letterSpacing: 0,
                       ),
                       scrollPadding: EdgeInsets.zero,
                       textAlign: TextAlign.start,

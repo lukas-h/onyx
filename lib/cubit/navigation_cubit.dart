@@ -100,7 +100,9 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
       emit((state as NavigationSuccess).copyToLoading());
       await store.init();
       await imageStore.init();
-      emit((state as NavigationLoading).copyToSuccess());
+      if (state is NavigationLoading) {
+        emit((state as NavigationLoading).copyToSuccess());
+      }
     }
   }
 

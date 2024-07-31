@@ -92,6 +92,7 @@ class _OnyxAppState extends State<OnyxApp> {
                 ),
               ),
             ),
+            fontFamily: 'Futura',
           ),
           home: BlocListener<PocketBaseCubit, PocketBaseState>(
             listener: (context, state) {
