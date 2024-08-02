@@ -32,6 +32,7 @@ class Button extends StatelessWidget {
         onTap: onTap,
         child: Container(
           width: width,
+          height: 30,
           decoration: BoxDecoration(
             color: active ? Colors.black.withOpacity(0.08) : Colors.transparent,
             borderRadius: BorderRadius.circular(3),
@@ -57,6 +58,7 @@ class Button extends StatelessWidget {
                       title,
                       style: TextStyle(
                         color: onTap != null ? Colors.black : Colors.black38,
+                        fontSize: 14,
                       ),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -67,6 +69,7 @@ class Button extends StatelessWidget {
                     title,
                     style: TextStyle(
                       color: onTap != null ? Colors.black : Colors.black38,
+                      fontSize: 14,
                     ),
                   ),
                 if (trailingIcon != null && title.isNotEmpty) trailingIcon!,
