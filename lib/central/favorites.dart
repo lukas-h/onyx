@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/utils/utils.dart';
 
+// TODO close drawer
 class FavoritesList extends StatefulWidget {
   const FavoritesList({super.key});
 
