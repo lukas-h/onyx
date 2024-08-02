@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:onyx/widgets/page_header.dart';
 
 class PagesScreen extends StatelessWidget {
   const PagesScreen({super.key});
@@ -44,25 +45,22 @@ class _PagesList extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 16.0),
-          child: ListTile(
+          child: PageHeader(
             title: Text(
               'Pages',
               style: Theme.of(context).textTheme.headlineLarge,
             ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Button(
-                  'New Page',
-                  maxWidth: false,
-                  icon: const Icon(Icons.note_add_outlined),
-                  active: false,
-                  onTap: () {
-                    context.read<NavigationCubit>().createPage();
-                  },
-                ),
-              ],
-            ),
+            buttons: [
+              Button(
+                'New Page',
+                maxWidth: false,
+                icon: const Icon(Icons.note_add_outlined),
+                active: false,
+                onTap: () {
+                  context.read<NavigationCubit>().createPage();
+                },
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -142,33 +140,30 @@ class _PageDetailState extends State<_PageDetail> {
                 builder: (context, state) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 16.0),
-                    child: ListTile(
+                    child: PageHeader(
+                      buttons: [
+                        FavoriteButton(uid: state.uid),
+                        const SizedBox(width: 8),
+                        DeleteButton(state: state),
+                        for (final ext in context
+                            .read<ExtensionsRegistry>()
+                            .pagesExtensions) ...[
+                          const SizedBox(width: 8),
+                          ext.buildControlButton(
+                              context, state, ext == selectedExtension, () {
+                            setState(() {
+                              if (ext == selectedExtension) {
+                                selectedExtension = null;
+                              } else {
+                                selectedExtension = ext;
+                              }
+                            });
+                          }),
+                        ]
+                      ],
                       title: _PageTitleEditor(
                         title: state.title,
                         index: state.index,
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FavoriteButton(uid: state.uid),
-                          const SizedBox(width: 8),
-                          DeleteButton(state: state),
-                          for (final ext in context
-                              .read<ExtensionsRegistry>()
-                              .pagesExtensions) ...[
-                            const SizedBox(width: 8),
-                            ext.buildControlButton(
-                                context, state, ext == selectedExtension, () {
-                              setState(() {
-                                if (ext == selectedExtension) {
-                                  selectedExtension = null;
-                                } else {
-                                  selectedExtension = ext;
-                                }
-                              });
-                            }),
-                          ]
-                        ],
                       ),
                     ),
                   );

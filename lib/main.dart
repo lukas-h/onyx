@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:onyx/central/body.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
@@ -14,6 +15,7 @@ import 'package:onyx/store/page_store.dart';
 import 'package:onyx/screens/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:onyx/widgets/button.dart';
 
 void main() {
   runApp(const OnyxApp());
@@ -129,11 +131,7 @@ class _OnyxAppState extends State<OnyxApp> {
                   }
                 },
                 builder: (context, state) => state is NavigationSuccess
-                    ? const Scaffold(
-                        body: KeyboardInterceptor(
-                          child: CentralNavigation(),
-                        ),
-                      )
+                    ? HomeScreen(state: state)
                     : const LoadingScreen(),
               ),
             ),
@@ -141,5 +139,84 @@ class _OnyxAppState extends State<OnyxApp> {
         ),
       ),
     );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  final NavigationSuccess state;
+  const HomeScreen({
+    super.key,
+    required this.state,
+  });
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool expanded = true;
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final wideEnough = constraints.maxWidth >= 700;
+      return Scaffold(
+        drawer: Drawer(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0),
+            side: BorderSide.none,
+          ),
+          width: 191,
+          child: NavigationMenu(
+            state: widget.state,
+            onTapCollapse: () {
+              // TODO
+            },
+          ),
+        ),
+        body: KeyboardInterceptor(
+          child: Stack(
+            children: [
+              Row(
+                children: [
+                  if (wideEnough && expanded)
+                    Builder(builder: (context) {
+                      return NavigationMenu(
+                        state: widget.state,
+                        onTapCollapse: () {
+                          setState(() {
+                            expanded = false;
+                          });
+                          Scaffold.of(context).closeDrawer();
+                        },
+                      );
+                    }),
+                  const Expanded(child: Body()),
+                ],
+              ),
+              Builder(builder: (context) {
+                return Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  width: 35,
+                  child: Button(
+                    '',
+                    maxWidth: false,
+                    icon: const Icon(Icons.more_horiz_outlined),
+                    active: false,
+                    onTap: () {
+                      setState(() {
+                        expanded = !expanded;
+                      });
+                      if (expanded && !wideEnough) {
+                        Scaffold.of(context).openDrawer();
+                      }
+                    },
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }

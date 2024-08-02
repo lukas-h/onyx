@@ -126,7 +126,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
           if (hasCode)
             Expanded(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(3),
                 child: HighlightView(
                   getCodeblockContent(model.textPart),
                   language: getCodeblockLanguage(model.textPart),
