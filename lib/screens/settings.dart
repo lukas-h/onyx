@@ -68,9 +68,7 @@ class SettingsScreen extends StatelessWidget {
 }
 
 class _PocketBaseSettings extends StatelessWidget {
-  const _PocketBaseSettings({
-    super.key,
-  });
+  const _PocketBaseSettings();
 
   @override
   Widget build(BuildContext context) {

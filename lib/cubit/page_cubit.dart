@@ -338,8 +338,6 @@ class PageCubit extends ReplayCubit<PageState> {
           if (e.index == state.index) {
             final chars = e.fullText.characters.toList();
             chars.insert(e.position, '\n');
-            print(
-                'length: ${e.fullText.length} pos: ${e.position} index: ${e.index}');
 
             return Parser.parse(
               e.copyWith(

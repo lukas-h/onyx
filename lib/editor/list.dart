@@ -150,7 +150,7 @@ class ListEditorState extends State<ListEditor> {
                     final bottomInset =
                         MediaQuery.of(context).viewInsets.bottom;
                     final keyboardActive = bottomInset != 0.0;
-                    print(bottomInset);
+
                     return Material(
                       elevation: 0,
                       color: Colors.black.withOpacity(0.03),
