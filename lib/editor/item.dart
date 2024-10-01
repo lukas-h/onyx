@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/github.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
@@ -219,7 +221,9 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   constraints: const BoxConstraints(minHeight: 0),
                   padding: const EdgeInsets.only(bottom: 0, left: 29),
                   child: TextField(
-                    textInputAction: TextInputAction.none,
+                    textInputAction: Platform.isIOS || Platform.isAndroid
+                        ? TextInputAction.done
+                        : TextInputAction.none,
                     minLines: 1,
                     maxLines: 100,
                     cursorColor: Colors.black,

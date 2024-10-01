@@ -22,7 +22,7 @@ void main() {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.white,
-      statusBarBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
     ),
   );
 }
@@ -88,6 +88,14 @@ class _OnyxAppState extends State<OnyxApp> {
         child: MaterialApp(
           title: 'onyx',
           debugShowCheckedModeBanner: false,
+          builder: (context, child) {
+            final mediaQueryData = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQueryData.copyWith(
+                  textScaler: const TextScaler.linear(1.2)),
+              child: child!,
+            );
+          },
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
@@ -103,37 +111,34 @@ class _OnyxAppState extends State<OnyxApp> {
             ),
             fontFamily: 'Futura',
           ),
-          home: SafeArea(
-            child: BlocListener<PocketBaseCubit, PocketBaseState>(
+          home: BlocListener<PocketBaseCubit, PocketBaseState>(
+            listener: (context, state) {
+              final navCubit = context.read<NavigationCubit>();
+              final favCubit = context.read<FavoritesCubit>();
+              if (state is PocketBaseSuccess) {
+                store.pbService = state.service;
+                imageStore.pbService = state.service;
+                favoriteStore.pbService = state.service;
+                navCubit.init();
+                favCubit.init();
+              }
+              if (state is PocketBasePrompt || state is PocketBaseError) {
+                navCubit.navigateTo(RouteState.settings);
+              }
+            },
+            child: BlocConsumer<NavigationCubit, NavigationState>(
               listener: (context, state) {
-                final navCubit = context.read<NavigationCubit>();
-                final favCubit = context.read<FavoritesCubit>();
-                if (state is PocketBaseSuccess) {
-                  store.pbService = state.service;
-                  imageStore.pbService = state.service;
-                  favoriteStore.pbService = state.service;
-                  navCubit.init();
-                  favCubit.init();
-                }
-                if (state is PocketBasePrompt || state is PocketBaseError) {
-                  navCubit.navigateTo(RouteState.settings);
+                final currentPage = context.read<NavigationCubit>().currentPage;
+                if (currentPage != null) {
+                  context.read<PageCubit>().selectPage(currentPage);
+                  if (state is NavigationSuccess && state.newPage) {
+                    context.read<PageCubit>().index(-1);
+                  }
                 }
               },
-              child: BlocConsumer<NavigationCubit, NavigationState>(
-                listener: (context, state) {
-                  final currentPage =
-                      context.read<NavigationCubit>().currentPage;
-                  if (currentPage != null) {
-                    context.read<PageCubit>().selectPage(currentPage);
-                    if (state is NavigationSuccess && state.newPage) {
-                      context.read<PageCubit>().index(-1);
-                    }
-                  }
-                },
-                builder: (context, state) => state is NavigationSuccess
-                    ? HomeScreen(state: state)
-                    : const LoadingScreen(),
-              ),
+              builder: (context, state) => state is NavigationSuccess
+                  ? HomeScreen(state: state)
+                  : const LoadingScreen(),
             ),
           ),
         ),
@@ -166,54 +171,65 @@ class _HomeScreenState extends State<HomeScreen> {
             side: BorderSide.none,
           ),
           width: 191,
-          child: NavigationMenu(
-            state: widget.state,
-            onTapCollapse: () {
-              // TODO
-            },
+          child: SafeArea(
+            child: NavigationMenu(
+              state: widget.state,
+              onTapCollapse: () {
+                Navigator.pop(context);
+              },
+            ),
           ),
         ),
-        body: KeyboardInterceptor(
-          child: Stack(
-            children: [
-              Row(
-                children: [
-                  if (wideEnough && expanded)
-                    Builder(builder: (context) {
-                      return NavigationMenu(
-                        state: widget.state,
-                        onTapCollapse: () {
-                          setState(() {
-                            expanded = false;
-                          });
-                          Scaffold.of(context).closeDrawer();
-                        },
-                      );
-                    }),
-                  const Expanded(child: Body()),
-                ],
-              ),
-              Builder(builder: (context) {
-                return Container(
-                  margin: const EdgeInsets.only(left: 8),
-                  width: 35,
-                  child: Button(
-                    '',
-                    maxWidth: false,
-                    icon: const Icon(Icons.more_horiz_outlined),
-                    active: false,
-                    onTap: () {
-                      setState(() {
-                        expanded = !expanded;
-                      });
-                      if (expanded && !wideEnough) {
-                        Scaffold.of(context).openDrawer();
-                      }
-                    },
-                  ),
-                );
-              }),
-            ],
+        body: SafeArea(
+          bottom: false,
+          child: KeyboardInterceptor(
+            child: Stack(
+              children: [
+                Row(
+                  children: [
+                    if (wideEnough && expanded)
+                      Builder(builder: (context) {
+                        return NavigationMenu(
+                          state: widget.state,
+                          onTapCollapse: () {
+                            setState(() {
+                              expanded = false;
+                            });
+                            Scaffold.of(context).closeDrawer();
+                          },
+                        );
+                      }),
+                    if (wideEnough && expanded)
+                      const VerticalDivider(
+                        width: 1,
+                        color: Colors.black26,
+                        thickness: 1,
+                      ),
+                    const Expanded(child: Body()),
+                  ],
+                ),
+                Builder(builder: (context) {
+                  return Container(
+                    margin: const EdgeInsets.only(left: 8),
+                    width: 35,
+                    child: Button(
+                      '',
+                      maxWidth: false,
+                      icon: const Icon(Icons.more_horiz_outlined),
+                      active: false,
+                      onTap: () {
+                        setState(() {
+                          expanded = !expanded;
+                        });
+                        if (expanded && !wideEnough) {
+                          Scaffold.of(context).openDrawer();
+                        }
+                      },
+                    ),
+                  );
+                }),
+              ],
+            ),
           ),
         ),
       );
