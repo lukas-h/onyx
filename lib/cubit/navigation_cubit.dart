@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 
@@ -79,7 +80,9 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     init();
   }
   Future<void> init() async {
-    await store.init();
+    // await store.init();
+    // TODO SHREY CHANGES
+    await store.initLimitation();
     await imageStore.init();
 
     if (state is NavigationSuccess) {
@@ -98,7 +101,9 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   Future<void> sync() async {
     if (state is NavigationSuccess) {
       emit((state as NavigationSuccess).copyToLoading());
-      await store.init();
+      // await store.init();
+      // TODO SHREY CHANGES
+      await store.initLimitation();
       await imageStore.init();
       if (state is NavigationLoading) {
         emit((state as NavigationLoading).copyToSuccess());
@@ -178,6 +183,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   void switchToPreviousJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
+      debugPrint("switch_previous_action ${currentState.index} ");
       if (currentState.index < (store.journalLength - 1)) {
         final newIndex = currentState.index + 1;
         emit(
@@ -188,23 +194,40 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
         );
       } else {
         // TODO add pagination -> load older
+        // TODO SHREY
+        debugPrint("debug_print ${store.journalLength}");
+        store.loadMoreJournals(store.journals, 30, false);
       }
     }
   }
 
-  void switchToNextJournal() {
+  Future<void> switchToNextJournal() async {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      if (currentState.index > 0) {
+
+      if ((store.journalLength - 1) > 0) {
         final newIndex = currentState.index - 1;
+        debugPrint("currentState_index ${currentState.index} ");
+        debugPrint("journalLength_index ${store.journalLength} ");
+
         emit(
           currentState.copyWith(
             index: newIndex,
             route: RouteState.journalSelected,
           ),
         );
+      } else {
+        // When at index 0, load more journals
+        debugPrint("Loading more journals...");
+        store.loadMoreJournals(store.journals, 30, true);
+
       }
     }
+
+    // Print the updated state
+    final updatedState = state as NavigationSuccess;
+
+    debugPrint("currentState_index after update: ${updatedState.index}");
   }
 
   void navigateTo(RouteState newRoute) {
