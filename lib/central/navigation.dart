@@ -166,7 +166,6 @@ class NavigationMenu extends StatelessWidget {
             active: state.journalNav,
             onTap: () {
               onTapCollapse();
-              Navigator.pop(context);
               context
                   .read<NavigationCubit>()
                   .navigateTo(RouteState.journalSelected);
