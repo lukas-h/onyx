@@ -129,30 +129,24 @@ class PageStore {
     final currentLength = journals.length;
 
     // Fetch new journals either by adding next or subtracting previous dates
-    final newJournals = List.generate(
-      count,
-          (index) {
-        final date = addNextData
-            ? DateTime.now().add(Duration(days: currentLength + index))
-            : DateTime.now().subtract(Duration(days: currentLength + index));
-        final title = DateFormat.yMMMMd().format(date);
-        final journal = dbJournals.singleWhereOrNull((e) => e.title == title);
-        return journal?.copyWith(created: date) ??
-            PageModel(
-              fullText: const [''],
-              title: title,
-              created: date,
-              uid: nanoid(15),
-            );
-      },
-    );
+    final newJournals = List.generate(count, (index) {
+      final date = addNextData
+          ? DateTime.now().add(Duration(days: currentLength + index))
+          : DateTime.now().subtract(Duration(days: currentLength + index));
+
+      final title = DateFormat.yMMMMd().format(date);
+      final journal = dbJournals.singleWhereOrNull((e) => e.title == title);
+
+      return journal?.copyWith(created: date) ?? PageModel(
+        fullText: const [''],
+        title: title,
+        created: date,
+        uid: nanoid(15),
+      );
+    });
 
     // Add the new journals to the existing list
-      journals.addAll(newJournals);
-
-
-    // Notify UI of the changes if needed
-    debugPrint("journal_length_updated ${journals.length}");
+    journals.addAll(newJournals);
   }
 
   int createPage() {

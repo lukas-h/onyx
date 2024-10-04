@@ -194,8 +194,6 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
         );
       } else {
         // TODO add pagination -> load older
-        // TODO SHREY
-        debugPrint("debug_print ${store.journalLength}");
         store.loadMoreJournals(store.journals, 30, false);
       }
     }
@@ -205,10 +203,8 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
 
-      if ((store.journalLength - 1) > 0) {
+      if (currentState.index > 0) {
         final newIndex = currentState.index - 1;
-        debugPrint("currentState_index ${currentState.index} ");
-        debugPrint("journalLength_index ${store.journalLength} ");
 
         emit(
           currentState.copyWith(
@@ -216,18 +212,8 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
             route: RouteState.journalSelected,
           ),
         );
-      } else {
-        // When at index 0, load more journals
-        debugPrint("Loading more journals...");
-        store.loadMoreJournals(store.journals, 30, true);
-
       }
     }
-
-    // Print the updated state
-    final updatedState = state as NavigationSuccess;
-
-    debugPrint("currentState_index after update: ${updatedState.index}");
   }
 
   void navigateTo(RouteState newRoute) {

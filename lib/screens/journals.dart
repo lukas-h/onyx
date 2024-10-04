@@ -43,15 +43,12 @@ class JournalsScreen extends StatelessWidget {
                     'Next',
                     maxWidth: false,
                     icon: const Icon(Icons.keyboard_arrow_up),
-                    // onTap: isToday(state.created)
-                    //     ? null
-                    //     : () {
-                    //         context
-                    //             .read<NavigationCubit>()
-                    //             .switchToNextJournal();
-                    //       },
-                    onTap: () {
-                      context.read<NavigationCubit>().switchToNextJournal();
+                    onTap: isToday(state.created)
+                        ? null
+                        : () {
+                      context
+                          .read<NavigationCubit>()
+                          .switchToNextJournal();
                     },
                     active: false,
                   ),
