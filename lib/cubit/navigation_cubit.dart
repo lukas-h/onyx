@@ -81,7 +81,6 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   }
   Future<void> init() async {
     // await store.init();
-    // TODO SHREY CHANGES
     await store.initLimitation();
     await imageStore.init();
 
@@ -102,7 +101,6 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     if (state is NavigationSuccess) {
       emit((state as NavigationSuccess).copyToLoading());
       // await store.init();
-      // TODO SHREY CHANGES
       await store.initLimitation();
       await imageStore.init();
       if (state is NavigationLoading) {
