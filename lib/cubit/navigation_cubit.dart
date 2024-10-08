@@ -178,7 +178,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     }
   }
 
-  void switchToPreviousJournal() {
+  Future<void> switchToPreviousJournal() async {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
       debugPrint("switch_previous_action ${currentState.index} ");
@@ -192,12 +192,12 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
         );
       } else {
         // TODO add pagination -> load older
-        store.loadMoreJournals(store.journals, 30, false);
+        await store.loadMoreJournals(store.journals, 30, false);
       }
     }
   }
 
-  Future<void> switchToNextJournal() async {
+  void switchToNextJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
 

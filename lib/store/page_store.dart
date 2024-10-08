@@ -110,8 +110,6 @@ class PageStore {
         },
       ),
     ]);
-    int length = journals.length;
-    debugPrint("journal_length_existing ${length}");
   }
 
   Future<void> initLimitation() async {
