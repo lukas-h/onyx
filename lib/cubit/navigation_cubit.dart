@@ -181,7 +181,6 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   Future<void> switchToPreviousJournal() async {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      debugPrint("switch_previous_action ${currentState.index} ");
       if (currentState.index < (store.journalLength - 1)) {
         final newIndex = currentState.index + 1;
         emit(
