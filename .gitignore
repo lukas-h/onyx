@@ -34,7 +34,11 @@ migrate_working_dir/
 .pub/
 /build/
 ios/build/
-
+ios/Runner.xcodeproj
+ios/Runner.xcworkspace
+ios/RunnerTests
+ios/Podfile.lock
+ios/.symlinks/
 # Symbolication related
 app.*.symbols
 
