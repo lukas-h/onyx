@@ -704,7 +704,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8SCLGCAZXQ;
+				DEVELOPMENT_TEAM = LPD6SPZK6H;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Onyx;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
@@ -713,7 +713,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = me.himsel.onyx;
+				PRODUCT_BUNDLE_IDENTIFIER = "me.himsel.onyx-dev";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;

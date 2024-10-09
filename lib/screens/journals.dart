@@ -46,10 +46,10 @@ class JournalsScreen extends StatelessWidget {
                     onTap: isToday(state.created)
                         ? null
                         : () {
-                            context
-                                .read<NavigationCubit>()
-                                .switchToNextJournal();
-                          },
+                      context
+                          .read<NavigationCubit>()
+                          .switchToNextJournal();
+                    },
                     active: false,
                   ),
                   const SizedBox(width: 8),

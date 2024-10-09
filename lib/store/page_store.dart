@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -109,6 +110,41 @@ class PageStore {
         },
       ),
     ]);
+  }
+
+  Future<void> initLimitation() async {
+      // TODO check for local changes that aren't online yet
+      final dbPages = await _pbService?.getPages() ?? [];
+      pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
+      pages.addAll(dbPages);
+
+      final dbJournals = await _pbService?.getJournals() ?? [];
+      journals.clear();
+      await loadMoreJournals(dbJournals, 30, false);
+    }
+
+  Future<void> loadMoreJournals(List<PageModel> dbJournals, int count, bool addNextData) async {
+    final currentLength = journals.length;
+
+    // Fetch new journals either by adding next or subtracting previous dates
+    final newJournals = List.generate(count, (index) {
+      final date = addNextData
+          ? DateTime.now().add(Duration(days: currentLength + index))
+          : DateTime.now().subtract(Duration(days: currentLength + index));
+
+      final title = DateFormat.yMMMMd().format(date);
+      final journal = dbJournals.singleWhereOrNull((e) => e.title == title);
+
+      return journal?.copyWith(created: date) ?? PageModel(
+        fullText: const [''],
+        title: title,
+        created: date,
+        uid: nanoid(15),
+      );
+    });
+
+    // Add the new journals to the existing list
+    journals.addAll(newJournals);
   }
 
   int createPage() {
