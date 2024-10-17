@@ -88,10 +88,12 @@ class PageStore {
   Future<void> init() async {
     // TODO check for local changes that aren't online yet
     final dbPages = await _pbService?.getPages() ?? [];
+    _pbService?.subscribeToPage();
     pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
     pages.addAll(dbPages);
 
     final dbJournals = await _pbService?.getJournals() ?? [];
+    _pbService?.subscribeToJournals();
     journals.clear();
     journals.addAll([
       ...List.generate(
@@ -115,10 +117,12 @@ class PageStore {
   Future<void> initLimitation() async {
       // TODO check for local changes that aren't online yet
       final dbPages = await _pbService?.getPages() ?? [];
+      _pbService?.subscribeToPage();
       pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
       pages.addAll(dbPages);
 
       final dbJournals = await _pbService?.getJournals() ?? [];
+      _pbService?.subscribeToJournals();
       journals.clear();
       await loadMoreJournals(dbJournals, 30, false);
     }
