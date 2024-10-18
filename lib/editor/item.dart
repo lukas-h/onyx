@@ -76,7 +76,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
   Widget _buildParsedPart(ListItemState model, int index) {
     final hasCode = hasCodeblock(model.textPart);
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0),
+      padding: EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -227,7 +227,11 @@ class _ListItemEditorState extends State<ListItemEditor> {
                     minLines: 1,
                     maxLines: 100,
                     cursorColor: Colors.black,
-                    decoration: const InputDecoration(border: InputBorder.none),
+                    cursorHeight: 16,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
                     style: const TextStyle(
                       fontSize: 16,
                       height: 1.6,
