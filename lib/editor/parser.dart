@@ -15,7 +15,7 @@ abstract class Parser {
     var updatedModel = model;
     // : -
     var source = model.fullText.trim();
-    if (model.fullText.trim().startsWith(":")) {
+    if (source.startsWith(":")) {
       source = model.fullText.replaceAll(" ", "");
     }
     updatedModel = updatedModel.copyWith(indent: parseIndent(model.fullText));
