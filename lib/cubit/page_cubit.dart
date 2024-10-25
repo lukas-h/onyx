@@ -99,6 +99,7 @@ class PageCubit extends ReplayCubit<PageState> {
     num sum = 0;
     for (int i = 0; i < limit; i++) {
       final item = items[i];
+      debugPrint("calculateUntil ${item.toString()}");
       switch (item.operator) {
         case Operator.add:
           sum += item.number ?? 0;
@@ -126,7 +127,6 @@ class PageCubit extends ReplayCubit<PageState> {
       PageState(
         items: items,
         index: state.index,
-        // TODO SHREY #1 ":" keyboard press
         sum: calculateUntil(items, items.length),
         created: state.created,
         title: state.title,
