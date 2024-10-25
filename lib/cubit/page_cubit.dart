@@ -126,6 +126,7 @@ class PageCubit extends ReplayCubit<PageState> {
       PageState(
         items: items,
         index: state.index,
+        // TODO SHREY #1 ":" keyboard press
         sum: calculateUntil(items, items.length),
         created: state.created,
         title: state.title,
