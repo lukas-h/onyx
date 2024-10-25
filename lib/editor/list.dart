@@ -98,6 +98,7 @@ class ListEditorState extends State<ListEditor> {
                     },
                     itemBuilder: (context, index) {
                       final item = state.items[index];
+                      debugPrint("item_movie ${item.toString()}");
                       return ListItemEditor(
                         cubit: cubit,
                         key: ValueKey(item.uid),
@@ -110,6 +111,7 @@ class ListEditorState extends State<ListEditor> {
                           cubit.check(i);
                         },
                         onChanged: (value) {
+                          // TODO SHREY #2 update
                           cubit.update(index, value);
                         },
                         onDeleted: () {
