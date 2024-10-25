@@ -13,7 +13,11 @@ abstract class Parser {
     }
 
     var updatedModel = model;
+    // : -
     var source = model.fullText.trim();
+    if (model.fullText.trim().startsWith(":")) {
+      source = model.fullText.replaceAll(" ", "");
+    }
     updatedModel = updatedModel.copyWith(indent: parseIndent(model.fullText));
 
     Operator operator = Operator.none;
