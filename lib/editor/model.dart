@@ -65,4 +65,14 @@ class ListItemState {
         checked: checked ?? this.checked,
         position: position ?? this.position,
       );
+
+  @override
+  String toString() {
+    return "\n==========| SEARCH STARTED |==========\n"
+        "index: $index   \nfullText:  $fullText \ntextPart:  $textPart; "
+        "\noperator:  "
+        "$operator;\nnumber:  $number;\n$uid;\nindent:  $indent;"
+        "\nchecked:  $checked;"
+        "\nposition:  $position\n\n\n==========| END |============";
+  }
 }
