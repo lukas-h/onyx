@@ -76,7 +76,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
   Widget _buildParsedPart(ListItemState model, int index) {
     final hasCode = hasCodeblock(model.textPart);
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.0),
+      padding: EdgeInsets.symmetric(vertical: 9.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
