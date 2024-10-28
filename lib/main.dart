@@ -205,7 +205,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.black26,
                         thickness: 1,
                       ),
-                    const Expanded(child: Body()),
+                    Expanded(
+                      child: Container(
+                        margin: EdgeInsets.only(top: 30),
+                        child: Body(),
+                      ),
+                    ),
                   ],
                 ),
                 Builder(builder: (context) {
