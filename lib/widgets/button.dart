@@ -32,7 +32,6 @@ class Button extends StatelessWidget {
         onTap: onTap,
         child: Container(
           width: width,
-          height: 30,
           decoration: BoxDecoration(
             color: active ? Colors.black.withOpacity(0.08) : Colors.transparent,
             borderRadius: BorderRadius.circular(3),
