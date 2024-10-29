@@ -23,8 +23,8 @@ class PageHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              Wrap(
+                // mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   ...buttons,
                   const SizedBox(width: 24),
