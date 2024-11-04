@@ -9,6 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../cubit/file/cubits/file_cubit.dart';
+import '../cubit/file/states/file_state.dart';
+
 class ListEditor extends StatefulWidget {
   const ListEditor({super.key});
 
@@ -111,6 +114,9 @@ class ListEditorState extends State<ListEditor> {
                         },
                         onChanged: (value) {
                           cubit.update(index, value);
+                          debugPrint("saved_pages => testing.txt");
+                          context.read<FileCubit>().checkAndWriteFile(
+                              'testing.txt', value.fullText.toString());
                         },
                         onDeleted: () {
                           cubit.remove(index);

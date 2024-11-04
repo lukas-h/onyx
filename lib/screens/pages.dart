@@ -13,6 +13,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:onyx/widgets/page_header.dart';
 
+import '../cubit/file/cubits/file_cubit.dart';
+import '../cubit/file/states/file_state.dart';
+
 class PagesScreen extends StatelessWidget {
   const PagesScreen({super.key});
 
@@ -88,6 +91,7 @@ class PageCard extends StatelessWidget {
   final VoidCallback onTap;
   final Icon? icon;
   final bool small;
+
   const PageCard({
     super.key,
     required this.state,
@@ -199,6 +203,7 @@ class _PageDetailState extends State<_PageDetail> {
 class _PageTitleEditor extends StatefulWidget {
   final String title;
   final int index;
+
   const _PageTitleEditor({required this.title, required this.index});
 
   @override

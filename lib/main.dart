@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/widgets/button.dart';
 
+import 'cubit/file/cubits/file_cubit.dart';
 
 void main() {
   runApp(const OnyxApp());
@@ -66,6 +67,9 @@ class _OnyxAppState extends State<OnyxApp> {
               store: store,
               imageStore: imageStore,
             ),
+          ),
+          BlocProvider(
+            create: (context) => FileCubit(),
           ),
           BlocProvider(
             create: (context) => FavoritesCubit(store: favoriteStore),
@@ -150,6 +154,7 @@ class _OnyxAppState extends State<OnyxApp> {
 
 class HomeScreen extends StatefulWidget {
   final NavigationSuccess state;
+
   const HomeScreen({
     super.key,
     required this.state,
@@ -161,6 +166,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool expanded = true;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
