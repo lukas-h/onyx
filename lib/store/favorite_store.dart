@@ -1,30 +1,28 @@
-import 'package:onyx/service/service.dart';
+import 'package:onyx/store/pocketbase.dart';
 
 class FavoriteStore {
-  List<OriginService>? _originServices;
+  PocketBaseService? _pbService;
   final Set<String> _favorites = {};
 
-  FavoriteStore({List<OriginService>? originServices})
-      : _originServices = originServices;
+  FavoriteStore({PocketBaseService? pbService}) : _pbService = pbService;
 
-  set originServices(List<OriginService> originServices) {
-    _originServices = originServices;
+  set pbService(PocketBaseService pbService) {
+    _pbService = pbService;
   }
 
   Future<void> init() async {
-    final dbFavorites =
-        await _originServices?.firstOrNull?.getFavorites() ?? [];
+    final dbFavorites = await _pbService?.getFavorites() ?? [];
     _favorites.addAll(dbFavorites);
   }
 
   Future<void> addFavorite(String uid) async {
     _favorites.add(uid);
-    _originServices?.firstOrNull?.createFavorite(uid);
+    _pbService?.createFavorite(uid);
   }
 
   void removeFavorite(String uid) {
     _favorites.remove(uid);
-    _originServices?.firstOrNull?.deleteFavorite(uid);
+    _pbService?.deleteFavorite(uid);
   }
 
   List<String> get favorites => _favorites.toList();

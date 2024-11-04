@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
-import 'package:onyx/service/service.dart';
+import 'package:onyx/store/pocketbase.dart';
 
 class ImageModel {
   Future<Uint8List> bytes;
@@ -18,18 +18,18 @@ class ImageModel {
 }
 
 class ImageStore {
-  List<OriginService>? _originServices;
+  PocketBaseService? _pbService;
   final List<ImageModel> images;
 
-  ImageStore(this.images, {List<OriginService>? originServices})
-      : _originServices = originServices;
+  ImageStore(this.images, {PocketBaseService? pbService})
+      : _pbService = pbService;
 
-  set originServices(List<OriginService> originServices) {
-    _originServices = originServices;
+  set pbService(PocketBaseService pbService) {
+    _pbService = pbService;
   }
 
   Future<void> init() async {
-    final dbImages = await _originServices?.firstOrNull?.getImages();
+    final dbImages = await _pbService?.getImages();
     images.addAll([
       ...?dbImages,
     ]);
@@ -42,13 +42,13 @@ class ImageStore {
       uid: nanoid(15),
     );
     images.add(model);
-    _originServices?.firstOrNull?.createImage(model);
+    _pbService?.createImage(model);
     return images.length - 1;
   }
 
   Future<void> removeImage(String uid) async {
     images.removeWhere((e) => e.uid == uid);
-    _originServices?.firstOrNull?.deleteImage(uid);
+    _pbService?.deleteImage(uid);
   }
 
   Future<ImageModel?> getImageById(String uid) async =>
