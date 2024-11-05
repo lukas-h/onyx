@@ -1,17 +1,31 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/service/service.dart';
 import 'package:path/path.dart' as p;
+import 'package:watcher/watcher.dart';
 import 'package:yaml/yaml.dart' as y;
 
 class DirectoryService extends OriginService {
   final Directory directory;
-  DirectoryService(this.directory);
+
+  DirectoryService(this.directory) {
+    DirectoryWatcher(directory.path).events.listen((e) {
+      debugPrint(
+          "DirectoryService path:${e.path} type:${e.type} toString:${e.toString()}");
+    });
+  }
 
   Future<List<PageModel>> _getModels(String collection) async {
+    DirectoryWatcher(p.join(directory.path, collection)).events.listen(
+      (event) {
+        debugPrint(
+            "_getModels path:${event.path} type:${event.type} toString:${event.toString()}");
+      },
+    );
     final modelsDir = Directory(p.join(directory.path, collection));
     if (!await modelsDir.exists()) {
       await modelsDir.create();
@@ -35,6 +49,16 @@ class DirectoryService extends OriginService {
   Future<List<PageModel>> getJournals() => _getModels('_journals');
 
   Future<void> _writePage(String collection, PageModel model) async {
+    DirectoryWatcher(p.join(
+      directory.path,
+      collection,
+      '${model.uid}.md',
+    )).events.listen(
+      (event) {
+        debugPrint(
+            "_writePage path:${event.path} type:${event.type} toString:${event.toString()}");
+      },
+    );
     final page = File(
       p.join(
         directory.path,
@@ -55,6 +79,16 @@ class DirectoryService extends OriginService {
         'assets',
         '$uid.md',
       ),
+    );
+    DirectoryWatcher(p.join(
+      directory.path,
+      'assets',
+      '$uid.md',
+    )).events.listen(
+      (event) {
+        debugPrint(
+            "_deleteItem path:${event.path} type:${event.type} toString:${event.toString()}");
+      },
     );
     if (await page.exists()) {
       await page.delete();

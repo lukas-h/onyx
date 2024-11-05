@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
@@ -41,12 +42,15 @@ ${fullText.join('\n')}
 ''';
 
 // TODO finish markdown parser
-  factory PageModel.fromMarkdown(String markdown) => PageModel(
-        created: DateTime.now(),
-        fullText: [],
-        title: '',
-        uid: '',
-      );
+  factory PageModel.fromMarkdown(String markdown) {
+    debugPrint("markdown_data ${markdown.toString()}");
+    return PageModel(
+      created: DateTime.now(),
+      fullText: [],
+      title: '',
+      uid: '',
+    );
+  }
 
   PageState toPageState(bool isJournal) =>
       PageState.fromPageModel(this, isJournal);
