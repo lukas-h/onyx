@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/services.dart';
 import 'package:onyx/central/body.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
@@ -96,6 +98,7 @@ class _OnyxAppState extends State<OnyxApp> {
               child: child!,
             );
           },
+          scrollBehavior: MyCustomScrollBehavior(),
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
@@ -146,6 +149,16 @@ class _OnyxAppState extends State<OnyxApp> {
     );
   }
 }
+
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+  };
+}
+
 
 class HomeScreen extends StatefulWidget {
   final NavigationSuccess state;
@@ -207,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     Expanded(
                       child: Container(
-                        margin: EdgeInsets.only(top: 30),
+                        margin: EdgeInsets.only(top: 0),
                         child: Body(),
                       ),
                     ),

@@ -44,7 +44,7 @@ class _PagesList extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 16.0),
+          padding: const EdgeInsets.only(top: 0.0),
           child: PageHeader(
             title: Text(
               'Pages',
@@ -139,7 +139,7 @@ class _PageDetailState extends State<_PageDetail> {
               BlocBuilder<PageCubit, PageState>(
                 builder: (context, state) {
                   return Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
+                    padding: const EdgeInsets.only(top: 0.0),
                     child: PageHeader(
                       buttons: [
                         FavoriteButton(uid: state.uid),
