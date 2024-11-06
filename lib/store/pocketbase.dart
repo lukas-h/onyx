@@ -16,13 +16,6 @@ class PocketBaseService {
     return list.items.map((e) => e.getStringValue('uid')).toList();
   }
 
-  void _subscribeToRealtime(String collection) {
-    pb.collection(collection).subscribe('*', (e) {
-      // Handle the event, for example, refresh your data
-      _getModels(collection);
-    });
-  }
-
   Future<List<PageModel>> _getModels(String collection) async {
     final list = await pb.collection(collection).getList();
     return list.items.map(
@@ -38,10 +31,8 @@ class PocketBaseService {
   }
 
   Future<List<PageModel>> getPages() => _getModels('pages');
-  void subscribeToPage() => _subscribeToRealtime('pages');
 
   Future<List<PageModel>> getJournals() => _getModels('journals');
-  void subscribeToJournals() => _subscribeToRealtime('journals');
 
   Future<void> createPage(PageModel model) => pb.collection('pages').create(
         body: model.toJson(),
