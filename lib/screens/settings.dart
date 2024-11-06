@@ -50,7 +50,6 @@ class SettingsScreen extends StatelessWidget {
                   _SettingsCard(
                     child: ListTile(
                       leading: ext.icon,
-                      dense: true,
                       title: Text(ext.title),
                     ),
                   ),

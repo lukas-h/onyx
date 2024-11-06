@@ -98,7 +98,6 @@ class _OnyxAppState extends State<OnyxApp> {
               child: child!,
             );
           },
-          scrollBehavior: MyCustomScrollBehavior(),
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
@@ -150,18 +149,9 @@ class _OnyxAppState extends State<OnyxApp> {
   }
 }
 
-
-class MyCustomScrollBehavior extends MaterialScrollBehavior {
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-    PointerDeviceKind.touch,
-    PointerDeviceKind.mouse,
-  };
-}
-
-
 class HomeScreen extends StatefulWidget {
   final NavigationSuccess state;
+
   const HomeScreen({
     super.key,
     required this.state,
@@ -173,6 +163,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool expanded = true;
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
@@ -220,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     Expanded(
                       child: Container(
-                        margin: EdgeInsets.only(top: 0),
+                        margin: EdgeInsets.only(top: 30),
                         child: Body(),
                       ),
                     ),

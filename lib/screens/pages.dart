@@ -44,7 +44,7 @@ class _PagesList extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 0.0),
+          padding: const EdgeInsets.only(top: 16.0),
           child: PageHeader(
             title: Text(
               'Pages',
