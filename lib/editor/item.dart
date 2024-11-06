@@ -227,11 +227,6 @@ class _ListItemEditorState extends State<ListItemEditor> {
                     minLines: 1,
                     maxLines: 100,
                     cursorColor: Colors.black,
-                    cursorHeight: 16,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
                     style: const TextStyle(
                       fontSize: 16,
                       height: 1.6,
