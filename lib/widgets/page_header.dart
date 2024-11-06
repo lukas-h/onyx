@@ -8,7 +8,7 @@ class PageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 12.0),
+      padding: const EdgeInsets.only(top: 0.0),
       child: LayoutBuilder(builder: (context, constraints) {
         if (constraints.maxWidth >= 700) {
           return ListTile(
@@ -23,12 +23,16 @@ class PageHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ...buttons,
-                  const SizedBox(width: 24),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const SizedBox(width: 50),
+                    ...buttons,
+                    const SizedBox(width: 24),
+                  ],
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(12.0),

@@ -18,7 +18,7 @@ class JournalsScreen extends StatelessWidget {
         BlocBuilder<PageCubit, PageState>(
           builder: (context, state) {
             return Padding(
-              padding: const EdgeInsets.only(top: 16.0),
+              padding: const EdgeInsets.only(top: 0.0),
               child: PageHeader(
                 buttons: [
                   BlocBuilder<PageCubit, PageState>(
