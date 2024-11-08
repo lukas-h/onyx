@@ -29,7 +29,9 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
+
+        Container(
+          margin: EdgeInsets.only(top: 16),
           padding: const EdgeInsets.only(top: 16.0),
           child: ListTile(
             title: Text(
