@@ -14,16 +14,18 @@ class DirectoryService extends OriginService {
 
   DirectoryService(this.directory) {
     DirectoryWatcher(directory.path).events.listen((e) {
-      debugPrint(
-          "DirectoryService path:${e.path} type:${e.type} toString:${e.toString()}");
+      if(e.type.toString() == "add"){
+
+      }
     });
   }
 
   Future<List<PageModel>> _getModels(String collection) async {
     DirectoryWatcher(p.join(directory.path, collection)).events.listen(
       (event) {
-        debugPrint(
-            "_getModels path:${event.path} type:${event.type} toString:${event.toString()}");
+        if(event.type.toString() == "modified"){
+
+        }
       },
     );
     final modelsDir = Directory(p.join(directory.path, collection));
@@ -49,16 +51,6 @@ class DirectoryService extends OriginService {
   Future<List<PageModel>> getJournals() => _getModels('_journals');
 
   Future<void> _writePage(String collection, PageModel model) async {
-    DirectoryWatcher(p.join(
-      directory.path,
-      collection,
-      '${model.uid}.md',
-    )).events.listen(
-      (event) {
-        debugPrint(
-            "_writePage path:${event.path} type:${event.type} toString:${event.toString()}");
-      },
-    );
     final page = File(
       p.join(
         directory.path,
@@ -79,16 +71,6 @@ class DirectoryService extends OriginService {
         'assets',
         '$uid.md',
       ),
-    );
-    DirectoryWatcher(p.join(
-      directory.path,
-      'assets',
-      '$uid.md',
-    )).events.listen(
-      (event) {
-        debugPrint(
-            "_deleteItem path:${event.path} type:${event.type} toString:${event.toString()}");
-      },
     );
     if (await page.exists()) {
       await page.delete();
