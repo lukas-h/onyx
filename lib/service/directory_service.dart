@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/service/service.dart';
@@ -10,7 +9,6 @@ import 'package:yaml/yaml.dart' as y;
 
 class DirectoryService extends OriginService {
   final Directory directory;
-
   DirectoryService(this.directory);
 
   Future<List<PageModel>> _getModels(String collection) async {
