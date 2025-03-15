@@ -25,47 +25,41 @@ class NavigationMenu extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(
-                width: 35,
-                child: Button(
-                  '',
-                  maxWidth: false,
-                  icon: const Icon(Icons.more_horiz_outlined),
-                  active: false,
-                  onTap: onTapCollapse,
-                ),
+              Button(
+                '',
+                width: 32,
+                height: 32,
+                maxWidth: false,
+                icon: const Icon(Icons.more_horiz_outlined),
+                active: false,
+                onTap: onTapCollapse,
               ),
-              const SizedBox(width: 8),
-              SizedBox(
-                width: 35,
-                child: Button(
-                  '',
-                  maxWidth: false,
-                  icon: const Icon(Icons.keyboard_arrow_left),
-                  active: false,
-                  onTap: context.read<NavigationCubit>().canUndo
-                      ? () {
-                          context.read<NavigationCubit>().undo();
-                        }
-                      : null,
-                ),
+              Button(
+                '',
+                width: 32,
+                height: 32,
+                maxWidth: false,
+                icon: const Icon(Icons.keyboard_arrow_left),
+                active: false,
+                onTap: context.read<NavigationCubit>().canUndo
+                    ? () {
+                        context.read<NavigationCubit>().undo();
+                      }
+                    : null,
               ),
-              const SizedBox(width: 8),
-              SizedBox(
-                width: 35,
-                child: Button(
-                  '',
-                  maxWidth: false,
-                  icon: const Icon(Icons.keyboard_arrow_right),
-                  active: false,
-                  onTap: context.read<NavigationCubit>().canRedo
-                      ? () {
-                          context.read<NavigationCubit>().redo();
-                        }
-                      : null,
-                ),
+              Button(
+                '',
+                width: 32,
+                height: 32,
+                maxWidth: false,
+                icon: const Icon(Icons.keyboard_arrow_right),
+                active: false,
+                onTap: context.read<NavigationCubit>().canRedo
+                    ? () {
+                        context.read<NavigationCubit>().redo();
+                      }
+                    : null,
               ),
-              const SizedBox(width: 8),
             ],
           ),
           const SizedBox(height: 8),
