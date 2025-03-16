@@ -209,23 +209,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 Builder(builder: (context) {
-                  return Container(
-                    margin: const EdgeInsets.only(left: 8),
-                    width: 35,
-                    child: Button(
-                      '',
-                      maxWidth: false,
-                      icon: const Icon(Icons.more_horiz_outlined),
-                      active: false,
-                      onTap: () {
-                        setState(() {
-                          expanded = !expanded;
-                        });
-                        if (expanded && !wideEnough) {
-                          Scaffold.of(context).openDrawer();
-                        }
-                      },
-                    ),
+                  return Button(
+                    '',
+                    width: 48,
+                    height: 48,
+                    iconSize: 18,
+                    maxWidth: false,
+                    icon: const Icon(Icons.more_horiz_outlined),
+                    active: false,
+                    onTap: () {
+                      setState(() {
+                        expanded = !expanded;
+                      });
+                      if (expanded && !wideEnough) {
+                        Scaffold.of(context).openDrawer();
+                      }
+                    },
                   );
                 }),
               ],

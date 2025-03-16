@@ -5,6 +5,7 @@ class Button extends StatelessWidget {
   final Color? borderColor;
   final double? height;
   final Widget icon;
+  final double? iconSize;
   final bool maxWidth;
   final VoidCallback? onTap;
   final String title;
@@ -17,17 +18,18 @@ class Button extends StatelessWidget {
     required this.active,
     this.borderColor,
     required this.icon,
+    this.iconSize,
     required this.maxWidth,
     required this.onTap,
     this.trailingIcon,
     this.width,
-    this.height,
+    this.height = 64,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       width: width,
       height: height,
       child: InkWell(
@@ -45,39 +47,39 @@ class Button extends StatelessWidget {
               color: borderColor ?? Colors.black.withValues(alpha: 0.08),
             ),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: IconTheme(
-            data: IconThemeData(
-              size: 15,
-              color: onTap != null ? Colors.black : Colors.black38,
-            ),
-            child: Row(
-              mainAxisSize: maxWidth ? MainAxisSize.max : MainAxisSize.min,
-              children: [
-                icon,
-                if (title.isNotEmpty && maxWidth)
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        color: onTap != null ? Colors.black : Colors.black38,
-                        fontSize: 14,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
+          padding: EdgeInsets.symmetric(
+              horizontal: (width != null ? width! / 16 : 8)),
+          child: Row(
+            spacing: 8,
+            children: [
+              IconTheme(
+                  data: IconThemeData(
+                    color: onTap != null ? Colors.black : Colors.black38,
+                    size: iconSize,
                   ),
-                if (title.isNotEmpty && !maxWidth)
-                  Text(
+                  child: icon),
+              if (title.isNotEmpty && maxWidth)
+                Expanded(
+                  child: Text(
                     title,
                     style: TextStyle(
                       color: onTap != null ? Colors.black : Colors.black38,
-                      fontSize: 14,
+                      fontSize: 12,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-                if (trailingIcon != null && title.isNotEmpty) trailingIcon!,
-              ],
-            ),
+                ),
+              if (title.isNotEmpty && !maxWidth)
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: onTap != null ? Colors.black : Colors.black38,
+                    fontSize: 12,
+                  ),
+                ),
+              if (trailingIcon != null && title.isNotEmpty) trailingIcon!,
+            ],
           ),
         ),
       ),

@@ -17,7 +17,7 @@ class NavigationMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 190,
+      width: 184,
       decoration: const BoxDecoration(),
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
@@ -27,8 +27,9 @@ class NavigationMenu extends StatelessWidget {
             children: [
               Button(
                 '',
-                width: 32,
-                height: 32,
+                width: 48,
+                height: 48,
+                iconSize: 18,
                 maxWidth: false,
                 icon: const Icon(Icons.more_horiz_outlined),
                 active: false,
@@ -36,8 +37,9 @@ class NavigationMenu extends StatelessWidget {
               ),
               Button(
                 '',
-                width: 32,
-                height: 32,
+                width: 48,
+                height: 48,
+                iconSize: 18,
                 maxWidth: false,
                 icon: const Icon(Icons.keyboard_arrow_left),
                 active: false,
@@ -49,8 +51,9 @@ class NavigationMenu extends StatelessWidget {
               ),
               Button(
                 '',
-                width: 32,
-                height: 32,
+                width: 48,
+                height: 48,
+                iconSize: 18,
                 maxWidth: false,
                 icon: const Icon(Icons.keyboard_arrow_right),
                 active: false,
@@ -78,36 +81,36 @@ class NavigationMenu extends StatelessWidget {
                   builder: (context, state) {
                     return Stack(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4.0),
-                          child: Button(
-                            'Sync',
-                            maxWidth: true,
-                            icon: BlocBuilder<NavigationCubit, NavigationState>(
-                              builder: (context, navState) {
-                                return navState is NavigationLoading
-                                    ? const SizedBox(
-                                        width: 15,
-                                        height: 15,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.black38,
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : Icon(
-                                        state
-                                            ? Icons.sync
-                                            : Icons.cloud_off_outlined,
-                                      );
-                              },
-                            ),
-                            active: false,
-                            onTap: state
-                                ? () {
-                                    context.read<NavigationCubit>().sync();
-                                  }
-                                : null,
+                        Button(
+                          'Sync',
+                          width: 84,
+                          height: 48,
+                          iconSize: 14,
+                          maxWidth: false,
+                          icon: BlocBuilder<NavigationCubit, NavigationState>(
+                            builder: (context, navState) {
+                              return navState is NavigationLoading
+                                  ? const SizedBox(
+                                      width: 15,
+                                      height: 15,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.black38,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Icon(
+                                      state
+                                          ? Icons.sync
+                                          : Icons.cloud_off_outlined,
+                                    );
+                            },
                           ),
+                          active: false,
+                          onTap: state
+                              ? () {
+                                  context.read<NavigationCubit>().sync();
+                                }
+                              : null,
                         ),
                         Positioned(
                             top: 4,
@@ -125,36 +128,36 @@ class NavigationMenu extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 4),
-              Expanded(
-                flex: 1,
-                child: Button(
-                  '⌘K',
-                  maxWidth: true,
-                  icon: const Icon(Icons.search),
-                  active: false,
-                  onTap: () {
-                    onTapCollapse();
-                    openSearchMenu(
-                      context,
-                      onSelect: (context, state) {
-                        Navigator.pop(context);
-                        final cubit = context.read<NavigationCubit>();
-                        if (state == null) return;
-                        if (state.isJournal) {
-                          cubit.switchToJournal(state.uid);
-                        } else {
-                          cubit.switchToPage(state.uid);
-                        }
-                      },
-                    );
-                  },
-                ),
+              Button(
+                '⌘K',
+                width: 84,
+                height: 48,
+                iconSize: 14,
+                maxWidth: true,
+                icon: const Icon(Icons.search),
+                active: false,
+                onTap: () {
+                  onTapCollapse();
+                  openSearchMenu(
+                    context,
+                    onSelect: (context, state) {
+                      Navigator.pop(context);
+                      final cubit = context.read<NavigationCubit>();
+                      if (state == null) return;
+                      if (state.isJournal) {
+                        cubit.switchToJournal(state.uid);
+                      } else {
+                        cubit.switchToPage(state.uid);
+                      }
+                    },
+                  );
+                },
               ),
             ],
           ),
           Button(
             'Journals',
+            height: 48,
             maxWidth: true,
             icon: const Icon(Icons.calendar_today_outlined),
             active: state.journalNav,
@@ -167,6 +170,7 @@ class NavigationMenu extends StatelessWidget {
           ),
           Button(
             'Pages',
+            height: 48,
             maxWidth: true,
             icon: const Icon(Icons.summarize_outlined),
             active: state.pagesNav,
@@ -201,6 +205,7 @@ class NavigationMenu extends StatelessWidget {
                 flex: 2,
                 child: Button(
                   'Settings',
+                  height: 48,
                   maxWidth: true,
                   icon: const Icon(Icons.settings_outlined),
                   active: state.settingsNav,
