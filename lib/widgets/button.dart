@@ -23,13 +23,13 @@ class Button extends StatelessWidget {
     required this.onTap,
     this.trailingIcon,
     this.width,
-    this.height = 64,
+    this.height = 40,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(4),
       width: width,
       height: height,
       child: InkWell(
@@ -47,9 +47,11 @@ class Button extends StatelessWidget {
               color: borderColor ?? Colors.black.withValues(alpha: 0.08),
             ),
           ),
-          padding: EdgeInsets.symmetric(
-              horizontal: (width != null ? width! / 16 : 8)),
+          padding: EdgeInsets.only(left: title.isNotEmpty ? 4 : 0),
           child: Row(
+            mainAxisAlignment: title.isNotEmpty
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
             spacing: 8,
             children: [
               IconTheme(
@@ -58,19 +60,7 @@ class Button extends StatelessWidget {
                     size: iconSize,
                   ),
                   child: icon),
-              if (title.isNotEmpty && maxWidth)
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: onTap != null ? Colors.black : Colors.black38,
-                      fontSize: 12,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              if (title.isNotEmpty && !maxWidth)
+              if (title.isNotEmpty)
                 Text(
                   title,
                   style: TextStyle(
