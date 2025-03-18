@@ -208,25 +208,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Expanded(child: Body()),
                   ],
                 ),
-                Builder(builder: (context) {
-                  return Button(
-                    '',
-                    width: 48,
-                    height: 48,
-                    iconSize: 18,
-                    maxWidth: false,
-                    icon: const Icon(Icons.more_horiz_outlined),
-                    active: false,
-                    onTap: () {
-                      setState(() {
-                        expanded = !expanded;
-                      });
-                      if (expanded && !wideEnough) {
-                        Scaffold.of(context).openDrawer();
-                      }
-                    },
-                  );
-                }),
+                Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    Builder(builder: (context) {
+                      return Button(
+                        '',
+                        width: 40,
+                        height: 40,
+                        iconSize: 18,
+                        maxWidth: false,
+                        icon: const Icon(Icons.more_horiz_outlined),
+                        active: false,
+                        onTap: () {
+                          setState(() {
+                            expanded = !expanded;
+                          });
+                          if (expanded && !wideEnough) {
+                            Scaffold.of(context).openDrawer();
+                          }
+                        },
+                      );
+                    }),
+                  ],
+                )
               ],
             ),
           ),
