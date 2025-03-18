@@ -47,6 +47,13 @@ class _ListItemEditorState extends State<ListItemEditor> {
   bool hasMatch = false;
   String match = '';
 
+  // to make Text and TextField look similar
+  final double _fontSize = 16;
+  final double _lineHeight = 1.6;
+  final EdgeInsets _contentPadding =
+      EdgeInsets.symmetric(vertical: 8, horizontal: 10);
+  // ==================
+
   void updatePos() {
     widget.onChanged(
       widget.model.copyWith(
@@ -76,7 +83,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
   Widget _buildParsedPart(ListItemState model, int index) {
     final hasCode = hasCodeblock(model.textPart);
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0),
+      padding: _contentPadding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -104,14 +111,14 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 ),
               ),
             ),
-          if (model.operator == Operator.none) const SizedBox(width: 30),
+          //if (model.operator == Operator.none) const SizedBox(width: 30),
           if (model.operator != Operator.none &&
               model.operator != Operator.equals)
             SizedBox(
               width: 60,
               child: Text(
                 model.number.toString(),
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: _fontSize),
               ),
             ),
           if (model.operator == Operator.equals)
@@ -122,7 +129,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                     .calculateUntil(widget.cubit.state.items, index)
                     .toDouble()
                     .toStringAsFixed(2),
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: _fontSize),
               ),
             ),
           if (hasCode)
@@ -134,8 +141,8 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   language: getCodeblockLanguage(model.textPart),
                   theme: githubTheme,
                   padding: const EdgeInsets.all(12),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
+                  textStyle: TextStyle(
+                    fontSize: _fontSize,
                     fontFamily: 'Source Code Pro',
                   ),
                 ),
@@ -157,9 +164,9 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 },
                 extensionSet: onyxFlavored,
                 styleSheet: MarkdownStyleSheet(
-                  p: const TextStyle(
-                    fontSize: 16,
-                    height: 1.6,
+                  p: TextStyle(
+                    fontSize: _fontSize,
+                    height: _lineHeight,
                     letterSpacing: 0,
                   ),
                   code: const TextStyle(
@@ -214,32 +221,32 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   ),
                 ),
               ),
+            SizedBox(
+              width: 20,
+            ),
             if (widget.inFocus)
               Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 0),
-                  constraints: const BoxConstraints(minHeight: 0),
-                  padding: const EdgeInsets.only(bottom: 0, left: 29),
-                  child: TextField(
-                    textInputAction: Platform.isIOS || Platform.isAndroid
-                        ? TextInputAction.done
-                        : TextInputAction.none,
-                    minLines: 1,
-                    maxLines: 100,
-                    cursorColor: Colors.black,
-                    decoration: const InputDecoration(border: InputBorder.none),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      height: 1.6,
-                      letterSpacing: 0,
-                    ),
-                    scrollPadding: EdgeInsets.zero,
-                    textAlign: TextAlign.start,
-                    textAlignVertical: TextAlignVertical.top,
-                    expands: false,
-                    focusNode: _node,
-                    controller: _controller,
+                child: TextField(
+                  textInputAction: Platform.isIOS || Platform.isAndroid
+                      ? TextInputAction.done
+                      : TextInputAction.none,
+                  minLines: 1,
+                  maxLines: 100,
+                  cursorColor: Colors.black,
+                  decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: _contentPadding),
+                  style: TextStyle(
+                    fontSize: _fontSize,
+                    height: _lineHeight,
+                    letterSpacing: 0,
                   ),
+                  scrollPadding: EdgeInsets.zero,
+                  textAlign: TextAlign.start,
+                  textAlignVertical: TextAlignVertical.top,
+                  expands: false,
+                  focusNode: _node,
+                  controller: _controller,
                 ),
               ),
             if (!widget.inFocus)
