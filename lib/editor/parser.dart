@@ -5,7 +5,7 @@ final expression = RegExp(r'^\:[0-9]+(([\.\,])+[0-9]+)?');
 abstract class Parser {
   static ListItemState parse(ListItemState model) {
     int parseIndent(String fullText) {
-      final leadingWhitespace = RegExp(r'^\s+');
+      final leadingWhitespace = RegExp(r'^[ \t]+');
       final match = leadingWhitespace.firstMatch(fullText);
       final count = match?.group(0)?.length ?? 0;
 
