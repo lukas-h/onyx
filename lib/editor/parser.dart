@@ -1,7 +1,9 @@
 import 'package:onyx/editor/model.dart';
 
+// For operators "+-*/" match the op (eg. ":+"), number (eg. "100,000"), and the text (eg. "cost")
+// For the equals operator (":="), do not match any named group, but still match the text as a whole.
 final mathematicalExpressionRegex =
-    RegExp(r'^(?<op>:[=+-/*]?)(?<num>[0-9]+([,.]?[0-9]+)?)?(?<text>.*)');
+    RegExp(r'^(:=)|(?<op>^:[+\-\/*]?)(?<num>[0-9]+([,.]?[0-9]+)?)(?<text>.*)');
 
 final operators = {
   ':-': Operator.subtract,
@@ -29,18 +31,19 @@ abstract class Parser {
     num? number;
 
     RegExpMatch? match = mathematicalExpressionRegex.firstMatch(source);
-
     if (match != null) {
-      operator = operators[match.namedGroup("op")] ?? Operator.add;
+      String? opGroupMatch = match.namedGroup("op");
 
-      if (operator != Operator.equals) {
-        number = num.tryParse(match.namedGroup("num") ?? "");
+      if (opGroupMatch != null) {
+        String? numGroupMatch = match.namedGroup("num");
+        String? textGroupMatch = match.namedGroup("text");
 
-        if (number != null) {
-          source = match.namedGroup("text")?.trim() ?? "";
-        }
+        operator = operators[opGroupMatch] ?? Operator.add;
+        number = num.tryParse(numGroupMatch ?? "");
+        source = textGroupMatch?.trim() ?? "";
       } else {
-        source = source.substring(match.namedGroup("op")?.length ?? 0);
+        operator = Operator.equals;
+        source = source.substring(2).trim();
       }
     }
 
