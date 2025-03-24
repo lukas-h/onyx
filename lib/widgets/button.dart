@@ -57,15 +57,27 @@ class Button extends StatelessWidget {
               IconTheme(
                   data: IconThemeData(
                     color: onTap != null ? Colors.black : Colors.black38,
-                    size: iconSize,
+                    size: 14,
                   ),
                   child: icon),
-              if (title.isNotEmpty)
+              if (title.isNotEmpty && maxWidth)
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: onTap != null ? Colors.black : Colors.black38,
+                      fontSize: 14,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              if (title.isNotEmpty && !maxWidth)
                 Text(
                   title,
                   style: TextStyle(
                     color: onTap != null ? Colors.black : Colors.black38,
-                    fontSize: 12,
+                    fontSize: 14,
                   ),
                 ),
               if (trailingIcon != null && title.isNotEmpty) trailingIcon!,
