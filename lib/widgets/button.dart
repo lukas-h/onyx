@@ -47,7 +47,7 @@ class Button extends StatelessWidget {
               color: borderColor ?? Colors.black.withValues(alpha: 0.08),
             ),
           ),
-          padding: EdgeInsets.only(left: title.isNotEmpty ? 4 : 0),
+          padding: EdgeInsets.symmetric(horizontal: title.isNotEmpty ? 4 : 0),
           child: Row(
             mainAxisAlignment: title.isNotEmpty
                 ? MainAxisAlignment.start
