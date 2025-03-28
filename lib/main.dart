@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:onyx/central/body.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
@@ -9,15 +10,24 @@ import 'package:onyx/central/navigation.dart';
 import 'package:onyx/cubit/pb_cubit.dart';
 import 'package:onyx/extensions/chat_extension.dart';
 import 'package:onyx/extensions/extensions_registry.dart';
+import 'package:onyx/hive/hive_registrar.g.dart';
 import 'package:onyx/store/favorite_store.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/screens/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/widgets/button.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+
+  Hive.registerAdapters();
+
+  await Hive.openBox<PageModel>(pageBox);
+  await Hive.openBox<PageModel>(journalBox);
+
   runApp(const OnyxApp());
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(

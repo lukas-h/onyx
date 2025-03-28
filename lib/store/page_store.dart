@@ -1,12 +1,14 @@
 import 'package:collection/collection.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/store/pocketbase.dart';
+import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/utils/utils.dart';
 
-class PageModel {
+class PageModel extends HiveObject {
   final String uid;
   final String title;
   final DateTime created;
@@ -75,8 +77,8 @@ ${fullText.join('\n')}
 
 class PageStore {
   PocketBaseService? _pbService;
-  final List<PageModel> pages = [];
-  final List<PageModel> journals = [];
+  final pages = Hive.box<PageModel>(pageBox);
+  final journals = Hive.box<PageModel>(journalBox);
 
   PageStore({PocketBaseService? pbService}) : _pbService = pbService;
 
@@ -86,9 +88,9 @@ class PageStore {
 
   Future<void> init() async {
     // TODO check for local changes that aren't online yet
+    // conflict management needs to happen here
     final dbPages = await _pbService?.getPages() ?? [];
     _pbService?.subscribeToPage();
-    pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
     pages.addAll(dbPages);
 
     final dbJournals = await _pbService?.getJournals() ?? [];
@@ -115,9 +117,9 @@ class PageStore {
 
   Future<void> initLimitation() async {
     // TODO check for local changes that aren't online yet
+    // conflict management needs to happen here
     final dbPages = await _pbService?.getPages() ?? [];
     _pbService?.subscribeToPage();
-    pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
     pages.addAll(dbPages);
 
     final dbJournals = await _pbService?.getJournals() ?? [];
@@ -152,7 +154,7 @@ class PageStore {
     journals.addAll(newJournals);
   }
 
-  int createPage() {
+  String createPage() {
     final page = PageModel(
       fullText: const [''],
       title: '',
@@ -161,41 +163,46 @@ class PageStore {
     );
     pages.add(page);
     _pbService?.createPage(page);
-    return pages.length - 1;
+    return page.uid;
   }
 
   void updatePage(PageModel model) {
-    pages[pages.indexWhere((e) => e.uid == model.uid)] = model;
+    pages.put(model.uid, model);
     _pbService?.updatePage(model);
   }
 
   void updateJournal(PageModel model) {
-    journals[journals.indexWhere((e) => e.uid == model.uid)] = model;
+    journals.put(model.uid, model);
     _pbService?.updateJournal(model);
   }
 
   void deletePage(String uid) {
-    pages.removeWhere((e) => e.uid == uid);
+    pages.delete(uid);
     _pbService?.deletePage(uid);
   }
 
-  int getPageIndex(String uid) => pages.indexWhere((e) => e.uid == uid);
-
-  int getJournalIndex(String uid) => journals.indexWhere((e) => e.uid == uid);
-
-  int getTodaysJournalIndex() => journals.indexWhere((e) => isToday(e.created));
+  String getTodaysJournalId() =>
+      journals.values.toList().where((e) => isToday(e.created)).first.uid;
 
   int get journalLength => journals.length;
 
   int get pageLength => pages.length;
 
+  PageModel? getPageId(String id) {
+    return pages.get(id);
+  }
+
+  PageModel? getJournalId(String id) {
+    return journals.get(id);
+  }
+
   PageModel? getPage(int index) {
     if (index < 0 || index >= pages.length) return null;
-    return pages[index];
+    return pages.getAt(index);
   }
 
   PageModel? getJournal(int index) {
     if (index < 0 || index >= journals.length) return null;
-    return journals[index];
+    return journals.getAt(index);
   }
 }
