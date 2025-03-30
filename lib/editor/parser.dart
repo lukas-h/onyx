@@ -1,7 +1,7 @@
 import 'package:onyx/editor/model.dart';
 
 final expression = RegExp(r'^\:[0-9]+(([\.\,])+[0-9]+)?');
-
+final checkboxregex =  RegExp(r':\[\]|:\[x\]');
 abstract class Parser {
   static ListItemState parse(ListItemState model) {
     int parseIndent(String fullText) {
@@ -24,13 +24,14 @@ abstract class Parser {
       ':/': Operator.divide,
       ':*': Operator.multiply,
       ':=': Operator.equals,
+      ':[]': Operator.uncheck,
+      ':[x]':Operator.check,
     }.forEach((key, value) {
       if (source.startsWith(key)) {
         operator = value;
       }
     });
-
-    if (operator != Operator.none) {
+    if (operator != Operator.none && operator!=Operator.uncheck && operator!=Operator.check) {
       source = ':${source.substring(2)}';
     }
 

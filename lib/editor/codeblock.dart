@@ -4,8 +4,13 @@ final codeblockStartExp = RegExp(r"(```(?:\w+)?\s)");
 final codeblockEndExp = RegExp(r"(\n```)");
 
 final codeblockLangExp = RegExp(r"```(\w+)?\n");
+final checkboxregex =  RegExp(r':\[\]|:\[x\]');
+
+
 
 bool hasCodeblock(String markdown) => codeblockExp.hasMatch(markdown);
+bool hascheckbox(String markdown) => checkboxregex.hasMatch(markdown);
+
 
 String getCodeblockContent(String markdown) {
   final result = codeblockExp.stringMatch(markdown);
