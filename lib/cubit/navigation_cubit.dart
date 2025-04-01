@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:intl/intl.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 
@@ -176,18 +177,25 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
 
-      final currentJournal = store.getJournal(currentState.pageId ?? '');
-      final currentJournalDate = currentJournal.created.copyWith();
+      try {
+        final currentJournalDate = DateFormat.yMd().parse(currentState.pageId ?? '');
+        final nextJournalDate = currentJournalDate.subtract(Duration(days: 1));
+        final nextJournalDateString = DateFormat.yMd().format(nextJournalDate);
 
-      currentJournalDate.subtract(Duration(days: 1));
-      final previousJournalDate = dateTimeToYYYYMMDDString(currentJournalDate);
-
-      emit(
-        currentState.copyWith(
-          pageId: previousJournalDate,
-          route: RouteState.journalSelected,
-        ),
-      );
+        emit(
+          currentState.copyWith(
+            pageId: nextJournalDateString,
+            route: RouteState.journalSelected,
+          ),
+        );
+      } catch (e) {
+        emit(
+          currentState.copyWith(
+            pageId: store.getTodaysJournalId(),
+            route: RouteState.journalSelected,
+          ),
+        );
+      }
     }
   }
 
@@ -195,18 +203,25 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
 
-      final currentJournal = store.getJournal(currentState.pageId ?? '');
-      final currentJournalDate = currentJournal.created.copyWith();
+      try {
+        final currentJournalDate = DateTime.parse(currentState.pageId ?? '');
+        final nextJournalDate = currentJournalDate.add(Duration(days: 1));
+        final nextJournalDateString = DateFormat.yMd().format(nextJournalDate);
 
-      currentJournalDate.add(Duration(days: 1));
-      final nextJournalDate = dateTimeToYYYYMMDDString(currentJournalDate);
-
-      emit(
-        currentState.copyWith(
-          pageId: nextJournalDate,
-          route: RouteState.journalSelected,
-        ),
-      );
+        emit(
+          currentState.copyWith(
+            pageId: nextJournalDateString,
+            route: RouteState.journalSelected,
+          ),
+        );
+      } catch (e) {
+        emit(
+          currentState.copyWith(
+            pageId: store.getTodaysJournalId(),
+            route: RouteState.journalSelected,
+          ),
+        );
+      }
     }
   }
 

@@ -1,10 +1,10 @@
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/store/pocketbase.dart';
 import 'package:onyx/hive/hive_boxes.dart';
-import 'package:onyx/utils/utils.dart';
 
 class PageModel extends HiveObject {
   final String uid;
@@ -92,6 +92,7 @@ class PageStore {
 
     final dbJournals = await _pbService?.getJournals() ?? [];
     _pbService?.subscribeToJournals();
+    journals.clear();
     journals.putAll(Map.fromIterable(dbJournals, key: (element) => element.uid));
   }
 
@@ -134,7 +135,7 @@ class PageStore {
     _pbService?.deletePage(uid);
   }
 
-  String getTodaysJournalId() => journals.values.toList().where((e) => isToday(e.created)).first.uid;
+  String getTodaysJournalId() => DateFormat.yMd().format(DateTime.now());
 
   int get journalLength => journals.length;
 
