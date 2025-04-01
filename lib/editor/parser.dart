@@ -16,7 +16,7 @@ final operators = {
 abstract class Parser {
   static ListItemState parse(ListItemState model) {
     int parseIndent(String fullText) {
-      final leadingWhitespace = RegExp(r'^\s+');
+      final leadingWhitespace = RegExp(r'^[ \t]+');
       final match = leadingWhitespace.firstMatch(fullText);
       final count = match?.group(0)?.length ?? 0;
 
