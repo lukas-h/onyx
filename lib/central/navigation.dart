@@ -112,8 +112,8 @@ class NavigationMenu extends StatelessWidget {
                               : null,
                         ),
                         Positioned(
-                            top: 4,
-                            right: 0,
+                            top: 0,
+                            right: 8,
                             child: Container(
                               height: 12,
                               width: 12,
