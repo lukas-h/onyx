@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:onyx/editor/link.dart';
 import 'package:onyx/central/search.dart';
 import 'package:onyx/cubit/page_cubit.dart';
@@ -170,7 +171,7 @@ class ListEditorState extends State<ListEditor> {
                         ),
                         child: Padding(
                           padding: EdgeInsets.only(
-                              bottom: (Platform.isIOS || Platform.isAndroid) &&
+                              bottom: (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android) &&
                                       keyboardActive
                                   ? 32
                                   : 0),
