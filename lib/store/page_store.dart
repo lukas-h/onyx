@@ -1,6 +1,4 @@
-import 'package:collection/collection.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
 import 'package:onyx/cubit/page_cubit.dart';
@@ -50,8 +48,7 @@ ${fullText.join('\n')}
         uid: '',
       );
 
-  PageState toPageState(bool isJournal) =>
-      PageState.fromPageModel(this, isJournal);
+  PageState toPageState(bool isJournal) => PageState.fromPageModel(this, isJournal);
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -91,28 +88,11 @@ class PageStore {
     // conflict management needs to happen here
     final dbPages = await _pbService?.getPages() ?? [];
     _pbService?.subscribeToPage();
-    pages.addAll(dbPages);
+    pages.putAll(Map.fromIterable(dbPages, key: (element) => element.uid));
 
     final dbJournals = await _pbService?.getJournals() ?? [];
     _pbService?.subscribeToJournals();
-    journals.clear();
-    journals.addAll([
-      ...List.generate(
-        30,
-        (index) {
-          final date = DateTime.now().subtract(Duration(days: index));
-          final title = DateFormat.yMMMMd().format(date);
-          final journal = dbJournals.singleWhereOrNull((e) => e.title == title);
-          return journal?.copyWith(created: date) ??
-              PageModel(
-                fullText: const [''],
-                title: title,
-                created: date,
-                uid: nanoid(15),
-              );
-        },
-      ),
-    ]);
+    journals.putAll(Map.fromIterable(dbJournals, key: (element) => element.uid));
   }
 
   Future<void> initLimitation() async {
@@ -120,38 +100,11 @@ class PageStore {
     // conflict management needs to happen here
     final dbPages = await _pbService?.getPages() ?? [];
     _pbService?.subscribeToPage();
-    pages.addAll(dbPages);
+    pages.putAll(Map.fromIterable(dbPages, key: (element) => element.uid));
 
     final dbJournals = await _pbService?.getJournals() ?? [];
     _pbService?.subscribeToJournals();
-    journals.clear();
-    await loadMoreJournals(dbJournals, 30, false);
-  }
-
-  Future<void> loadMoreJournals(
-      List<PageModel> dbJournals, int count, bool addNextData) async {
-    final currentLength = journals.length;
-
-    // Fetch new journals either by adding next or subtracting previous dates
-    final newJournals = List.generate(count, (index) {
-      final date = addNextData
-          ? DateTime.now().add(Duration(days: currentLength + index))
-          : DateTime.now().subtract(Duration(days: currentLength + index));
-
-      final title = DateFormat.yMMMMd().format(date);
-      final journal = dbJournals.singleWhereOrNull((e) => e.title == title);
-
-      return journal?.copyWith(created: date) ??
-          PageModel(
-            fullText: const [''],
-            title: title,
-            created: date,
-            uid: nanoid(15),
-          );
-    });
-
-    // Add the new journals to the existing list
-    journals.addAll(newJournals);
+    journals.putAll(Map.fromIterable(dbJournals, key: (element) => element.uid));
   }
 
   String createPage() {
@@ -161,7 +114,7 @@ class PageStore {
       created: DateTime.now(),
       uid: nanoid(15),
     );
-    pages.add(page);
+    pages.put(page.uid, page);
     _pbService?.createPage(page);
     return page.uid;
   }
@@ -181,28 +134,29 @@ class PageStore {
     _pbService?.deletePage(uid);
   }
 
-  String getTodaysJournalId() =>
-      journals.values.toList().where((e) => isToday(e.created)).first.uid;
+  String getTodaysJournalId() => journals.values.toList().where((e) => isToday(e.created)).first.uid;
 
   int get journalLength => journals.length;
 
   int get pageLength => pages.length;
 
-  PageModel? getPageId(String id) {
+  PageModel? getPage(String id) {
     return pages.get(id);
   }
 
-  PageModel? getJournalId(String id) {
-    return journals.get(id);
-  }
-
-  PageModel? getPage(int index) {
-    if (index < 0 || index >= pages.length) return null;
-    return pages.getAt(index);
-  }
-
-  PageModel? getJournal(int index) {
-    if (index < 0 || index >= journals.length) return null;
-    return journals.getAt(index);
+  PageModel getJournal(String dateId) {
+    final journal = journals.get(dateId);
+    if (journal != null) {
+      return journal;
+    } else {
+      final newJournal = PageModel(
+        fullText: const [''],
+        title: dateId,
+        created: DateTime.now(),
+        uid: dateId,
+      );
+      journals.put(dateId, newJournal);
+      return newJournal;
+    }
   }
 }

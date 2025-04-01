@@ -3,6 +3,7 @@ import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 
 import 'package:onyx/cubit/page_cubit.dart';
+import 'package:onyx/utils/utils.dart';
 import 'package:replay_bloc/replay_bloc.dart';
 
 class NavigationState {}
@@ -23,8 +24,7 @@ class NavigationSuccess extends NavigationState {
 
   bool get journalNav => route == RouteState.journalSelected;
 
-  bool get pagesNav =>
-      route == RouteState.pageSelected || route == RouteState.pages;
+  bool get pagesNav => route == RouteState.pageSelected || route == RouteState.pages;
 
   bool get settingsNav => route == RouteState.settings;
 
@@ -122,16 +122,15 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   void createPage() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      final newpageId = store.createPage();
+      final newPageId = store.createPage();
       emit(
         currentState.copyWith(
-          pageId: newpageId,
+          pageId: newPageId,
           route: RouteState.pageSelected,
           newPage: true,
         ),
       );
-      final uid = store.getPage(newpageId)?.uid;
-      if (uid != null) _recentPages.add(uid);
+      _recentPages.add(newPageId);
     }
   }
 
@@ -163,10 +162,10 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   void switchToTodaysJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      final newpageId = store.getTodaysJournalId();
+      final newPageId = store.getTodaysJournalId();
       emit(
         currentState.copyWith(
-          pageId: newpageId,
+          pageId: newPageId,
           route: RouteState.journalSelected,
         ),
       );
@@ -176,18 +175,19 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   Future<void> switchToPreviousJournal() async {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
-      if (currentState.pageId < (store.journalLength - 1)) {
-        final newpageId = currentState.pageId + 1;
-        emit(
-          currentState.copyWith(
-            pageId: newpageId,
-            route: RouteState.journalSelected,
-          ),
-        );
-      } else {
-        // TODO add pagination -> load older
-        await store.loadMoreJournals(store.journals, 30, false);
-      }
+
+      final currentJournal = store.getJournal(currentState.pageId ?? '');
+      final currentJournalDate = currentJournal.created.copyWith();
+
+      currentJournalDate.subtract(Duration(days: 1));
+      final previousJournalDate = dateTimeToYYYYMMDDString(currentJournalDate);
+
+      emit(
+        currentState.copyWith(
+          pageId: previousJournalDate,
+          route: RouteState.journalSelected,
+        ),
+      );
     }
   }
 
@@ -195,16 +195,18 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
 
-      if (currentState.pageId > 0) {
-        final newpageId = currentState.pageId - 1;
+      final currentJournal = store.getJournal(currentState.pageId ?? '');
+      final currentJournalDate = currentJournal.created.copyWith();
 
-        emit(
-          currentState.copyWith(
-            pageId: newpageId,
-            route: RouteState.journalSelected,
-          ),
-        );
-      }
+      currentJournalDate.add(Duration(days: 1));
+      final nextJournalDate = dateTimeToYYYYMMDDString(currentJournalDate);
+
+      emit(
+        currentState.copyWith(
+          pageId: nextJournalDate,
+          route: RouteState.journalSelected,
+        ),
+      );
     }
   }
 
@@ -220,12 +222,11 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   }
 
   void openPageOrJournal(String text) {
-    final page = store.pages.firstWhereOrNull((e) => e.title == text)?.uid;
+    final page = store.pages.values.firstWhereOrNull((e) => e.title == text)?.uid;
     if (page != null) {
       switchToPage(page);
     } else {
-      final journal =
-          store.journals.firstWhereOrNull((e) => e.title == text)?.uid;
+      final journal = store.journals.values.firstWhereOrNull((e) => e.title == text)?.uid;
       if (journal != null) {
         switchToJournal(journal);
       }
@@ -236,12 +237,9 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
       return switch (currentState.route) {
-        RouteState.pages =>
-          store.getPage(currentState.pageId)?.toPageState(false),
-        RouteState.pageSelected =>
-          store.getPage(currentState.pageId)?.toPageState(false),
-        RouteState.journalSelected =>
-          store.getJournal(currentState.pageId)?.toPageState(true),
+        RouteState.pages => store.getPage(currentState.pageId ?? '')?.toPageState(false),
+        RouteState.pageSelected => store.getPage(currentState.pageId ?? '')?.toPageState(false),
+        RouteState.journalSelected => store.getJournal(currentState.pageId ?? '').toPageState(true),
         RouteState.settings => null,
       };
     } else {
@@ -249,9 +247,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     }
   }
 
-  List<PageState> get pages =>
-      store.pages.map((e) => e.toPageState(false)).toList();
+  List<PageState> get pages => store.pages.values.map((e) => e.toPageState(false)).toList();
 
-  List<PageState> get journals =>
-      store.journals.map((e) => e.toPageState(true)).toList();
+  List<PageState> get journals => store.journals.values.map((e) => e.toPageState(true)).toList();
 }
