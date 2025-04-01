@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:flutter/foundation.dart';
 
 class ListItemEditor extends StatefulWidget {
   final ListItemState model;
@@ -275,7 +276,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   constraints: const BoxConstraints(minHeight: 0),
                   padding: const EdgeInsets.only(bottom: 0, left: 29),
                   child: TextField(
-                    textInputAction: Platform.isIOS || Platform.isAndroid
+                    textInputAction: defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android
                         ? TextInputAction.done
                         : TextInputAction.none,
                     minLines: 1,
