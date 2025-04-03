@@ -11,6 +11,7 @@ import 'package:onyx/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:onyx/editor/parser.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter/foundation.dart';
 
@@ -47,7 +48,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
   final _controller = TextEditingController();
   bool hasMatch = false;
   bool defaultuncheck = false;
-  bool defaultcheck = true;
+
   String match = '';
 
   void updatePos() {
@@ -78,7 +79,8 @@ class _ListItemEditorState extends State<ListItemEditor> {
 
   Widget _buildParsedPart(ListItemState model, int index) {
     final hasCode = hasCodeblock(model.textPart);
-    final hascheck = hascheckbox(model.textPart);
+    final hasCheck = (model.operator == Operator.check || model.operator == Operator.uncheck);
+    bool? defaultCheck = model.operator==Operator.check ? true:false;
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
       child: Row(
@@ -133,21 +135,32 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 style: const TextStyle(fontSize: 16),
               ),
             ),
-          if(model.operator==Operator.uncheck)
+          if(hasCheck)
             SizedBox(
               width: 60,
-              child: Checkbox(value: defaultuncheck, onChanged: (bool? value) {
+              child: Checkbox(value: defaultCheck, onChanged: (bool? value) {
                setState(() {
-                defaultuncheck = value!;
-              });
-             },),
-            ),
-          if(model.operator==Operator.check)
-            SizedBox(
-              width: 60,
-              child: Checkbox(value: defaultcheck, onChanged: (bool? value) {
-               setState(() {
-                defaultcheck = value!;
+                defaultCheck = value;
+                if(value==true){
+                  String source = '-[x]${model.textPart.substring(3)}';
+                  var updatedmodel = model.copyWith(
+                  fullText: source,
+                  textPart: source,
+                  operator: Operator.check,
+                  position: source.length
+                );
+                widget.cubit.update(index, updatedmodel);
+                }
+                else{
+                String source = '-[]${model.textPart.substring(4)}';
+                  var updatedmodel = model.copyWith(
+                  fullText: source,
+                  textPart: source,
+                  operator: Operator.uncheck,
+                  position: source.length
+                );
+                widget.cubit.update(index, updatedmodel);
+                }
               });
              },),
             ),
@@ -167,7 +180,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 ),
               ),
             ),
-          if(!hasCode && hascheck)
+          if(!hasCode && hasCheck)
             Expanded(
               child: MarkdownBody(
                 data: (model.operator == Operator.uncheck ? model.textPart.substring(3):model.textPart.substring(4)),
