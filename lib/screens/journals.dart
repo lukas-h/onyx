@@ -27,14 +27,12 @@ class JournalsScreen extends StatelessWidget {
                         'Today',
                         maxWidth: false,
                         icon: const Icon(Icons.today_outlined),
-                        onTap: isToday(state.created)
+                        onTap: isToday(state.uid)
                             ? null
                             : () {
-                                context
-                                    .read<NavigationCubit>()
-                                    .switchToTodaysJournal();
+                                context.read<NavigationCubit>().switchToTodaysJournal();
                               },
-                        active: isToday(state.created),
+                        active: isToday(state.uid),
                       );
                     },
                   ),
@@ -43,13 +41,11 @@ class JournalsScreen extends StatelessWidget {
                     'Next',
                     maxWidth: false,
                     icon: const Icon(Icons.keyboard_arrow_up),
-                    onTap: isToday(state.created)
+                    onTap: isToday(state.uid)
                         ? null
                         : () {
-                      context
-                          .read<NavigationCubit>()
-                          .switchToNextJournal();
-                    },
+                            context.read<NavigationCubit>().switchToNextJournal();
+                          },
                     active: false,
                   ),
                   const SizedBox(width: 8),

@@ -1,8 +1,9 @@
-bool isToday(DateTime date) {
+import 'package:intl/intl.dart';
+
+bool isToday(String dateString) {
   final now = DateTime.now();
-  return date.year == now.year &&
-      date.month == now.month &&
-      date.day == now.day;
+  final date = ddmmyyyy.parse(dateString);
+  return date.year == now.year && date.month == now.month && date.day == now.day;
 }
 
 extension OnlyStringExtension on String {
@@ -12,3 +13,5 @@ extension OnlyStringExtension on String {
 extension OnlyListExtension on List {
   List only(int max) => max >= (length - 1) ? this : sublist(0, max);
 }
+
+final ddmmyyyy = DateFormat.yMd('en_AU');

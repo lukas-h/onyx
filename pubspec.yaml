@@ -35,11 +35,16 @@ dependencies:
   flutter_secure_storage: ^9.2.2
   http: ^1.2.2
   connectivity_plus: ^6.0.5
+  js_interop: ^0.0.1
+  hive_ce_flutter: ^2.2.0
+  hive_ce: ^2.10.1
+  build_runner: ^2.4.15
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  hive_ce_generator: ^1.8.2
 
 dependency_overrides: 
   highlight:
