@@ -130,8 +130,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 BlocBuilder<DirectoryCubit, OriginState>(
                   builder: (context, state) {
-                    if (state is OriginSuccess<DirectoryCredentials,
-                        DirectoryService>) {
+                    if (state is OriginSuccess) {
                       final cred = state.credentials;
                       return Column(
                         mainAxisSize: MainAxisSize.min,
@@ -454,8 +453,8 @@ class _DirectoryFormState extends State<_DirectoryForm> {
             active: false,
             onTap: changed
                 ? () {
-                    final pbCubit = context.read<DirectoryCubit>();
-                    pbCubit.setCredentials(
+                    final dirCubit = context.read<DirectoryCubit>();
+                    dirCubit.setCredentials(
                       DirectoryCredentials(
                         path: _pathController.text,
                       ),
