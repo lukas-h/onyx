@@ -203,7 +203,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
       final currentState = state as NavigationSuccess;
 
       try {
-        final currentJournalDate = DateTime.parse(currentState.pageId ?? '');
+        final currentJournalDate = ddmmyyyy.parse(currentState.pageId ?? '');
         final nextJournalDate = currentJournalDate.add(Duration(days: 1));
         final nextJournalDateString = ddmmyyyy.format(nextJournalDate);
 

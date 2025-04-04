@@ -1,5 +1,4 @@
 import 'package:hive_ce_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
 import 'package:onyx/cubit/page_cubit.dart';

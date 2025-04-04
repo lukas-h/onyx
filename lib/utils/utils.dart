@@ -1,7 +1,8 @@
 import 'package:intl/intl.dart';
 
-bool isToday(DateTime date) {
+bool isToday(String dateString) {
   final now = DateTime.now();
+  final date = ddmmyyyy.parse(dateString);
   return date.year == now.year && date.month == now.month && date.day == now.day;
 }
 
