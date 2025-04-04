@@ -38,9 +38,13 @@ class SearchMenu extends StatefulWidget {
 
 class _SearchMenuState extends State<SearchMenu> {
   String query = '';
+  final _node = FocusNode();
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _node.requestFocus();
+    });
     final cubit = context.read<NavigationCubit>();
     return IconTheme(
       data: const IconThemeData(size: 15),
@@ -54,6 +58,7 @@ class _SearchMenuState extends State<SearchMenu> {
           child: Column(
             children: [
               TextField(
+                focusNode: _node,
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   hintText: 'Search...',
@@ -64,6 +69,7 @@ class _SearchMenuState extends State<SearchMenu> {
                     query = v.trimLeft();
                   });
                 },
+                textInputAction: TextInputAction.next,
               ),
               Expanded(
                 child: SingleChildScrollView(

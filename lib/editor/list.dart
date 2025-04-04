@@ -1,4 +1,7 @@
-import 'package:onyx/central/link.dart';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:onyx/editor/link.dart';
 import 'package:onyx/central/search.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/editor/item.dart';
@@ -96,7 +99,6 @@ class ListEditorState extends State<ListEditor> {
                     },
                     itemBuilder: (context, index) {
                       final item = state.items[index];
-
                       return ListItemEditor(
                         cubit: cubit,
                         key: ValueKey(item.uid),
@@ -144,111 +146,171 @@ class ListEditorState extends State<ListEditor> {
                         : Container(),
                   ),
                 ),
-                Material(
-                  elevation: 0,
-                  color: Colors.black.withOpacity(0.03),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(3),
-                    topRight: Radius.circular(3),
-                  ),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () {
-                          cubit.add(
-                            ListItemState.unparsed(
-                              index: state.items.length,
-                              fullText: '',
+                LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                    final bottomInset =
+                        MediaQuery.of(context).viewInsets.bottom;
+                    final keyboardActive = bottomInset != 0.0;
+
+                    return Material(
+                      elevation: 0,
+                      color: Colors.black.withOpacity(0.03),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(3),
+                        topRight: Radius.circular(3),
+                      ),
+                      child: IconButtonTheme(
+                        data: IconButtonThemeData(
+                          style: ButtonStyle(
+                            shape: WidgetStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(3),
+                              ),
                             ),
-                          );
-                        },
+                          ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              bottom: (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android) &&
+                                      keyboardActive
+                                  ? 32
+                                  : 0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: SizedBox(
+                                  height: 48,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    itemExtent: 48,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.add),
+                                        onPressed: () {
+                                          cubit.add(
+                                            ListItemState.unparsed(
+                                              index: state.items.length,
+                                              fullText: '',
+                                              position: 0,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                            Icons.keyboard_arrow_left),
+                                        onPressed: state.items.isNotEmpty &&
+                                                state.index >= 0 &&
+                                                state.items[state.index]
+                                                        .indent >
+                                                    0
+                                            ? () {
+                                                cubit.decreaseIndent();
+                                              }
+                                            : null,
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                            Icons.keyboard_arrow_right),
+                                        onPressed: state.items.isNotEmpty
+                                            ? () {
+                                                cubit.increaseIndent();
+                                              }
+                                            : null,
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                            Icons.add_photo_alternate_outlined),
+                                        onPressed: state.items.isNotEmpty
+                                            ? () {
+                                                cubit.insertImage();
+                                              }
+                                            : null,
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                            Icons.data_array_outlined),
+                                        onPressed: state.items.isNotEmpty
+                                            ? () async {
+                                                final page =
+                                                    await openInsertMenu(
+                                                        context);
+                                                if (page != null) {
+                                                  cubit.insertInternalLink(
+                                                      page.title);
+                                                }
+                                              }
+                                            : null,
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.link),
+                                        onPressed: state.items.isNotEmpty
+                                            ? () async {
+                                                final link =
+                                                    await openExternalLinkInsertMenu(
+                                                        context);
+                                                if (link != null) {
+                                                  cubit.insertExternalLink(
+                                                      link.$1, link.$2);
+                                                }
+                                              }
+                                            : null,
+                                      ),
+                                      SizedBox(
+                                        child: IconButton(
+                                          icon: const Icon(Icons.undo),
+                                          onPressed: cubit.canUndo
+                                              ? () {
+                                                  cubit.undo();
+                                                }
+                                              : null,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.redo),
+                                        onPressed: cubit.canRedo
+                                            ? () {
+                                                cubit.redo();
+                                              }
+                                            : null,
+                                      ),
+                                    ]
+                                        .map((e) => Padding(
+                                              padding: const EdgeInsets.all(4),
+                                              child: e,
+                                            ))
+                                        .toList(),
+                                  ),
+                                ),
+                              ),
+                              const VerticalDivider(
+                                width: 1,
+                                color: Colors.black26,
+                                thickness: 1,
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.keyboard_arrow_up),
+                                onPressed: state.index > 0
+                                    ? () {
+                                        cubit.index(state.index - 1);
+                                      }
+                                    : null,
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.keyboard_arrow_down),
+                                onPressed: state.items.isNotEmpty &&
+                                        state.index < state.items.length - 1
+                                    ? () {
+                                        cubit.index(state.index + 1);
+                                      }
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.keyboard_arrow_left),
-                        onPressed: state.items.isNotEmpty &&
-                                state.index >= 0 &&
-                                state.items[state.index].indent > 0
-                            ? () {
-                                cubit.decreaseIndent();
-                              }
-                            : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.keyboard_arrow_right),
-                        onPressed: state.items.isNotEmpty
-                            ? () {
-                                cubit.increaseIndent();
-                              }
-                            : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add_photo_alternate_outlined),
-                        onPressed: state.items.isNotEmpty
-                            ? () {
-                                cubit.insertImage();
-                              }
-                            : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.data_array_outlined),
-                        onPressed: state.items.isNotEmpty
-                            ? () async {
-                                final page = await openInsertMenu(context);
-                                if (page != null) {
-                                  cubit.insertInternalLink(page.title);
-                                }
-                              }
-                            : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.link),
-                        onPressed: state.items.isNotEmpty
-                            ? () async {
-                                final link =
-                                    await openExternalLinkInsertMenu(context);
-                                if (link != null) {
-                                  cubit.insertExternalLink(link.$1, link.$2);
-                                }
-                              }
-                            : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.undo),
-                        onPressed: cubit.canUndo
-                            ? () {
-                                cubit.undo();
-                              }
-                            : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.redo),
-                        onPressed: cubit.canRedo
-                            ? () {
-                                cubit.redo();
-                              }
-                            : null,
-                      ),
-                      Expanded(child: Container()),
-                      IconButton(
-                        icon: const Icon(Icons.keyboard_arrow_up),
-                        onPressed: state.index > 0
-                            ? () {
-                                cubit.index(state.index - 1);
-                              }
-                            : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                        onPressed: state.items.isNotEmpty &&
-                                state.index < state.items.length - 1
-                            ? () {
-                                cubit.index(state.index + 1);
-                              }
-                            : null,
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ],
             ),

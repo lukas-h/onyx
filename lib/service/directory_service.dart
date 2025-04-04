@@ -32,7 +32,13 @@ class DirectoryService extends OriginService {
   Future<List<PageModel>> getPages() => _getModels('_pages');
 
   @override
+  void subscribeToPage() {} // TODO;
+
+  @override
   Future<List<PageModel>> getJournals() => _getModels('_journals');
+
+  @override
+  void subscribeToJournals() {} // TODO;
 
   Future<void> _writePage(String collection, PageModel model) async {
     final page = File(

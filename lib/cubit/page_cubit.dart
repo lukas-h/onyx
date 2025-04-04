@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:onyx/editor/model.dart';
 import 'package:onyx/editor/parser.dart';
 import 'package:onyx/store/image_store.dart';
@@ -57,6 +58,7 @@ class PageState extends Equatable {
               ListItemState.unparsed(
                 fullText: model.fullText[i],
                 index: i,
+                position: model.fullText[i].length,
               ),
             ),
         ],
@@ -86,11 +88,6 @@ class PageCubit extends ReplayCubit<PageState> {
       store.updatePage(state.toPageModel());
     }
     super.emit(state);
-  }
-
-  void _focus() {
-    state.items[state.index].focusNode
-        .requestFocus(); // TODO find better technical solution
   }
 
   void selectPage(PageState newPage) {
@@ -182,13 +179,17 @@ class PageCubit extends ReplayCubit<PageState> {
     final items = List.of(state.items, growable: true);
     var item = Parser.parse(model);
     if (state.items.isNotEmpty) {
-      item = item.copyWith(indent: state.items.last.indent);
+      item = item.copyWith(indent: state.items[state.index].indent);
     }
-    items.add(item);
+    if (state.index < (items.length - 1)) {
+      items.insert(state.index + 1, item);
+    } else {
+      items.add(item);
+    }
     emit(
       PageState(
         items: items,
-        index: items.length - 1,
+        index: items.length == 1 ? 0 : state.index + 1,
         sum: calculateUntil(items, items.length),
         created: state.created,
         title: state.title,
@@ -202,7 +203,6 @@ class PageCubit extends ReplayCubit<PageState> {
     if (i < state.items.length &&
         ((i > -1 && state.isJournal) || (i >= -1 && !state.isJournal))) {
       emit(state.copyWith(index: i));
-      _focus();
     }
   }
 
@@ -228,6 +228,7 @@ class PageCubit extends ReplayCubit<PageState> {
         ListItemState.unparsed(
           index: state.items.length,
           fullText: '',
+          position: 0,
         ),
       );
     }
@@ -267,7 +268,6 @@ class PageCubit extends ReplayCubit<PageState> {
             .toList(),
       ),
     );
-    _focus();
   }
 
   void decreaseIndent() {
@@ -281,7 +281,6 @@ class PageCubit extends ReplayCubit<PageState> {
             .toList(),
       ),
     );
-    _focus();
   }
 
   Future<void> insertImage() async {
@@ -331,6 +330,28 @@ class PageCubit extends ReplayCubit<PageState> {
               .toList(),
         ),
       );
+
+  void insertLineFeed() {
+    emit(
+      state.copyWith(
+        items: state.items.map((e) {
+          if (e.index == state.index) {
+            final chars = e.fullText.characters.toList();
+            chars.insert(e.position, '\n');
+
+            return Parser.parse(
+              e.copyWith(
+                fullText: chars.join(''),
+                position: e.position + 1,
+              ),
+            );
+          } else {
+            return e.copyWith();
+          }
+        }).toList(),
+      ),
+    );
+  }
 
   Future<ImageModel?> getImage(String name) => imageStore.getImageByTitle(name);
 }

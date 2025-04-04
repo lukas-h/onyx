@@ -3,6 +3,7 @@ import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/cubit/origin/pb_cubit.dart';
 import 'package:onyx/service/directory_service.dart';
 import 'package:onyx/service/pb_service.dart';
+import 'package:onyx/extensions/extensions_registry.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:onyx/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class SettingsScreen extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 16.0),
+          padding: const EdgeInsets.only(top: 30.0),
           child: ListTile(
             title: Text(
               'Settings',
@@ -212,6 +213,93 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
+class _PocketBaseSettings extends StatelessWidget {
+  const _PocketBaseSettings();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<PocketBaseCubit, OriginState>(
+      builder: (context, state) {
+        if (state is OriginSuccess) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _SettingsCard(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.done_all,
+                    color: Colors.green,
+                  ),
+                  title: const Text('Pocketbase connection active'),
+                  subtitle: Text(state.credentials.url),
+                ),
+              ),
+              _PocketBaseForm(
+                initialUrl: state.credentials.url,
+                initialEmail: state.credentials.email,
+                initialPassword: state.credentials.password,
+                saveButtonText: 'Update credentials',
+              ),
+            ],
+          );
+        } else if (state is OriginError) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _SettingsCard(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.warning_amber_outlined,
+                    color: Colors.red,
+                  ),
+                  title: const Text('Pocketbase connection error'),
+                  subtitle: Text(state.message),
+                ),
+              ),
+              _PocketBaseForm(
+                initialUrl: state.credentials.url,
+                initialEmail: state.credentials.email,
+                initialPassword: state.credentials.password,
+                saveButtonText: 'Fix credentials',
+              ),
+            ],
+          );
+        } else if (state is OriginPrompt) {
+          return const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _SettingsCard(
+                child: ListTile(
+                  leading: Icon(
+                    Icons.info_outline,
+                    color: Colors.yellow,
+                  ),
+                  title: Text('Pocketbase configuration'),
+                  subtitle: Text('Please provide your credentials'),
+                ),
+              ),
+              _PocketBaseForm(
+                initialUrl: '',
+                initialEmail: '',
+                initialPassword: '',
+                saveButtonText: 'Set credentials',
+              ),
+            ],
+          );
+        } else {
+          return const _SettingsCard(
+            child: ListTile(
+              leading: CircularProgressIndicator(),
+              title: Text('Pocketbase connection loading'),
+              subtitle: Text('Trying to connect to service'),
+            ),
+          );
+        }
+      },
+    );
+  }
+}
+
 class _PocketBaseForm extends StatefulWidget {
   final String initialUrl;
   final String initialEmail;
@@ -246,7 +334,7 @@ class _PocketBaseFormState extends State<_PocketBaseForm> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8.0, right: 8),
+      padding: const EdgeInsets.only(left: 8, right: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

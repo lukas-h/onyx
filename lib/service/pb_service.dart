@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:onyx/editor/codeblock.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/service/service.dart';
@@ -16,25 +17,38 @@ class PocketBaseService extends OriginService {
     return list.items.map((e) => e.getStringValue('uid')).toList();
   }
 
+  void _subscribeToRealtime(String collection) {
+    pb.collection(collection).subscribe('*', (e) {
+      // Handle the event, for example, refresh your data
+      _getModels(collection);
+    });
+  }
+
   Future<List<PageModel>> _getModels(String collection) async {
     final list = await pb.collection(collection).getList();
-    return list.items
-        .map(
-          (e) => PageModel(
-            uid: e.id,
-            title: e.data['title'],
-            fullText: e.data['body'].toString().split('\n'),
-            created: DateTime.tryParse(e.created) ?? DateTime.now(),
-          ),
-        )
-        .toList();
+    return list.items.map(
+      (e) {
+        return PageModel(
+          uid: e.id,
+          title: e.data['title'],
+          fullText: parseMarkdownBody(e.data['body'].toString()),
+          created: DateTime.tryParse(e.created) ?? DateTime.now(),
+        );
+      },
+    ).toList();
   }
 
   @override
   Future<List<PageModel>> getPages() => _getModels('pages');
 
   @override
+  void subscribeToPage() => _subscribeToRealtime('pages');
+
+  @override
   Future<List<PageModel>> getJournals() => _getModels('journals');
+
+  @override
+  void subscribeToJournals() => _subscribeToRealtime('journals');
 
   @override
   Future<void> createPage(PageModel model) => pb.collection('pages').create(

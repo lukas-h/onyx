@@ -76,12 +76,22 @@ class HelpMenu extends StatelessWidget {
               ),
               ListTile(
                 dense: true,
-                title: Text('Move line up'),
+                title: Text('Add line feed'),
+                leading: Text('⏎'),
+              ),
+              ListTile(
+                dense: true,
+                title: Text('Add new paragraph'),
+                leading: Text('⌘⏎'),
+              ),
+              ListTile(
+                dense: true,
+                title: Text('Move paragraph up'),
                 leading: Text('↑'),
               ),
               ListTile(
                 dense: true,
-                title: Text('Move line down'),
+                title: Text('Move paragraph down'),
                 leading: Text('↓'),
               ),
               ListTile(

@@ -79,7 +79,8 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     init();
   }
   Future<void> init() async {
-    await store.init();
+    // await store.init();
+    await store.initLimitation();
     await imageStore.init();
 
     if (state is NavigationSuccess) {
@@ -98,9 +99,12 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   Future<void> sync() async {
     if (state is NavigationSuccess) {
       emit((state as NavigationSuccess).copyToLoading());
-      await store.init();
+      // await store.init();
+      await store.initLimitation();
       await imageStore.init();
-      emit((state as NavigationLoading).copyToSuccess());
+      if (state is NavigationLoading) {
+        emit((state as NavigationLoading).copyToSuccess());
+      }
     }
   }
 
@@ -173,7 +177,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     }
   }
 
-  void switchToPreviousJournal() {
+  Future<void> switchToPreviousJournal() async {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
       if (currentState.index < (store.journalLength - 1)) {
@@ -186,6 +190,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
         );
       } else {
         // TODO add pagination -> load older
+        await store.loadMoreJournals(store.journals, 30, false);
       }
     }
   }
@@ -193,8 +198,10 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
   void switchToNextJournal() {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
+
       if (currentState.index > 0) {
         final newIndex = currentState.index - 1;
+
         emit(
           currentState.copyWith(
             index: newIndex,

@@ -3,12 +3,15 @@ import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/editor/delete.dart';
 import 'package:onyx/editor/favorite.dart';
 import 'package:onyx/editor/list.dart';
+import 'package:onyx/extensions/extensions_registry.dart';
+import 'package:onyx/extensions/page_extension.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:onyx/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:onyx/widgets/page_header.dart';
 
 class PagesScreen extends StatelessWidget {
   const PagesScreen({super.key});
@@ -42,25 +45,22 @@ class _PagesList extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 16.0),
-          child: ListTile(
+          child: PageHeader(
             title: Text(
               'Pages',
               style: Theme.of(context).textTheme.headlineLarge,
             ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Button(
-                  'New Page',
-                  maxWidth: false,
-                  icon: const Icon(Icons.note_add_outlined),
-                  active: false,
-                  onTap: () {
-                    context.read<NavigationCubit>().createPage();
-                  },
-                ),
-              ],
-            ),
+            buttons: [
+              Button(
+                'New Page',
+                maxWidth: false,
+                icon: const Icon(Icons.note_add_outlined),
+                active: false,
+                onTap: () {
+                  context.read<NavigationCubit>().createPage();
+                },
+              ),
+            ],
           ),
         ),
         Expanded(
@@ -98,55 +98,101 @@ class PageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(width: 0.5, color: Colors.grey[300]!),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(3),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(width: 0.5, color: Colors.grey[300]!),
+          ),
         ),
-      ),
-      child: ListTile(
-        title: Text(state.title),
-        dense: small,
-        subtitle:
-            small ? null : Text(DateFormat.yMMMMd().format(state.created)),
-        leading: icon ?? const Icon(Icons.summarize_outlined),
-        onTap: onTap,
+        child: ListTile(
+          title: Text(state.title),
+          dense: small,
+          subtitle:
+              small ? null : Text(DateFormat.yMMMMd().format(state.created)),
+          leading: icon ?? const Icon(Icons.summarize_outlined),
+          onTap: onTap,
+        ),
       ),
     );
   }
 }
 
-class _PageDetail extends StatelessWidget {
+class _PageDetail extends StatefulWidget {
   const _PageDetail();
 
   @override
+  State<_PageDetail> createState() => _PageDetailState();
+}
+
+class _PageDetailState extends State<_PageDetail> {
+  PageExtension? selectedExtension;
+
+  @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      BlocBuilder<PageCubit, PageState>(
-        builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: ListTile(
-              title: _PageTitleEditor(
-                title: state.title,
-                index: state.index,
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            children: [
+              BlocBuilder<PageCubit, PageState>(
+                builder: (context, state) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: PageHeader(
+                      buttons: [
+                        FavoriteButton(uid: state.uid),
+                        const SizedBox(width: 8),
+                        DeleteButton(state: state),
+                        for (final ext in context
+                            .read<ExtensionsRegistry>()
+                            .pagesExtensions) ...[
+                          const SizedBox(width: 8),
+                          ext.buildControlButton(
+                              context, state, ext == selectedExtension, () {
+                            setState(() {
+                              if (ext == selectedExtension) {
+                                selectedExtension = null;
+                              } else {
+                                selectedExtension = ext;
+                              }
+                            });
+                          }),
+                        ]
+                      ],
+                      title: _PageTitleEditor(
+                        title: state.title,
+                        index: state.index,
+                      ),
+                    ),
+                  );
+                },
               ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FavoriteButton(uid: state.uid),
-                  const SizedBox(width: 8),
-                  DeleteButton(state: state),
-                ],
+              const Expanded(
+                child: NarrowBody(child: ListEditor()),
               ),
-            ),
-          );
-        },
-      ),
-      const Expanded(
-        child: NarrowBody(child: ListEditor()),
-      ),
-    ]);
+            ],
+          ),
+        ),
+        if (selectedExtension != null)
+          const VerticalDivider(
+            width: 1,
+            color: Colors.black26,
+            thickness: 1,
+          ),
+        if (selectedExtension != null)
+          BlocBuilder<PageCubit, PageState>(
+            builder: (context, state) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                width: selectedExtension != null ? 380 : 0,
+                child: selectedExtension!.buildBody(context, state),
+              );
+            },
+          ),
+      ],
+    );
   }
 }
 
