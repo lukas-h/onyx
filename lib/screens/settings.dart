@@ -48,8 +48,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 BlocBuilder<PocketBaseCubit, OriginState>(
                   builder: (context, state) {
-                    if (state is OriginSuccess<PocketBaseCredentials,
-                        PocketBaseService>) {
+                    if (state is OriginSuccess) {
                       final cred = state.credentials;
                       return Column(
                         mainAxisSize: MainAxisSize.min,
@@ -72,7 +71,7 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ],
                       );
-                    } else if (state is OriginError<PocketBaseCredentials>) {
+                    } else if (state is OriginError) {
                       final cred = state.credentials;
                       return Column(
                         mainAxisSize: MainAxisSize.min,
@@ -151,7 +150,7 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ],
                       );
-                    } else if (state is OriginError<DirectoryCredentials>) {
+                    } else if (state is OriginError) {
                       final cred = state.credentials;
                       return Column(
                         mainAxisSize: MainAxisSize.min,
