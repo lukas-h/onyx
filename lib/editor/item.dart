@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/github.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
@@ -194,7 +192,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: widget.inFocus
-              ? Colors.black.withOpacity(0.03)
+              ? Colors.black.withValues(alpha: 0.03)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(3),
           //border: Border(
