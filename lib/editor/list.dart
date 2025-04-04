@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:onyx/editor/link.dart';
 import 'package:onyx/central/search.dart';
@@ -89,7 +87,7 @@ class ListEditorState extends State<ListEditor> {
                           decoration: BoxDecoration(
                             border: Border.all(
                               width: 1,
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withValues(alpha: 0.08),
                             ),
                             borderRadius: BorderRadius.circular(3),
                           ),
@@ -154,7 +152,7 @@ class ListEditorState extends State<ListEditor> {
 
                     return Material(
                       elevation: 0,
-                      color: Colors.black.withOpacity(0.03),
+                      color: Colors.black.withValues(alpha: 0.03),
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(3),
                         topRight: Radius.circular(3),
