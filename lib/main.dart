@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:onyx/central/body.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
@@ -27,6 +28,8 @@ void main() async {
 
   await Hive.openBox<PageModel>(pageBox);
   await Hive.openBox<PageModel>(journalBox);
+
+  initializeDateFormatting('en_AU');
 
   runApp(const OnyxApp());
   SystemChrome.setSystemUIOverlayStyle(
@@ -101,8 +104,7 @@ class _OnyxAppState extends State<OnyxApp> {
           builder: (context, child) {
             final mediaQueryData = MediaQuery.of(context);
             return MediaQuery(
-              data: mediaQueryData.copyWith(
-                  textScaler: const TextScaler.linear(1.2)),
+              data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1.2)),
               child: child!,
             );
           },
@@ -146,9 +148,7 @@ class _OnyxAppState extends State<OnyxApp> {
                   }
                 }
               },
-              builder: (context, state) => state is NavigationSuccess
-                  ? HomeScreen(state: state)
-                  : const LoadingScreen(),
+              builder: (context, state) => state is NavigationSuccess ? HomeScreen(state: state) : const LoadingScreen(),
             ),
           ),
         ),

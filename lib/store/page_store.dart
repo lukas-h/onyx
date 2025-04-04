@@ -5,6 +5,7 @@ import 'package:nanoid/nanoid.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/store/pocketbase.dart';
 import 'package:onyx/hive/hive_boxes.dart';
+import 'package:onyx/utils/utils.dart';
 
 class PageModel extends HiveObject {
   final String uid;
@@ -135,7 +136,7 @@ class PageStore {
     _pbService?.deletePage(uid);
   }
 
-  String getTodaysJournalId() => DateFormat.yMd().format(DateTime.now());
+  String getTodaysJournalId() => ddmmyyyy.format(DateTime.now());
 
   int get journalLength => journals.length;
 

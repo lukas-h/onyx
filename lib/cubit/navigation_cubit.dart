@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:intl/intl.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 
@@ -178,9 +177,9 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
       final currentState = state as NavigationSuccess;
 
       try {
-        final currentJournalDate = DateFormat.yMd().parse(currentState.pageId ?? '');
+        final currentJournalDate = ddmmyyyy.parse(currentState.pageId ?? '');
         final nextJournalDate = currentJournalDate.subtract(Duration(days: 1));
-        final nextJournalDateString = DateFormat.yMd().format(nextJournalDate);
+        final nextJournalDateString = ddmmyyyy.format(nextJournalDate);
 
         emit(
           currentState.copyWith(
@@ -206,7 +205,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
       try {
         final currentJournalDate = DateTime.parse(currentState.pageId ?? '');
         final nextJournalDate = currentJournalDate.add(Duration(days: 1));
-        final nextJournalDateString = DateFormat.yMd().format(nextJournalDate);
+        final nextJournalDateString = ddmmyyyy.format(nextJournalDate);
 
         emit(
           currentState.copyWith(
