@@ -3,10 +3,14 @@ import 'package:onyx/central/body.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/cubit/origin/directory_cubit.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/central/keyboard.dart';
 import 'package:onyx/central/navigation.dart';
-import 'package:onyx/cubit/pb_cubit.dart';
+import 'package:onyx/cubit/origin/pb_cubit.dart';
+import 'package:onyx/service/directory_service.dart';
+import 'package:onyx/cubit/origin/pb_cubit.dart';
 import 'package:onyx/extensions/chat_extension.dart';
 import 'package:onyx/extensions/extensions_registry.dart';
 import 'package:onyx/store/favorite_store.dart';
@@ -61,6 +65,9 @@ class _OnyxAppState extends State<OnyxApp> {
             create: (context) => PocketBaseCubit(),
           ),
           BlocProvider(
+            create: (context) => DirectoryCubit(),
+          ),
+          BlocProvider(
             create: (context) => NavigationCubit(
               store: store,
               imageStore: imageStore,
@@ -111,18 +118,19 @@ class _OnyxAppState extends State<OnyxApp> {
             ),
             fontFamily: 'Futura',
           ),
-          home: BlocListener<PocketBaseCubit, PocketBaseState>(
+          home: BlocListener<DirectoryCubit, OriginState>(
             listener: (context, state) {
               final navCubit = context.read<NavigationCubit>();
               final favCubit = context.read<FavoritesCubit>();
-              if (state is PocketBaseSuccess) {
-                store.pbService = state.service;
-                imageStore.pbService = state.service;
-                favoriteStore.pbService = state.service;
+              if (state
+                  is OriginSuccess<DirectoryCredentials, DirectoryService>) {
+                store.originServices = [state.service];
+                imageStore.originServices = [state.service];
+                favoriteStore.originServices = [state.service];
                 navCubit.init();
                 favCubit.init();
               }
-              if (state is PocketBasePrompt || state is PocketBaseError) {
+              if (state is OriginPrompt || state is OriginError) {
                 navCubit.navigateTo(RouteState.settings);
               }
             },

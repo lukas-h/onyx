@@ -1,10 +1,12 @@
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
 import 'package:onyx/cubit/page_cubit.dart';
-import 'package:onyx/store/pocketbase.dart';
+import 'package:onyx/service/origin_service.dart';
 import 'package:onyx/utils/utils.dart';
+import 'package:watcher/watcher.dart';
 
 class PageModel {
   final String uid;
@@ -40,13 +42,28 @@ uid: $uid
 ${fullText.join('\n')}
 ''';
 
-// TODO finish markdown parser
-  factory PageModel.fromMarkdown(String markdown) => PageModel(
-        created: DateTime.now(),
-        fullText: [],
-        title: '',
-        uid: '',
+  factory PageModel.fromMarkdown(String markdown) {
+    // Matches the structure created by toMarkdown() and uses named capturing groups to extract the details for pageModel.
+    final fromMarkdownRegex = RegExp(
+        r'---\ntitle: (?<title>[\S ]*)\ncreated: (?<created>[\S]*)\nuid: (?<uid>[\S]*)\n---\n\n(?<fullText>(.|\n)*)');
+
+    RegExpMatch? match = fromMarkdownRegex.firstMatch(markdown);
+    if (match != null) {
+      String? titleGroupMatch = match.namedGroup("title");
+      String? createdGroupMatch = match.namedGroup("created");
+      String? uidGroupMatch = match.namedGroup("uid");
+      String? fullTextGroupMatch = match.namedGroup("fullText");
+
+      return PageModel(
+        title: titleGroupMatch ?? '',
+        created: DateTime.tryParse(createdGroupMatch ?? '') ?? DateTime.now(),
+        uid: uidGroupMatch ?? nanoid(15),
+        fullText: fullTextGroupMatch?.split('\n') ?? const [''],
       );
+    }
+
+    throw Exception('Unable to parse file to markdown. Content: $markdown.');
+  }
 
   PageState toPageState(bool isJournal) =>
       PageState.fromPageModel(this, isJournal);
@@ -74,25 +91,24 @@ ${fullText.join('\n')}
 }
 
 class PageStore {
-  PocketBaseService? _pbService;
+  List<OriginService>? _originServices;
   final List<PageModel> pages = [];
   final List<PageModel> journals = [];
 
-  PageStore({PocketBaseService? pbService}) : _pbService = pbService;
+  PageStore({List<OriginService>? originServices})
+      : _originServices = originServices;
 
-  set pbService(PocketBaseService pbService) {
-    _pbService = pbService;
+  set originServices(List<OriginService> originServices) {
+    _originServices = originServices;
   }
 
   Future<void> init() async {
     // TODO check for local changes that aren't online yet
-    final dbPages = await _pbService?.getPages() ?? [];
-    _pbService?.subscribeToPage();
+    final dbPages = await _originServices?.firstOrNull?.getPages() ?? [];
     pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
     pages.addAll(dbPages);
 
-    final dbJournals = await _pbService?.getJournals() ?? [];
-    _pbService?.subscribeToJournals();
+    final dbJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
     journals.clear();
     journals.addAll([
       ...List.generate(
@@ -115,13 +131,17 @@ class PageStore {
 
   Future<void> initLimitation() async {
     // TODO check for local changes that aren't online yet
-    final dbPages = await _pbService?.getPages() ?? [];
-    _pbService?.subscribeToPage();
+    final dbPages = await _originServices?.firstOrNull?.getPages() ?? [];
+
+    _originServices?.firstOrNull?.subscribeToPages();
+
     pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
     pages.addAll(dbPages);
 
-    final dbJournals = await _pbService?.getJournals() ?? [];
-    _pbService?.subscribeToJournals();
+    final dbJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
+
+    _originServices?.firstOrNull?.subscribeToJournals();
+
     journals.clear();
     await loadMoreJournals(dbJournals, 30, false);
   }
@@ -160,23 +180,23 @@ class PageStore {
       uid: nanoid(15),
     );
     pages.add(page);
-    _pbService?.createPage(page);
+    _originServices?.firstOrNull?.createPage(page);
     return pages.length - 1;
   }
 
   void updatePage(PageModel model) {
     pages[pages.indexWhere((e) => e.uid == model.uid)] = model;
-    _pbService?.updatePage(model);
+    _originServices?.firstOrNull?.updatePage(model);
   }
 
   void updateJournal(PageModel model) {
     journals[journals.indexWhere((e) => e.uid == model.uid)] = model;
-    _pbService?.updateJournal(model);
+    _originServices?.firstOrNull?.updateJournal(model);
   }
 
   void deletePage(String uid) {
     pages.removeWhere((e) => e.uid == uid);
-    _pbService?.deletePage(uid);
+    _originServices?.firstOrNull?.deletePage(uid);
   }
 
   int getPageIndex(String uid) => pages.indexWhere((e) => e.uid == uid);
