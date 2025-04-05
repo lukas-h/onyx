@@ -1,14 +1,18 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:onyx/service/pb_service.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
-import 'package:onyx/service/service.dart';
+import 'package:onyx/service/origin_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart' as y;
+import 'package:watcher/watcher.dart';
 
 class DirectoryService extends OriginService {
   final Directory directory;
+
   DirectoryService(this.directory);
 
   Future<List<PageModel>> _getModels(String collection) async {
@@ -25,6 +29,7 @@ class DirectoryService extends OriginService {
       final content = await item.readAsString();
       models.add(PageModel.fromMarkdown(content));
     }
+
     return models;
   }
 
@@ -32,13 +37,28 @@ class DirectoryService extends OriginService {
   Future<List<PageModel>> getPages() => _getModels('_pages');
 
   @override
-  void subscribeToPage() {} // TODO;
+  void subscribeToPages() {}
 
   @override
   Future<List<PageModel>> getJournals() => _getModels('_journals');
 
   @override
-  void subscribeToJournals() {} // TODO;
+  void subscribeToJournals() {}
+
+  @override
+  Future<void> createPage(PageModel model) => _writePage('_pages', model);
+
+  @override
+  Future<void> createJournal(PageModel model) => _writePage('_journals', model);
+
+  @override
+  Future<void> updatePage(PageModel model) => _writePage('_pages', model);
+
+  @override
+  Future<void> updateJournal(PageModel model) => _writePage('_journals', model);
+
+  @override
+  Future<void> deletePage(String uid) => _deleteItem('_pages', uid);
 
   Future<void> _writePage(String collection, PageModel model) async {
     final page = File(
@@ -58,7 +78,7 @@ class DirectoryService extends OriginService {
     final page = File(
       p.join(
         directory.path,
-        'assets',
+        collection,
         '$uid.md',
       ),
     );
@@ -66,21 +86,6 @@ class DirectoryService extends OriginService {
       await page.delete();
     }
   }
-
-  @override
-  Future<void> createPage(PageModel model) => _writePage('_pages', model);
-
-  @override
-  Future<void> createJournal(PageModel model) => _writePage('_journals', model);
-
-  @override
-  Future<void> updatePage(PageModel model) => _writePage('_pages', model);
-
-  @override
-  Future<void> updateJournal(PageModel model) => _writePage('_journals', model);
-
-  @override
-  Future<void> deletePage(String uid) => _deleteItem('_pages', uid);
 
   Future<(List<String>, File)> _getFavoritesImpl() async {
     final file = File(p.join(directory.path, 'favorites.yaml'));

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:nanoid/nanoid.dart';
-import 'package:onyx/service/service.dart';
+import 'package:onyx/service/origin_service.dart';
 
 class ImageModel {
   Future<Uint8List> bytes;

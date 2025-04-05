@@ -4,8 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 
 import 'package:onyx/cubit/page_cubit.dart';
-import 'package:onyx/service/service.dart';
+import 'package:onyx/service/origin_service.dart';
 import 'package:onyx/utils/utils.dart';
+import 'package:watcher/watcher.dart';
 
 class PageModel {
   final String uid;
@@ -41,15 +42,27 @@ uid: $uid
 ${fullText.join('\n')}
 ''';
 
-// TODO finish markdown parser
   factory PageModel.fromMarkdown(String markdown) {
-    debugPrint("markdown_data ${markdown.toString()}");
-    return PageModel(
-      created: DateTime.now(),
-      fullText: [],
-      title: '',
-      uid: '',
-    );
+    // Matches the structure created by toMarkdown() and uses named capturing groups to extract the details for pageModel.
+    final fromMarkdownRegex = RegExp(
+        r'---\ntitle: (?<title>[\S ]*)\ncreated: (?<created>[\S]*)\nuid: (?<uid>[\S]*)\n---\n\n(?<fullText>(.|\n)*)');
+
+    RegExpMatch? match = fromMarkdownRegex.firstMatch(markdown);
+    if (match != null) {
+      String? titleGroupMatch = match.namedGroup("title");
+      String? createdGroupMatch = match.namedGroup("created");
+      String? uidGroupMatch = match.namedGroup("uid");
+      String? fullTextGroupMatch = match.namedGroup("fullText");
+
+      return PageModel(
+        title: titleGroupMatch ?? '',
+        created: DateTime.tryParse(createdGroupMatch ?? '') ?? DateTime.now(),
+        uid: uidGroupMatch ?? nanoid(15),
+        fullText: fullTextGroupMatch?.split('\n') ?? const [''],
+      );
+    }
+
+    throw Exception('Unable to parse file to markdown. Content: $markdown.');
   }
 
   PageState toPageState(bool isJournal) =>
@@ -119,12 +132,16 @@ class PageStore {
   Future<void> initLimitation() async {
     // TODO check for local changes that aren't online yet
     final dbPages = await _originServices?.firstOrNull?.getPages() ?? [];
-    _originServices?.firstOrNull?.subscribeToPage();
+
+    _originServices?.firstOrNull?.subscribeToPages();
+
     pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
     pages.addAll(dbPages);
 
     final dbJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
+
     _originServices?.firstOrNull?.subscribeToJournals();
+
     journals.clear();
     await loadMoreJournals(dbJournals, 30, false);
   }

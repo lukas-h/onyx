@@ -1,4 +1,4 @@
-import 'package:onyx/service/service.dart';
+import 'package:onyx/service/origin_service.dart';
 
 class FavoriteStore {
   List<OriginService>? _originServices;

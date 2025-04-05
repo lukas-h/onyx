@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:onyx/service/service.dart';
+import 'package:onyx/service/origin_service.dart';
 
 class OriginState {}
 

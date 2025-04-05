@@ -6,7 +6,7 @@ abstract class OriginService {
 
   Future<List<PageModel>> getPages();
 
-  void subscribeToPage();
+  void subscribeToPages();
 
   Future<List<PageModel>> getJournals();
 
