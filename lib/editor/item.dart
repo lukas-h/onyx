@@ -1,17 +1,16 @@
 import 'dart:io';
 
-import 'package:flutter_highlight/flutter_highlight.dart';
-import 'package:flutter_highlight/themes/github.dart';
-import 'package:onyx/cubit/navigation_cubit.dart';
-import 'package:onyx/cubit/page_cubit.dart';
-import 'package:onyx/editor/codeblock.dart';
-import 'package:onyx/editor/image_builder.dart';
-import 'package:onyx/editor/markdown.dart';
-import 'package:onyx/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+
+import '../cubit/navigation_cubit.dart';
+import '../cubit/page_cubit.dart';
+import 'image_builder.dart';
+import 'latex_builder.dart';
+import 'markdown.dart';
+import 'model.dart';
 
 class ListItemEditor extends StatefulWidget {
   final ListItemState model;
@@ -81,7 +80,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
   }
 
   Widget _buildParsedPart(ListItemState model, int index) {
-    final hasCode = hasCodeblock(model.textPart);
+    //final hasCode = hasCodeblock(model.textPart);
     return Padding(
       padding: _contentPadding,
       child: Row(
@@ -132,7 +131,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 style: TextStyle(fontSize: _fontSize),
               ),
             ),
-          if (hasCode)
+          /* if (hasCode)
             Expanded(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(3),
@@ -148,35 +147,38 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 ),
               ),
             ),
-          if (!hasCode)
-            Expanded(
-              child: MarkdownBody(
-                data: model.textPart,
-                imageBuilder: (uri, title, alt) =>
-                    ImageBuilder(uri: uri, title: title, alt: alt),
-                onTapLink: (text, href, title) {
-                  if (Uri.tryParse(href ?? '') != null) {
-                    launchUrlString(href!);
-                  }
-                },
-                onTapInternalLink: (text) {
-                  context.read<NavigationCubit>().openPageOrJournal(text);
-                },
-                extensionSet: onyxFlavored,
-                styleSheet: MarkdownStyleSheet(
-                  p: TextStyle(
-                    fontSize: _fontSize,
-                    height: _lineHeight,
-                    letterSpacing: 0,
-                  ),
-                  code: const TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Source Code Pro',
-                    backgroundColor: Color(0xffddffdd),
-                  ),
+          if (!hasCode) */
+          Expanded(
+            child: MarkdownBody(
+              data: model.textPart,
+              imageBuilder: (uri, title, alt) =>
+                  ImageBuilder(uri: uri, title: title, alt: alt),
+              onTapLink: (text, href, title) {
+                if (Uri.tryParse(href ?? '') != null) {
+                  launchUrlString(href!);
+                }
+              },
+              onTapInternalLink: (text) {
+                context.read<NavigationCubit>().openPageOrJournal(text);
+              },
+              builders: {
+                'latex-inline': LatexElementBuilder(),
+              },
+              extensionSet: onyxFlavored,
+              styleSheet: MarkdownStyleSheet(
+                p: TextStyle(
+                  fontSize: _fontSize,
+                  height: _lineHeight,
+                  letterSpacing: 0,
+                ),
+                code: const TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'Source Code Pro',
+                  backgroundColor: Color(0xffddffdd),
                 ),
               ),
             ),
+          ),
           const SizedBox(width: 64),
         ],
       ),
@@ -190,7 +192,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
         _node.requestFocus();
       }
     });
-    return GestureDetector(
+     return GestureDetector(
       onTap: () {
         _node.requestFocus();
         widget.onTap();
@@ -230,6 +232,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   textInputAction: Platform.isIOS || Platform.isAndroid
                       ? TextInputAction.done
                       : TextInputAction.none,
+                  keyboardType: TextInputType.multiline,
                   minLines: 1,
                   maxLines: 100,
                   cursorColor: Colors.black,

@@ -1,3 +1,5 @@
+
+
 bool isToday(DateTime date) {
   final now = DateTime.now();
   return date.year == now.year &&
@@ -12,3 +14,5 @@ extension OnlyStringExtension on String {
 extension OnlyListExtension on List {
   List only(int max) => max >= (length - 1) ? this : sublist(0, max);
 }
+
+

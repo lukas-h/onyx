@@ -1,12 +1,13 @@
-import 'package:onyx/cubit/navigation_cubit.dart';
-import 'package:onyx/cubit/page_cubit.dart';
-import 'package:onyx/editor/list.dart';
-import 'package:onyx/utils/utils.dart';
-import 'package:onyx/widgets/button.dart';
-import 'package:onyx/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onyx/widgets/page_header.dart';
+
+import '../cubit/navigation_cubit.dart';
+import '../cubit/page_cubit.dart';
+import '../editor/list.dart';
+import '../utils/utils.dart';
+import '../widgets/button.dart';
+import '../widgets/narrow_body.dart';
+import '../widgets/page_header.dart';
 
 class JournalsScreen extends StatelessWidget {
   const JournalsScreen({super.key});

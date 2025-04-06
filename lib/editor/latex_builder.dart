@@ -6,12 +6,12 @@ import 'package:markdown/markdown.dart' as md;
 class LatexElementBuilder extends MarkdownElementBuilder {
   @override
   Widget? visitElementAfter(md.Element element, TextStyle? preferredStyle) {
-    if (element.tag == 'latex') {
+    if (element.tag == 'latex-inline') {
       try {
         return Math.tex(
           element.textContent,
-          mathStyle: MathStyle.display,
           textStyle: preferredStyle,
+          mathStyle: MathStyle.display,
           onErrorFallback: (error) {
             return Text(
               'LaTeX Error: $error',

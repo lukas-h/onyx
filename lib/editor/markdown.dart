@@ -56,11 +56,11 @@ class InternalLinkSyntax extends InlineSyntax {
 }
 
 class LatexInlineSyntax extends InlineSyntax {
-  LatexInlineSyntax() : super(r'\$(.*?)\$');
+  LatexInlineSyntax() : super(r'\${1,2}(.*?)\${1,2}');
 
   @override
   bool onMatch(InlineParser parser, Match match) {
-    parser.addNode(Element.text('latex', match.group(1)!));
+    parser.addNode(Element.text('latex-inline', match.group(1)!));
     return true;
   }
 }
