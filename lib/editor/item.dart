@@ -111,7 +111,6 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 ),
               ),
             ),
-          //if (model.operator == Operator.none) const SizedBox(width: 30),
           if (model.operator != Operator.none &&
               model.operator != Operator.equals)
             SizedBox(
@@ -196,16 +195,12 @@ class _ListItemEditorState extends State<ListItemEditor> {
         widget.onTap();
       },
       child: Container(
-        //constraints: const BoxConstraints(minHeight: 44),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: widget.inFocus
               ? Colors.black.withOpacity(0.03)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(3),
-          //border: Border(
-          //  bottom: BorderSide(color: Colors.grey[300]!, width: 0.5),
-          //),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
