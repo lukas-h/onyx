@@ -18,8 +18,7 @@ class PocketBaseService extends OriginService {
     return list.items.map((e) => e.getStringValue('uid')).toList();
   }
 
-  Stream<(PageModel, ChangeType)> _subscribeToRealtime(
-      String collection) async* {
+  void _subscribeToRealtime(String collection) {
     pb.collection(collection).subscribe('*', (e) {
       // TODO: Handle each event type (ADD, REMOVE, MODIFY).
       _getModels(collection);
@@ -35,6 +34,7 @@ class PocketBaseService extends OriginService {
           title: e.data['title'],
           fullText: parseMarkdownBody(e.data['body'].toString()),
           created: DateTime.tryParse(e.created) ?? DateTime.now(),
+          modified: DateTime.now(),
         );
       },
     ).toList();
@@ -44,15 +44,13 @@ class PocketBaseService extends OriginService {
   Future<List<PageModel>> getPages() => _getModels('pages');
 
   @override
-  Stream<(PageModel, ChangeType)> subscribeToPages() =>
-      _subscribeToRealtime('pages');
+  void subscribeToPages() => _subscribeToRealtime('pages');
 
   @override
   Future<List<PageModel>> getJournals() => _getModels('journals');
 
   @override
-  Stream<(PageModel, ChangeType)> subscribeToJournals() =>
-      _subscribeToRealtime('journals');
+  void subscribeToJournals() => _subscribeToRealtime('journals');
 
   @override
   Future<void> createPage(PageModel model) => pb.collection('pages').create(

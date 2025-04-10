@@ -83,6 +83,7 @@ class _OnyxAppState extends State<OnyxApp> {
                 index: 0,
                 items: const [],
                 created: DateTime.now(),
+                modified: DateTime.now(),
                 title: '',
                 sum: 0,
                 uid: '',
@@ -122,8 +123,7 @@ class _OnyxAppState extends State<OnyxApp> {
             listener: (context, state) {
               final navCubit = context.read<NavigationCubit>();
               final favCubit = context.read<FavoritesCubit>();
-              if (state
-                  is OriginSuccess<DirectoryCredentials, DirectoryService>) {
+              if (state is OriginSuccess) {
                 store.originServices = [state.service];
                 imageStore.originServices = [state.service];
                 favoriteStore.originServices = [state.service];

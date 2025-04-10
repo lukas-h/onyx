@@ -12,12 +12,14 @@ class PageModel {
   final String uid;
   final String title;
   final DateTime created;
+  final DateTime modified;
   final List<String> fullText;
 
   PageModel({
     required this.uid,
     required this.title,
     required this.created,
+    required this.modified,
     required this.fullText,
   });
 
@@ -25,6 +27,7 @@ class PageModel {
         uid: state.uid,
         title: state.title,
         created: state.created,
+        modified: state.modified,
         fullText: state.items
             .map(
               (e) => List.generate(e.indent, (e) => '  ').join('') + e.fullText,
@@ -36,12 +39,14 @@ class PageModel {
 ---
 title: $title
 created: ${created.toIso8601String()}
+modified: ${modified.toIso8601String()}
 uid: $uid
 ---
 
 ${fullText.join('\n')}
 ''';
 
+  // TODO: Modify regex to read modified from file too.
   factory PageModel.fromMarkdown(String markdown) {
     // Matches the structure created by toMarkdown() and uses named capturing groups to extract the details for pageModel.
     final fromMarkdownRegex = RegExp(
@@ -57,6 +62,7 @@ ${fullText.join('\n')}
       return PageModel(
         title: titleGroupMatch ?? '',
         created: DateTime.tryParse(createdGroupMatch ?? '') ?? DateTime.now(),
+        modified: DateTime.now(), // TODO: Read from regex match.
         uid: uidGroupMatch ?? nanoid(15),
         fullText: fullTextGroupMatch?.split('\n') ?? const [''],
       );
@@ -79,12 +85,14 @@ ${fullText.join('\n')}
     String? uid,
     String? title,
     DateTime? created,
+    DateTime? modified,
     List<String>? fullText,
   }) {
     return PageModel(
       uid: uid ?? this.uid,
       title: title ?? this.title,
       created: created ?? this.created,
+      modified: modified ?? this.modified,
       fullText: fullText ?? this.fullText,
     );
   }
@@ -122,6 +130,7 @@ class PageStore {
                 fullText: const [''],
                 title: title,
                 created: date,
+                modified: DateTime.now(), //TODO: now datetime?
                 uid: nanoid(15),
               );
         },
@@ -164,6 +173,7 @@ class PageStore {
             fullText: const [''],
             title: title,
             created: date,
+            modified: DateTime.now(), //TODO: now datetime?
             uid: nanoid(15),
           );
     });
@@ -177,6 +187,7 @@ class PageStore {
       fullText: const [''],
       title: '',
       created: DateTime.now(),
+      modified: DateTime.now(),
       uid: nanoid(15),
     );
     pages.add(page);

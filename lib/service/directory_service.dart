@@ -10,10 +10,41 @@ import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart' as y;
 import 'package:watcher/watcher.dart';
 
+typedef PageRecord = ({DateTime lastModified, String pageContent});
+
 class DirectoryService extends OriginService {
+  static const pagesFolderName = '_pages';
+  static const journalsFolderName = '_journals';
+
   final Directory directory;
 
-  DirectoryService(this.directory);
+  final Map<String, PageRecord> pagesCache = {};
+
+  late final Timer writeTimer;
+
+  DirectoryService(this.directory) {
+    writeTimer = Timer.periodic(Duration(seconds: 15), (timer) async {
+      for (final entry in pagesCache.entries) {
+        String pageUid = entry.key;
+        PageRecord pageRecord = entry.value;
+
+        final page = File(
+          p.join(
+            directory.path,
+            pagesFolderName,
+            '$pageUid.md',
+          ),
+        );
+
+        if (!await page.exists()) {
+          await page.create();
+        }
+        await page.writeAsString(pageRecord.pageContent);
+      }
+    });
+  }
+
+  // TODO: Clear writeTimer in destructor, something like close in originservice.
 
   Future<List<PageModel>> _getModels(String collection) async {
     final modelsDir = Directory(p.join(directory.path, collection));
@@ -34,31 +65,54 @@ class DirectoryService extends OriginService {
   }
 
   @override
-  Future<List<PageModel>> getPages() => _getModels('_pages');
+  Future<List<PageModel>> getPages() => _getModels(pagesFolderName);
 
   @override
-  void subscribeToPages() {}
+  void subscribeToPages() {
+    DirectoryWatcher(p.join(
+      directory.path,
+      pagesFolderName,
+    )).events.listen((WatchEvent event) {
+      switch (event.type) {
+        // final pageUid = ;
+
+        case ChangeType.ADD:
+          // createPage(event.);
+          return;
+        case ChangeType.MODIFY:
+          // something w/ conflicts??
+          return;
+        case ChangeType.REMOVE:
+          // deletePage();
+          return;
+      }
+    });
+  }
 
   @override
-  Future<List<PageModel>> getJournals() => _getModels('_journals');
+  Future<List<PageModel>> getJournals() => _getModels(journalsFolderName);
 
   @override
   void subscribeToJournals() {}
 
   @override
-  Future<void> createPage(PageModel model) => _writePage('_pages', model);
+  Future<void> createPage(PageModel model) =>
+      _writePage(pagesFolderName, model);
 
   @override
-  Future<void> createJournal(PageModel model) => _writePage('_journals', model);
+  Future<void> createJournal(PageModel model) =>
+      _writePage(journalsFolderName, model);
 
   @override
-  Future<void> updatePage(PageModel model) => _writePage('_pages', model);
+  Future<void> updatePage(PageModel model) =>
+      _writePage(pagesFolderName, model);
 
   @override
-  Future<void> updateJournal(PageModel model) => _writePage('_journals', model);
+  Future<void> updateJournal(PageModel model) =>
+      _writePage(journalsFolderName, model);
 
   @override
-  Future<void> deletePage(String uid) => _deleteItem('_pages', uid);
+  Future<void> deletePage(String uid) => _deleteItem(pagesFolderName, uid);
 
   Future<void> _writePage(String collection, PageModel model) async {
     final page = File(
@@ -68,6 +122,12 @@ class DirectoryService extends OriginService {
         '${model.uid}.md',
       ),
     );
+
+    pagesCache[model.uid] = (
+      lastModified: model.modified,
+      pageContent: model.toMarkdown(),
+    );
+
     if (!await page.exists()) {
       await page.create();
     }
