@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/github.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
@@ -11,7 +9,6 @@ import 'package:onyx/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:onyx/editor/parser.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter/foundation.dart';
 
@@ -47,7 +44,6 @@ class _ListItemEditorState extends State<ListItemEditor> {
   late final FocusNode _node;
   final _controller = TextEditingController();
   bool hasMatch = false;
-  bool defaultuncheck = false;
 
   String match = '';
 
@@ -105,9 +101,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                     Operator.divide => Icons.percent,
                     Operator.equals => Icons.drag_handle,
                     Operator.none => Icons.article,
-                    // TODO: Handle this case.
                     Operator.check => Icons.check_box,
-                    // TODO: Handle this case.
                     Operator.uncheck => Icons.check_box_outline_blank,
                   },
                   size: 15,
@@ -142,7 +136,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                setState(() {
                 defaultCheck = value;
                 if(value==true){
-                  String source = '-[x]${model.textPart.substring(3)}';
+                  final String source = '-[x]${model.textPart.substring(4)}';
                   var updatedmodel = model.copyWith(
                   fullText: source,
                   textPart: source,
@@ -152,7 +146,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 widget.cubit.update(index, updatedmodel);
                 }
                 else{
-                String source = '-[]${model.textPart.substring(4)}';
+                final String source = '-[ ]${model.textPart.substring(4)}';
                   var updatedmodel = model.copyWith(
                   fullText: source,
                   textPart: source,
@@ -183,7 +177,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
           if(!hasCode && hasCheck)
             Expanded(
               child: MarkdownBody(
-                data: (model.operator == Operator.uncheck ? model.textPart.substring(3):model.textPart.substring(4)),
+                data: (model.textPart.substring(4)),
                 imageBuilder: (uri, title, alt) =>
                     ImageBuilder(uri: uri, title: title, alt: alt),
                 onTapLink: (text, href, title) {

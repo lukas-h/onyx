@@ -5,7 +5,7 @@ import 'package:onyx/editor/model.dart';
 final mathematicalExpressionRegex =
     RegExp(r'^(:=)|(?<op>^:[+\-\/*]?)(?<num>[0-9]+([,.]?[0-9]+)?)(?<text>.*)');
   
-final checkBoxRegex = RegExp(r'^(?<op>-\[(x?)\])(.*)$');
+final checkBoxRegex = RegExp(r'^(?<op>-\[(x| )\]) ?(.*)$');
 
 final operators = {
   ':-': Operator.subtract,
@@ -13,7 +13,7 @@ final operators = {
   ':/': Operator.divide,
   ':*': Operator.multiply,
   ':=': Operator.equals,
-  '-[]':Operator.uncheck,
+  '-[ ]':Operator.uncheck,
   '-[x]':Operator.check
 };
 
