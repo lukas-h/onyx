@@ -4,6 +4,8 @@ import 'package:onyx/editor/model.dart';
 // For the equals operator (":="), do not match any named group, but still match the text as a whole.
 final mathematicalExpressionRegex =
     RegExp(r'^(:=)|(?<op>^:[+\-\/*]?)(?<num>[0-9]+([,.]?[0-9]+)?)(?<text>.*)');
+  
+final checkBoxRegex = RegExp(r'^(?<op>-\[(x?)\])(.*)$');
 
 final operators = {
   ':-': Operator.subtract,
@@ -11,6 +13,8 @@ final operators = {
   ':/': Operator.divide,
   ':*': Operator.multiply,
   ':=': Operator.equals,
+  '-[]':Operator.uncheck,
+  '-[x]':Operator.check
 };
 
 abstract class Parser {
@@ -31,6 +35,7 @@ abstract class Parser {
     num? number;
 
     RegExpMatch? match = mathematicalExpressionRegex.firstMatch(source);
+    RegExpMatch? checkBoxMatch = checkBoxRegex.firstMatch(source);
     if (match != null) {
       String? opGroupMatch = match.namedGroup("op");
 
@@ -46,6 +51,13 @@ abstract class Parser {
         source = source.substring(2).trim();
       }
     }
+    if(checkBoxMatch!=null){
+          String? opGroupMatch = checkBoxMatch.namedGroup("op");
+          if (opGroupMatch != null) {
+            operator = operators[opGroupMatch] ?? Operator.none;
+          }
+    }
+    
 
     updatedModel = updatedModel.copyWith(
       textPart: source,

@@ -9,6 +9,7 @@ import 'package:onyx/editor/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:onyx/editor/parser.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter/foundation.dart';
 
@@ -44,6 +45,8 @@ class _ListItemEditorState extends State<ListItemEditor> {
   late final FocusNode _node;
   final _controller = TextEditingController();
   bool hasMatch = false;
+  bool defaultuncheck = false;
+
   String match = '';
 
   void updatePos() {
@@ -74,12 +77,14 @@ class _ListItemEditorState extends State<ListItemEditor> {
 
   Widget _buildParsedPart(ListItemState model, int index) {
     final hasCode = hasCodeblock(model.textPart);
+    final hasCheck = (model.operator == Operator.check || model.operator == Operator.uncheck);
+    bool? defaultCheck = model.operator==Operator.check ? true:false;
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          if (model.operator != Operator.none)
+          if (model.operator != Operator.none && model.operator!=Operator.check && model.operator!=Operator.uncheck)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 4),
               height: 20,
@@ -98,6 +103,10 @@ class _ListItemEditorState extends State<ListItemEditor> {
                     Operator.divide => Icons.percent,
                     Operator.equals => Icons.drag_handle,
                     Operator.none => Icons.article,
+                    // TODO: Handle this case.
+                    Operator.check => Icons.check_box,
+                    // TODO: Handle this case.
+                    Operator.uncheck => Icons.check_box_outline_blank,
                   },
                   size: 15,
                 ),
@@ -105,7 +114,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
             ),
           if (model.operator == Operator.none) const SizedBox(width: 30),
           if (model.operator != Operator.none &&
-              model.operator != Operator.equals && model.number!=null)
+              model.operator != Operator.equals && model.operator!= Operator.check && model.operator!=Operator.uncheck)
             SizedBox(
               width: 60,
               child: Text(
@@ -124,6 +133,35 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 style: const TextStyle(fontSize: 16),
               ),
             ),
+          if(hasCheck)
+            SizedBox(
+              width: 60,
+              child: Checkbox(value: defaultCheck, onChanged: (bool? value) {
+               setState(() {
+                defaultCheck = value;
+                if(value==true){
+                  String source = '-[x]${model.textPart.substring(3)}';
+                  var updatedmodel = model.copyWith(
+                  fullText: source,
+                  textPart: source,
+                  operator: Operator.check,
+                  position: source.length
+                );
+                widget.cubit.update(index, updatedmodel);
+                }
+                else{
+                String source = '-[]${model.textPart.substring(4)}';
+                  var updatedmodel = model.copyWith(
+                  fullText: source,
+                  textPart: source,
+                  operator: Operator.uncheck,
+                  position: source.length
+                );
+                widget.cubit.update(index, updatedmodel);
+                }
+              });
+             },),
+            ),
           if (hasCode)
             Expanded(
               child: ClipRRect(
@@ -140,7 +178,36 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 ),
               ),
             ),
-          if (!hasCode)
+          if(!hasCode && hasCheck)
+            Expanded(
+              child: MarkdownBody(
+                data: (model.operator == Operator.uncheck ? model.textPart.substring(3):model.textPart.substring(4)),
+                imageBuilder: (uri, title, alt) =>
+                    ImageBuilder(uri: uri, title: title, alt: alt),
+                onTapLink: (text, href, title) {
+                  if (Uri.tryParse(href ?? '') != null) {
+                    launchUrlString(href!);
+                  }
+                },
+                onTapInternalLink: (text) {
+                  context.read<NavigationCubit>().openPageOrJournal(text);
+                },
+                extensionSet: onyxFlavored,
+                styleSheet: MarkdownStyleSheet(
+                  p: const TextStyle(
+                    fontSize: 16,
+                    height: 1.6,
+                    letterSpacing: 0,
+                  ),
+                  code: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Source Code Pro',
+                    backgroundColor: Color(0xffddffdd),
+                  ),
+                ),
+              ),
+            )
+          else if (!hasCode)
             Expanded(
               child: MarkdownBody(
                 data: model.textPart,
