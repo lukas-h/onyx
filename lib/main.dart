@@ -99,15 +99,15 @@ class _OnyxAppState extends State<OnyxApp> {
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
-            dialogBackgroundColor: Colors.white,
             dialogTheme: DialogTheme(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(3),
                 side: BorderSide(
                   width: 1,
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                 ),
               ),
+              backgroundColor: Colors.white,
             ),
             fontFamily: 'Futura',
           ),
