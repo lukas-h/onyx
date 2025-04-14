@@ -110,6 +110,9 @@ class _ListItemEditorState extends State<ListItemEditor> {
               width: 60,
               child: Text(
                 model.number.toString(),
+                maxLines: 1,
+                overflow: TextOverflow.visible,
+                softWrap: false,
                 style: const TextStyle(fontSize: 16),
               ),
             ),
@@ -121,6 +124,9 @@ class _ListItemEditorState extends State<ListItemEditor> {
                     .calculateUntil(widget.cubit.state.items, index)
                     .toDouble()
                     .toStringAsFixed(2),
+                maxLines: 1,
+                overflow: TextOverflow.visible,
+                softWrap: false,
                 style: const TextStyle(fontSize: 16),
               ),
             ),
