@@ -6,7 +6,6 @@ import 'package:onyx/store/page_store.dart';
 import 'package:onyx/service/origin_service.dart';
 import 'package:pocketbase/pocketbase.dart';
 import 'package:http/http.dart' as http;
-import 'package:watcher/watcher.dart';
 
 class PocketBaseService extends OriginService {
   final PocketBase pb;
@@ -146,5 +145,10 @@ class PocketBaseService extends OriginService {
       );
     }
     return list;
+  }
+
+  @override
+  void close() {
+    // TODO: Implement;
   }
 }

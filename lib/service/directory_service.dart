@@ -6,9 +6,11 @@ import 'package:onyx/service/pb_service.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/service/origin_service.dart';
+import 'package:onyx/utils/pausable_interval.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart' as y;
 import 'package:watcher/watcher.dart';
+import 'package:onyx/central/conflict.dart';
 
 typedef PageRecord = ({DateTime lastModified, String pageContent});
 
@@ -20,10 +22,13 @@ class DirectoryService extends OriginService {
 
   final Map<String, PageRecord> pagesCache = {};
 
-  late final Timer writeTimer;
+  // Time after Onyx writing to a file for the changeEvent to be associated with it.
+  final fileModificationWindow = Duration(milliseconds: 100);
+
+  late final PausableInterval writeInterval;
 
   DirectoryService(this.directory) {
-    writeTimer = Timer.periodic(Duration(seconds: 15), (timer) async {
+    writeInterval = PausableInterval(Duration(seconds: 15), (timer) async {
       for (final entry in pagesCache.entries) {
         String pageUid = entry.key;
         PageRecord pageRecord = entry.value;
@@ -44,24 +49,26 @@ class DirectoryService extends OriginService {
     });
   }
 
-  // TODO: Clear writeTimer in destructor, something like close in originservice.
-
   Future<List<PageModel>> _getModels(String collection) async {
     final modelsDir = Directory(p.join(directory.path, collection));
     if (!await modelsDir.exists()) {
       await modelsDir.create();
       return [];
     }
+
     final list = modelsDir.list();
 
     final models = <PageModel>[];
     await for (final item in list) {
-      if (item is! File) continue;
-      final content = await item.readAsString();
-      models.add(PageModel.fromMarkdown(content));
+      if (item is File) models.add(await _getModel(item));
     }
 
     return models;
+  }
+
+  Future<PageModel> _getModel(File file) async {
+    final content = await file.readAsString();
+    return PageModel.fromMarkdown(content);
   }
 
   @override
@@ -69,23 +76,53 @@ class DirectoryService extends OriginService {
 
   @override
   void subscribeToPages() {
+    debugPrint('Now watching $pagesFolderName directory.');
     DirectoryWatcher(p.join(
       directory.path,
       pagesFolderName,
-    )).events.listen((WatchEvent event) {
-      switch (event.type) {
-        // final pageUid = ;
+    )).events.listen((WatchEvent event) async {
+      writeInterval.pause();
 
+      final pageUid = p.basenameWithoutExtension(event.path);
+
+      debugPrint('Modified event.');
+
+      switch (event.type) {
         case ChangeType.ADD:
-          // createPage(event.);
-          return;
+        // Create new page.case
+        // Handle not being exactly Onyx format.
         case ChangeType.MODIFY:
-          // something w/ conflicts??
-          return;
+          PageModel? modifiedPageObject;
+
+          try {
+            modifiedPageObject = await _getModel(File(event.path));
+          } catch (e) {
+            debugPrint(
+                'Modified file ${event.path} is not a parsable Onyx markdown file. Exception: $e.');
+          }
+
+          // openConflictMenu();
+
+          if (modifiedPageObject == null) return;
+
+          final didOnyxTriggerModifyEvent =
+              DateTime.now().difference(modifiedPageObject.modified) <
+                  fileModificationWindow;
+
+          if (didOnyxTriggerModifyEvent) {
+            debugPrint("Onyx did this!");
+          } else {
+            debugPrint("Wow this is unexpected, throw the conflict dialog!");
+          }
+        // something w/ conflicts??
+
+        // if page modified time is not close to the current time within some window
+        // we know the file is out of sync and need to throw the conflict dialog.
         case ChangeType.REMOVE:
-          // deletePage();
-          return;
+        // Delete page.
       }
+
+      writeInterval.resume();
     });
   }
 
@@ -235,5 +272,10 @@ class DirectoryService extends OriginService {
       );
     }
     return models;
+  }
+
+  @override
+  void close() {
+    writeInterval.stop();
   }
 }

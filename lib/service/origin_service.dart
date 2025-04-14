@@ -31,4 +31,6 @@ abstract class OriginService {
   Future<void> deleteImage(String uid);
 
   Future<List<ImageModel>> getImages();
+
+  void close();
 }

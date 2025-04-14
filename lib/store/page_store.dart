@@ -116,6 +116,8 @@ class PageStore {
     pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
     pages.addAll(dbPages);
 
+    _originServices?.firstOrNull?.subscribeToPages();
+
     final dbJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
     journals.clear();
     journals.addAll([
@@ -136,11 +138,15 @@ class PageStore {
         },
       ),
     ]);
+
+    _originServices?.firstOrNull?.subscribeToJournals();
   }
 
   Future<void> initLimitation() async {
     // TODO check for local changes that aren't online yet
     final dbPages = await _originServices?.firstOrNull?.getPages() ?? [];
+
+    debugPrint("TEST");
 
     _originServices?.firstOrNull?.subscribeToPages();
 

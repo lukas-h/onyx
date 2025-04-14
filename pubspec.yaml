@@ -38,6 +38,7 @@ dependencies:
   yaml: ^3.1.2
   connectivity_plus: ^6.0.5
   watcher: ^1.1.1
+  pretty_diff_text: ^2.0.0
 
 dev_dependencies:
   flutter_test:
