@@ -69,7 +69,7 @@ class NavigationMenu extends StatelessWidget {
             height: 16,
             endIndent: 0,
             thickness: 1,
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -182,7 +182,7 @@ class NavigationMenu extends StatelessWidget {
             height: 12,
             endIndent: 0,
             thickness: 1,
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
           ),
           const FavoritesList(),
           const RecentsList(),
