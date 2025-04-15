@@ -6,6 +6,7 @@ import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/editor/codeblock.dart';
 import 'package:onyx/editor/image_builder.dart';
+import 'package:onyx/editor/latex_builder.dart';
 import 'package:onyx/editor/markdown.dart';
 import 'package:onyx/editor/model.dart';
 import 'package:flutter/material.dart';
@@ -147,6 +148,9 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 data: model.textPart,
                 imageBuilder: (uri, title, alt) =>
                     ImageBuilder(uri: uri, title: title, alt: alt),
+                builders: {
+                  'latex': LatexElementBuilder(),
+                },
                 onTapLink: (text, href, title) {
                   if (Uri.tryParse(href ?? '') != null) {
                     launchUrlString(href!);
