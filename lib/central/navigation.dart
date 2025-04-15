@@ -43,7 +43,7 @@ class NavigationMenu extends StatelessWidget {
                 maxWidth: false,
                 icon: const Icon(Icons.keyboard_arrow_left),
                 active: false,
-                onTap: context.read<NavigationCubit>().canUndo
+                onTap: state.index>0
                     ? () {
                         context.read<NavigationCubit>().undo();
                       }
