@@ -75,14 +75,17 @@ class _ListItemEditorState extends State<ListItemEditor> {
 
   Widget _buildParsedPart(ListItemState model, int index) {
     final hasCode = hasCodeblock(model.textPart);
-    final hasCheck = (model.operator == Operator.check || model.operator == Operator.uncheck);
-    bool? defaultCheck = model.operator==Operator.check ? true:false;
+    final hasCheck = (model.operator == Operator.check ||
+        model.operator == Operator.uncheck);
+    bool? defaultCheck = model.operator == Operator.check ? true : false;
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          if (model.operator != Operator.none && model.operator!=Operator.check && model.operator!=Operator.uncheck)
+          if (model.operator != Operator.none &&
+              model.operator != Operator.check &&
+              model.operator != Operator.uncheck)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 4),
               height: 20,
@@ -110,7 +113,9 @@ class _ListItemEditorState extends State<ListItemEditor> {
             ),
           if (model.operator == Operator.none) const SizedBox(width: 30),
           if (model.operator != Operator.none &&
-              model.operator != Operator.equals && model.operator!= Operator.check && model.operator!=Operator.uncheck)
+              model.operator != Operator.equals &&
+              model.operator != Operator.check &&
+              model.operator != Operator.uncheck)
             SizedBox(
               width: 60,
               child: Text(
@@ -129,34 +134,36 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 style: const TextStyle(fontSize: 16),
               ),
             ),
-          if(hasCheck)
+          if (hasCheck)
             SizedBox(
               width: 60,
-              child: Checkbox(value: defaultCheck, onChanged: (bool? value) {
-               setState(() {
-                defaultCheck = value;
-                if(value==true){
-                  final String source = '-[x]${model.textPart.substring(4)}';
-                  var updatedmodel = model.copyWith(
-                  fullText: source,
-                  textPart: source,
-                  operator: Operator.check,
-                  position: source.length
-                );
-                widget.cubit.update(index, updatedmodel);
-                }
-                else{
-                final String source = '-[ ]${model.textPart.substring(4)}';
-                  var updatedmodel = model.copyWith(
-                  fullText: source,
-                  textPart: source,
-                  operator: Operator.uncheck,
-                  position: source.length
-                );
-                widget.cubit.update(index, updatedmodel);
-                }
-              });
-             },),
+              child: Checkbox(
+                value: defaultCheck,
+                onChanged: (bool? value) {
+                  setState(() {
+                    defaultCheck = value;
+                    if (value == true) {
+                      final String source =
+                          '-[x]${model.textPart.substring(4)}';
+                      var updatedmodel = model.copyWith(
+                          fullText: source,
+                          textPart: source,
+                          operator: Operator.check,
+                          position: source.length);
+                      widget.cubit.update(index, updatedmodel);
+                    } else {
+                      final String source =
+                          '-[ ]${model.textPart.substring(4)}';
+                      var updatedmodel = model.copyWith(
+                          fullText: source,
+                          textPart: source,
+                          operator: Operator.uncheck,
+                          position: source.length);
+                      widget.cubit.update(index, updatedmodel);
+                    }
+                  });
+                },
+              ),
             ),
           if (hasCode)
             Expanded(
@@ -174,7 +181,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 ),
               ),
             ),
-          if(!hasCode && hasCheck)
+          if (!hasCode && hasCheck)
             Expanded(
               child: MarkdownBody(
                 data: (model.textPart.substring(4)),
@@ -283,9 +290,11 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   constraints: const BoxConstraints(minHeight: 0),
                   padding: const EdgeInsets.only(bottom: 0, left: 29),
                   child: TextField(
-                    textInputAction: defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android
-                        ? TextInputAction.done
-                        : TextInputAction.none,
+                    textInputAction:
+                        defaultTargetPlatform == TargetPlatform.iOS ||
+                                defaultTargetPlatform == TargetPlatform.android
+                            ? TextInputAction.done
+                            : TextInputAction.none,
                     minLines: 1,
                     maxLines: 100,
                     cursorColor: Colors.black,
