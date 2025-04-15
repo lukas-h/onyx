@@ -47,12 +47,10 @@ class _ListItemEditorState extends State<ListItemEditor> {
   bool hasMatch = false;
   String match = '';
 
-  // to make Text and TextField look similar
-  final double _fontSize = 16;
-  final double _lineHeight = 1.6;
-  final EdgeInsets _contentPadding =
+  static const double _fontSize = 16;
+  static const double _lineHeight = 1.6;
+  static const EdgeInsets _contentPadding =
       EdgeInsets.symmetric(vertical: 8, horizontal: 10);
-  // ==================
 
   void updatePos() {
     widget.onChanged(
