@@ -1,4 +1,6 @@
 import 'package:flutter/services.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:onyx/central/body.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
@@ -13,15 +15,26 @@ import 'package:onyx/service/directory_service.dart';
 import 'package:onyx/cubit/origin/pb_cubit.dart';
 import 'package:onyx/extensions/chat_extension.dart';
 import 'package:onyx/extensions/extensions_registry.dart';
+import 'package:onyx/hive/hive_registrar.g.dart';
 import 'package:onyx/store/favorite_store.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/screens/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/widgets/button.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+
+  Hive.registerAdapters();
+
+  await Hive.openBox<PageModel>(pageBox);
+  await Hive.openBox<PageModel>(journalBox);
+
+  initializeDateFormatting('en_AU');
+
   runApp(const OnyxApp());
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -99,23 +112,22 @@ class _OnyxAppState extends State<OnyxApp> {
           builder: (context, child) {
             final mediaQueryData = MediaQuery.of(context);
             return MediaQuery(
-              data: mediaQueryData.copyWith(
-                  textScaler: const TextScaler.linear(1.2)),
+              data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1.2)),
               child: child!,
             );
           },
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
-            dialogBackgroundColor: Colors.white,
             dialogTheme: DialogTheme(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(3),
                 side: BorderSide(
                   width: 1,
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                 ),
               ),
+              backgroundColor: Colors.white,
             ),
             fontFamily: 'Futura',
           ),
@@ -144,9 +156,7 @@ class _OnyxAppState extends State<OnyxApp> {
                   }
                 }
               },
-              builder: (context, state) => state is NavigationSuccess
-                  ? HomeScreen(state: state)
-                  : const LoadingScreen(),
+              builder: (context, state) => state is NavigationSuccess ? HomeScreen(state: state) : const LoadingScreen(),
             ),
           ),
         ),

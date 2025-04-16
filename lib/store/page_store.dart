@@ -5,10 +5,16 @@ import 'package:nanoid/nanoid.dart';
 
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/service/origin_service.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:nanoid/nanoid.dart';
+
+import 'package:onyx/cubit/page_cubit.dart';
+import 'package:onyx/store/pocketbase.dart';
+import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/utils/utils.dart';
 import 'package:watcher/watcher.dart';
 
-class PageModel {
+class PageModel extends HiveObject {
   final String uid;
   final String title;
   final DateTime created;
@@ -49,8 +55,7 @@ ${fullText.join('\n')}
   // TODO: Modify regex to read modified from file too.
   factory PageModel.fromMarkdown(String markdown) {
     // Matches the structure created by toMarkdown() and uses named capturing groups to extract the details for pageModel.
-    final fromMarkdownRegex = RegExp(
-        r'---\ntitle: (?<title>[\S ]*)\ncreated: (?<created>[\S]*)\nuid: (?<uid>[\S]*)\n---\n\n(?<fullText>(.|\n)*)');
+    final fromMarkdownRegex = RegExp(r'---\ntitle: (?<title>[\S ]*)\ncreated: (?<created>[\S]*)\nuid: (?<uid>[\S]*)\n---\n\n(?<fullText>(.|\n)*)');
 
     RegExpMatch? match = fromMarkdownRegex.firstMatch(markdown);
     if (match != null) {
@@ -71,8 +76,7 @@ ${fullText.join('\n')}
     throw Exception('Unable to parse file to markdown. Content: $markdown.');
   }
 
-  PageState toPageState(bool isJournal) =>
-      PageState.fromPageModel(this, isJournal);
+  PageState toPageState(bool isJournal) => PageState.fromPageModel(this, isJournal);
 
   Map<String, dynamic> toJson() => {
         'title': title,
@@ -100,11 +104,10 @@ ${fullText.join('\n')}
 
 class PageStore {
   List<OriginService>? _originServices;
-  final List<PageModel> pages = [];
-  final List<PageModel> journals = [];
+  final pages = Hive.box<PageModel>(pageBox);
+  final journals = Hive.box<PageModel>(journalBox);
 
-  PageStore({List<OriginService>? originServices})
-      : _originServices = originServices;
+  PageStore({List<OriginService>? originServices}) : _originServices = originServices;
 
   set originServices(List<OriginService> originServices) {
     _originServices = originServices;
@@ -112,83 +115,20 @@ class PageStore {
 
   Future<void> init() async {
     // TODO check for local changes that aren't online yet
-    final dbPages = await _originServices?.firstOrNull?.getPages() ?? [];
-    pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
-    pages.addAll(dbPages);
+
+    final dbPages = await await _originServices?.firstOrNull?.getPages() ?? [];
+    pages.putAll(Map.fromIterable(dbPages, key: (element) => element.uid));
 
     _originServices?.firstOrNull?.subscribeToPages();
 
     final dbJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
     journals.clear();
-    journals.addAll([
-      ...List.generate(
-        30,
-        (index) {
-          final date = DateTime.now().subtract(Duration(days: index));
-          final title = DateFormat.yMMMMd().format(date);
-          final journal = dbJournals.singleWhereOrNull((e) => e.title == title);
-          return journal?.copyWith(created: date) ??
-              PageModel(
-                fullText: const [''],
-                title: title,
-                created: date,
-                modified: DateTime.now(), //TODO: now datetime?
-                uid: nanoid(15),
-              );
-        },
-      ),
-    ]);
+    journals.putAll(Map.fromIterable(dbJournals, key: (element) => element.uid));
 
     _originServices?.firstOrNull?.subscribeToJournals();
   }
 
-  Future<void> initLimitation() async {
-    // TODO check for local changes that aren't online yet
-    final dbPages = await _originServices?.firstOrNull?.getPages() ?? [];
-
-    debugPrint("TEST");
-
-    _originServices?.firstOrNull?.subscribeToPages();
-
-    pages.removeWhere((e) => dbPages.map((k) => k.uid).contains(e.uid));
-    pages.addAll(dbPages);
-
-    final dbJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
-
-    _originServices?.firstOrNull?.subscribeToJournals();
-
-    journals.clear();
-    await loadMoreJournals(dbJournals, 30, false);
-  }
-
-  Future<void> loadMoreJournals(
-      List<PageModel> dbJournals, int count, bool addNextData) async {
-    final currentLength = journals.length;
-
-    // Fetch new journals either by adding next or subtracting previous dates
-    final newJournals = List.generate(count, (index) {
-      final date = addNextData
-          ? DateTime.now().add(Duration(days: currentLength + index))
-          : DateTime.now().subtract(Duration(days: currentLength + index));
-
-      final title = DateFormat.yMMMMd().format(date);
-      final journal = dbJournals.singleWhereOrNull((e) => e.title == title);
-
-      return journal?.copyWith(created: date) ??
-          PageModel(
-            fullText: const [''],
-            title: title,
-            created: date,
-            modified: DateTime.now(), //TODO: now datetime?
-            uid: nanoid(15),
-          );
-    });
-
-    // Add the new journals to the existing list
-    journals.addAll(newJournals);
-  }
-
-  int createPage() {
+  String createPage() {
     final page = PageModel(
       fullText: const [''],
       title: '',
@@ -196,43 +136,49 @@ class PageStore {
       modified: DateTime.now(),
       uid: nanoid(15),
     );
-    pages.add(page);
+    pages.put(page.uid, page);
     _originServices?.firstOrNull?.createPage(page);
-    return pages.length - 1;
+    return page.uid;
   }
 
   void updatePage(PageModel model) {
-    pages[pages.indexWhere((e) => e.uid == model.uid)] = model;
+    pages.put(model.uid, model);
     _originServices?.firstOrNull?.updatePage(model);
   }
 
   void updateJournal(PageModel model) {
-    journals[journals.indexWhere((e) => e.uid == model.uid)] = model;
+    journals.put(model.uid, model);
     _originServices?.firstOrNull?.updateJournal(model);
   }
 
   void deletePage(String uid) {
-    pages.removeWhere((e) => e.uid == uid);
+    pages.delete(uid);
     _originServices?.firstOrNull?.deletePage(uid);
   }
 
-  int getPageIndex(String uid) => pages.indexWhere((e) => e.uid == uid);
-
-  int getJournalIndex(String uid) => journals.indexWhere((e) => e.uid == uid);
-
-  int getTodaysJournalIndex() => journals.indexWhere((e) => isToday(e.created));
+  String getTodaysJournalId() => ddmmyyyy.format(DateTime.now());
 
   int get journalLength => journals.length;
 
   int get pageLength => pages.length;
 
-  PageModel? getPage(int index) {
-    if (index < 0 || index >= pages.length) return null;
-    return pages[index];
+  PageModel? getPage(String id) {
+    return pages.get(id);
   }
 
-  PageModel? getJournal(int index) {
-    if (index < 0 || index >= journals.length) return null;
-    return journals[index];
+  PageModel getJournal(String dateId) {
+    final journal = journals.get(dateId);
+    if (journal != null) {
+      return journal;
+    } else {
+      final newJournal = PageModel(
+        fullText: const [''],
+        title: dateId,
+        created: DateTime.now(),
+        uid: dateId,
+      );
+      journals.put(dateId, newJournal);
+      return newJournal;
+    }
   }
 }
