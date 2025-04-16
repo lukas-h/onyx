@@ -149,7 +149,8 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 imageBuilder: (uri, title, alt) =>
                     ImageBuilder(uri: uri, title: title, alt: alt),
                 builders: {
-                  'latex': LatexElementBuilder(),
+                  'inline-latex': LatexElementBuilder(),
+                  'block-latex': LatexElementBuilder(),
                 },
                 onTapLink: (text, href, title) {
                   if (Uri.tryParse(href ?? '') != null) {
