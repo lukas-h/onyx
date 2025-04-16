@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:onyx/cubit/origin/directory_cubit.dart';
 import 'package:onyx/service/pb_service.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
@@ -12,7 +13,7 @@ import 'package:yaml/yaml.dart' as y;
 import 'package:watcher/watcher.dart';
 import 'package:onyx/central/conflict.dart';
 
-typedef PageRecord = ({DateTime lastModified, String pageContent});
+typedef PageRecord = ({DateTime lastModified, PageModel pageContent});
 
 class DirectoryService extends OriginService {
   static const pagesFolderName = '_pages';
@@ -28,7 +29,8 @@ class DirectoryService extends OriginService {
   late final PausableInterval writeInterval;
 
   DirectoryService(this.directory) {
-    writeInterval = PausableInterval(Duration(seconds: 15), (timer) async {
+    writeInterval = PausableInterval(Duration(seconds: 5), () async {
+      debugPrint("Interval.");
       for (final entry in pagesCache.entries) {
         String pageUid = entry.key;
         PageRecord pageRecord = entry.value;
@@ -44,9 +46,13 @@ class DirectoryService extends OriginService {
         if (!await page.exists()) {
           await page.create();
         }
-        await page.writeAsString(pageRecord.pageContent);
+
+        await page.writeAsString(pageRecord.pageContent.copyWith(modified: DateTime.now()).toMarkdown());
+
+        debugPrint("Written to file $pageUid.");
       }
     });
+    writeInterval.start();
   }
 
   Future<List<PageModel>> _getModels(String collection) async {
@@ -92,37 +98,34 @@ class DirectoryService extends OriginService {
         // Create new page.case
         // Handle not being exactly Onyx format.
         case ChangeType.MODIFY:
-          PageModel? modifiedPageObject;
+          PageModel modifiedPageObject;
 
           try {
             modifiedPageObject = await _getModel(File(event.path));
           } catch (e) {
-            debugPrint(
-                'Modified file ${event.path} is not a parsable Onyx markdown file. Exception: $e.');
+            debugPrint('Modified file ${event.path} ($pageUid) is not a parsable Onyx markdown file. Exception: $e.');
+            return;
           }
 
-          // openConflictMenu();
+          final didOnyxTriggerModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
 
-          if (modifiedPageObject == null) return;
-
-          final didOnyxTriggerModifyEvent =
-              DateTime.now().difference(modifiedPageObject.modified) <
-                  fileModificationWindow;
+          debugPrint(
+              '${DateTime.now()} - ${modifiedPageObject.modified} = ${DateTime.now().difference(modifiedPageObject.modified)} < $fileModificationWindow');
 
           if (didOnyxTriggerModifyEvent) {
-            debugPrint("Onyx did this!");
+            debugPrint('Onyx did this!');
           } else {
-            debugPrint("Wow this is unexpected, throw the conflict dialog!");
+            // trigger
+            debugPrint('Wow this is unexpected, $pageUid was modified! Throw the conflict dialog and pause writing to files!');
+            writeInterval.pause();
+            //DirectoryCubit.triggerConflict(modifiedPageObject.uid, modifiedPageObject.);
           }
-        // something w/ conflicts??
-
-        // if page modified time is not close to the current time within some window
-        // we know the file is out of sync and need to throw the conflict dialog.
         case ChangeType.REMOVE:
         // Delete page.
       }
 
-      writeInterval.resume();
+      // TODO uncomment once dialog implemented
+      // writeInterval.resume();
     });
   }
 
@@ -133,42 +136,25 @@ class DirectoryService extends OriginService {
   void subscribeToJournals() {}
 
   @override
-  Future<void> createPage(PageModel model) =>
-      _writePage(pagesFolderName, model);
+  Future<void> createPage(PageModel model) => _writePage(pagesFolderName, model);
 
   @override
-  Future<void> createJournal(PageModel model) =>
-      _writePage(journalsFolderName, model);
+  Future<void> createJournal(PageModel model) => _writePage(journalsFolderName, model);
 
   @override
-  Future<void> updatePage(PageModel model) =>
-      _writePage(pagesFolderName, model);
+  Future<void> updatePage(PageModel model) => _writePage(pagesFolderName, model);
 
   @override
-  Future<void> updateJournal(PageModel model) =>
-      _writePage(journalsFolderName, model);
+  Future<void> updateJournal(PageModel model) => _writePage(journalsFolderName, model);
 
   @override
   Future<void> deletePage(String uid) => _deleteItem(pagesFolderName, uid);
 
   Future<void> _writePage(String collection, PageModel model) async {
-    final page = File(
-      p.join(
-        directory.path,
-        collection,
-        '${model.uid}.md',
-      ),
-    );
-
     pagesCache[model.uid] = (
       lastModified: model.modified,
-      pageContent: model.toMarkdown(),
+      pageContent: model,
     );
-
-    if (!await page.exists()) {
-      await page.create();
-    }
-    await page.writeAsString(model.toMarkdown());
   }
 
   Future<void> _deleteItem(String collection, String uid) async {
@@ -193,7 +179,12 @@ class DirectoryService extends OriginService {
     }
     final content = await file.readAsString();
     final yaml = y.loadYaml(content);
-    final list = (yaml['favorites'] as List).cast<String>();
+
+    List<String> list = [];
+    if (yaml['favorites'] != null) {
+      list = (yaml['favorites'] as List).cast<String>();
+    }
+
     return (list, file);
   }
 

@@ -2,17 +2,14 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
-
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/service/origin_service.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:nanoid/nanoid.dart';
-
 import 'package:onyx/cubit/page_cubit.dart';
-import 'package:onyx/store/pocketbase.dart';
+import 'package:onyx/store/page_store.dart';
 import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/utils/utils.dart';
-import 'package:watcher/watcher.dart';
 
 class PageModel extends HiveObject {
   final String uid;
@@ -52,22 +49,23 @@ uid: $uid
 ${fullText.join('\n')}
 ''';
 
-  // TODO: Modify regex to read modified from file too.
   factory PageModel.fromMarkdown(String markdown) {
     // Matches the structure created by toMarkdown() and uses named capturing groups to extract the details for pageModel.
-    final fromMarkdownRegex = RegExp(r'---\ntitle: (?<title>[\S ]*)\ncreated: (?<created>[\S]*)\nuid: (?<uid>[\S]*)\n---\n\n(?<fullText>(.|\n)*)');
+    final fromMarkdownRegex =
+        RegExp(r'---\ntitle: (?<title>[\S ]*)\ncreated: (?<created>[\S]*)\nmodified: (?<modified>[\S]*)\nuid: (?<uid>[\S]*)\n---\n\n(?<fullText>(.|\n)*)');
 
     RegExpMatch? match = fromMarkdownRegex.firstMatch(markdown);
     if (match != null) {
       String? titleGroupMatch = match.namedGroup("title");
       String? createdGroupMatch = match.namedGroup("created");
+      String? modifiedGroupMatch = match.namedGroup("modified");
       String? uidGroupMatch = match.namedGroup("uid");
       String? fullTextGroupMatch = match.namedGroup("fullText");
 
       return PageModel(
         title: titleGroupMatch ?? '',
         created: DateTime.tryParse(createdGroupMatch ?? '') ?? DateTime.now(),
-        modified: DateTime.now(), // TODO: Read from regex match.
+        modified: DateTime.tryParse(modifiedGroupMatch ?? '') ?? DateTime.now(),
         uid: uidGroupMatch ?? nanoid(15),
         fullText: fullTextGroupMatch?.split('\n') ?? const [''],
       );
@@ -116,7 +114,7 @@ class PageStore {
   Future<void> init() async {
     // TODO check for local changes that aren't online yet
 
-    final dbPages = await await _originServices?.firstOrNull?.getPages() ?? [];
+    final dbPages = await _originServices?.firstOrNull?.getPages() ?? [];
     pages.putAll(Map.fromIterable(dbPages, key: (element) => element.uid));
 
     _originServices?.firstOrNull?.subscribeToPages();
@@ -175,6 +173,7 @@ class PageStore {
         fullText: const [''],
         title: dateId,
         created: DateTime.now(),
+        modified: DateTime.now(),
         uid: dateId,
       );
       journals.put(dateId, newJournal);

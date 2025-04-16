@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:pretty_diff_text/pretty_diff_text.dart';
 
-typedef OnResolved = void Function(BuildContext context, bool keepInternal);
+typedef OnResolved = void Function(bool keepInternal);
 
 Future<void> openConflictMenu(
   BuildContext context, {
@@ -90,7 +90,7 @@ class _ConflictMenuState extends State<ConflictMenu> {
             active: false,
             onTap: () {
               debugPrint("chose to use onyx edited version");
-              widget.onResolved(context, true);
+              widget.onResolved(true);
               Navigator.pop(context);
             },
           ),
@@ -103,7 +103,7 @@ class _ConflictMenuState extends State<ConflictMenu> {
             active: false,
             onTap: () {
               debugPrint("chose to use local file");
-              widget.onResolved(context, false);
+              widget.onResolved(false);
               Navigator.pop(context);
             },
           ),

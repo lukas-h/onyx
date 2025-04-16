@@ -28,6 +28,18 @@ class OriginSuccess<C, S extends OriginService> extends OriginState {
 
 class OriginLoading extends OriginState {}
 
+class OriginConflict extends OriginState {
+  final String conflictUid;
+  final String newValue;
+  final String oldValue;
+
+  OriginConflict({
+    required this.conflictUid,
+    required this.newValue,
+    required this.oldValue,
+  });
+}
+
 abstract class OriginCubit<C> extends Cubit<OriginState> {
   OriginCubit() : super(OriginLoading()) {
     _init();
@@ -71,4 +83,12 @@ abstract class OriginCubit<C> extends Cubit<OriginState> {
       );
     }
   }
+
+  void triggerConflict(String uid, String oldContent, String newContent) {
+    emit(OriginConflict(conflictUid: uid, oldValue: oldContent, newValue: newContent));
+  }
+
+  // Future<void> resolveConflict(String uid) {
+
+  // }
 }

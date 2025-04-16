@@ -1,8 +1,10 @@
 import 'dart:async';
 
+typedef IntervalMethod = Future<Null> Function();
+
 class PausableInterval {
   final Duration interval;
-  final Function method;
+  final IntervalMethod method;
 
   Timer? _currentTimer;
   bool _isRunning = false;
