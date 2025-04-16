@@ -57,7 +57,6 @@ class InternalLinkSyntax extends InlineSyntax {
 }
 
 class InlineLatexSyntax extends InlineSyntax {
-  //InlineLatexSyntax() : super(r'(?<!\\)(\${1,2})([^$]*?)(?<!\\)\1(?!\$)');
   InlineLatexSyntax() : super(r'(?<!\\)\$([^$\n]+?)\$(?!\$)');
 
   @override
