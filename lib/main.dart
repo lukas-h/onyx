@@ -144,7 +144,7 @@ class _OnyxAppState extends State<OnyxApp> {
                 if (currentPage != null) {
                   context.read<PageCubit>().selectPage(currentPage);
                   if (state is NavigationSuccess && state.newPage) {
-                    context.read<PageCubit>().index(-1);
+                    context.read<PageCubit>().index(0);
                   }
                 }
               },
