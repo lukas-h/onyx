@@ -18,6 +18,7 @@ class DirectoryService extends OriginService {
   static const journalsFolderName = '_journals';
 
   final Directory directory;
+  final DirectoryCubit cubit;
 
   final Map<String, PageChangedRecord> pagesCache = {};
 
@@ -26,7 +27,7 @@ class DirectoryService extends OriginService {
 
   late final PausableInterval writeInterval;
 
-  DirectoryService(this.directory) {
+  DirectoryService(this.directory, this.cubit) {
     writeInterval = PausableInterval(Duration(seconds: 5), () async {
       for (final entry in pagesCache.entries) {
         String pageUid = entry.key;
@@ -93,8 +94,6 @@ class DirectoryService extends OriginService {
       directory.path,
       pagesFolderName,
     )).events.listen((WatchEvent event) async {
-      writeInterval.pause();
-
       final pageUid = p.basenameWithoutExtension(event.path);
 
       debugPrint('Modified event: ${event.path}.');
@@ -118,8 +117,10 @@ class DirectoryService extends OriginService {
 
           if (!onyxTriggeredModifyEvent) {
             debugPrint('Wow this is unexpected, $pageUid was modified! Throw the conflict dialog and pause writing to files!');
+
             writeInterval.pause();
-            context.read<DirectoryCubit>().triggerConflict(modifiedPageObject.uid, modifiedPageObject);
+            // TODO get internal value;
+            cubit.triggerConflict(modifiedPageObject.uid, false, "", modifiedPageObject.fullText.join('\\n'));
           }
         case ChangeType.REMOVE:
           // Delete page.

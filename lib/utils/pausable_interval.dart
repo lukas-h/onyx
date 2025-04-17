@@ -27,7 +27,7 @@ class PausableInterval {
   }
 
   void resume() {
-    start();
+    if (!_isRunning) start();
   }
 
   void stop() {

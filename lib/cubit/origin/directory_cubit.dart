@@ -14,7 +14,9 @@ class DirectoryCredentials {
 
 class DirectoryCubit extends OriginCubit<DirectoryCredentials> {
   @override
-  Future<OriginState> init(FlutterSecureStorage storage) async {
+  Future<OriginState> init(
+    FlutterSecureStorage storage,
+  ) async {
     final path = await storage.read(key: 'path');
 
     if (path != null) {
@@ -26,7 +28,7 @@ class DirectoryCubit extends OriginCubit<DirectoryCredentials> {
         credentials: DirectoryCredentials(
           path: path,
         ),
-        service: DirectoryService(dir),
+        service: DirectoryService(dir, this),
       );
     } else {
       return OriginPrompt();
@@ -47,7 +49,7 @@ class DirectoryCubit extends OriginCubit<DirectoryCredentials> {
       credentials: DirectoryCredentials(
         path: credentials.path,
       ),
-      service: DirectoryService(dir),
+      service: DirectoryService(dir, this),
     );
   }
 }

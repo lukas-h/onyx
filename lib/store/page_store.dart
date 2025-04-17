@@ -11,6 +11,7 @@ import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/utils/utils.dart';
+import 'package:onyx/central/conflict.dart';
 
 class PageModel extends HiveObject {
   final String uid;
