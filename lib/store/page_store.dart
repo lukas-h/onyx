@@ -220,18 +220,20 @@ class PageStore {
   }
 
   PageModel getJournal(String dateId) {
-    final journal = journals.get(dateId);
+    final dateIdOrToday = parseDateOrToday(dateId);
+
+    final journal = journals.get(dateIdOrToday);
     if (journal != null) {
       return journal;
     } else {
       final newJournal = PageModel(
         fullText: const [''],
-        title: dateId,
+        title: dateIdOrToday,
         created: DateTime.now(),
         modified: DateTime.now(),
-        uid: dateId,
+        uid: dateIdOrToday,
       );
-      journals.put(dateId, newJournal);
+      journals.put(dateIdOrToday, newJournal);
       return newJournal;
     }
   }
