@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:onyx/service/origin_service.dart';
 
+enum OriginConflictResolutionType { useInternal, useExternal }
+
 class OriginState {}
 
 class OriginError<C> extends OriginState {
@@ -30,13 +32,15 @@ class OriginLoading extends OriginState {}
 
 class OriginConflict extends OriginState {
   final String conflictUid;
-  final String newValue;
-  final String oldValue;
+  final bool isJournal;
+  final String internalValue;
+  final String externalValue;
 
   OriginConflict({
     required this.conflictUid,
-    required this.newValue,
-    required this.oldValue,
+    required this.isJournal,
+    required this.internalValue,
+    required this.externalValue,
   });
 }
 
@@ -84,8 +88,8 @@ abstract class OriginCubit<C> extends Cubit<OriginState> {
     }
   }
 
-  void triggerConflict(String uid, String oldContent, String newContent) {
-    emit(OriginConflict(conflictUid: uid, oldValue: oldContent, newValue: newContent));
+  void triggerConflict(String uid, bool isJournal, String internalValue, String externalValue) {
+    emit(OriginConflict(conflictUid: uid, isJournal: isJournal, internalValue: internalValue, externalValue: externalValue));
   }
 
   // Future<void> resolveConflict(String uid) {

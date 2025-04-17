@@ -1,39 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:pretty_diff_text/pretty_diff_text.dart';
 
-typedef OnResolved = void Function(bool keepInternal);
-
-Future<void> openConflictMenu(
-  BuildContext context, {
-  required String fileName,
-  required String internalContent,
-  required String externalContent,
-  required OnResolved onResolved,
-}) async =>
-    showDialog(
+Future<OriginConflictResolutionType?> openConflictMenu(BuildContext context,
+        {required String conflictFileUid, required bool isJournal, required String internalContent, required String externalContent}) async =>
+    showDialog<OriginConflictResolutionType>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => ConflictMenu(
-        fileName: fileName,
-        internalContent: internalContent,
-        externalContent: externalContent,
-        onResolved: onResolved,
-      ),
+      builder: (context) =>
+          ConflictMenu(conflictFileUid: conflictFileUid, isJournal: isJournal, internalContent: internalContent, externalContent: externalContent),
     );
 
 class ConflictMenu extends StatefulWidget {
-  final String fileName;
+  final String conflictFileUid;
+  final bool isJournal;
   final String internalContent;
   final String externalContent;
-  final OnResolved onResolved;
 
-  const ConflictMenu(
-      {super.key,
-      required this.fileName,
-      required this.internalContent,
-      required this.externalContent,
-      required this.onResolved});
+  const ConflictMenu({super.key, required this.conflictFileUid, required this.isJournal, required this.internalContent, required this.externalContent});
 
   @override
   State<ConflictMenu> createState() => _ConflictMenuState();
@@ -66,7 +51,7 @@ class _ConflictMenuState extends State<ConflictMenu> {
               ),
               ListTile(
                 title: Text(
-                  '${widget.fileName} has been modified outside of Onyx. Which version do you want to use?',
+                  '${widget.isJournal ? 'Journal' : 'page'} ${widget.conflictFileUid} has been modified outside of Onyx. Which version do you want to use?',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
@@ -84,27 +69,23 @@ class _ConflictMenuState extends State<ConflictMenu> {
           Button(
             'Use version from Onyx',
             maxWidth: false,
-            borderColor: Color.fromARGB(255, 139, 197,
-                139), // Colors from PrettyDiffText to match the above diff.
+            borderColor: Color.fromARGB(255, 139, 197, 139), // Colors from PrettyDiffText to match the above diff.
             icon: const Icon(Icons.edit),
             active: false,
             onTap: () {
               debugPrint("chose to use onyx edited version");
-              widget.onResolved(true);
-              Navigator.pop(context);
+              Navigator.pop(context, OriginConflictResolutionType.useInternal);
             },
           ),
           Button(
             'Use local version',
             maxWidth: true,
-            borderColor: Color.fromARGB(255, 255, 129,
-                129), // Colors from PrettyDiffText to match the above diff.
+            borderColor: Color.fromARGB(255, 255, 129, 129), // Colors from PrettyDiffText to match the above diff.
             icon: const Icon(Icons.folder),
             active: false,
             onTap: () {
               debugPrint("chose to use local file");
-              widget.onResolved(false);
-              Navigator.pop(context);
+              Navigator.pop(context, OriginConflictResolutionType.useExternal);
             },
           ),
         ],

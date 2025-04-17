@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/service/origin_service.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
@@ -112,18 +113,71 @@ class PageStore {
   }
 
   Future<void> init() async {
-    // TODO check for local changes that aren't online yet
+    _initPages();
+    _initJournals();
+  }
 
-    final dbPages = await _originServices?.firstOrNull?.getPages() ?? [];
-    pages.putAll(Map.fromIterable(dbPages, key: (element) => element.uid));
+  void _initPages() async {
+    final originPages = await _originServices?.firstOrNull?.getPages() ?? [];
+
+    // Origin pages which do not exist in Hive.
+    for (var page in originPages) {
+      debugPrint('Testing ${page.uid}.');
+      if (!pages.containsKey(page.uid)) {
+        pages.put(page.uid, page);
+      }
+    }
+
+    // Hive pages which do not exist in Origin.
+    for (var page in pages.values) {
+      if (!originPages.any((originPage) => originPage.uid == page.uid)) {
+        debugPrint('Hive but not Origin: ${page.uid}.');
+        _originServices?.firstOrNull?.createPage(page);
+      }
+    }
+
+    // TODO: Check origin vs Hive page content.
 
     _originServices?.firstOrNull?.subscribeToPages();
+  }
 
-    final dbJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
-    journals.clear();
-    journals.putAll(Map.fromIterable(dbJournals, key: (element) => element.uid));
+  void _initJournals() async {
+    // TODO: Repeat above for journals.
+  }
 
-    _originServices?.firstOrNull?.subscribeToJournals();
+  void resolveConflict(String modelUid, bool isJournal, OriginConflictResolutionType resolution) async {
+    switch (resolution) {
+      case OriginConflictResolutionType.useInternal:
+        if (isJournal) {
+          final internalJournal = journals.get(modelUid);
+          if (internalJournal != null) {
+            _originServices?.firstOrNull?.updateJournal(internalJournal);
+          }
+        } else {
+          final internalPage = pages.get(modelUid);
+          if (internalPage != null) {
+            _originServices?.firstOrNull?.updatePage(internalPage);
+          }
+        }
+        break;
+      case OriginConflictResolutionType.useExternal:
+        if (isJournal) {
+          final originJournals = await _originServices?.firstOrNull?.getJournals();
+          final externalJournal = originJournals?.firstWhereOrNull((journal) => journal.uid == modelUid);
+          if (externalJournal != null) {
+            journals.put(externalJournal.uid, externalJournal);
+          }
+        } else {
+          final originPages = await _originServices?.firstOrNull?.getPages();
+          final externalPage = originPages?.firstWhereOrNull((page) => page.uid == modelUid);
+          if (externalPage != null) {
+            pages.put(externalPage.uid, externalPage);
+          }
+        }
+        break;
+      default:
+        throw Exception("Unknown OriginConflictResolutionType.");
+    }
   }
 
   String createPage() {

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:onyx/cubit/origin/directory_cubit.dart';
-import 'package:onyx/service/pb_service.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/service/origin_service.dart';
@@ -11,9 +10,8 @@ import 'package:onyx/utils/pausable_interval.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart' as y;
 import 'package:watcher/watcher.dart';
-import 'package:onyx/central/conflict.dart';
 
-typedef PageRecord = ({DateTime lastModified, PageModel pageContent});
+typedef PageChangedRecord = ({DateTime lastModified, String folderName, PageModel pageContent});
 
 class DirectoryService extends OriginService {
   static const pagesFolderName = '_pages';
@@ -21,7 +19,7 @@ class DirectoryService extends OriginService {
 
   final Directory directory;
 
-  final Map<String, PageRecord> pagesCache = {};
+  final Map<String, PageChangedRecord> pagesCache = {};
 
   // Time after Onyx writing to a file for the changeEvent to be associated with it.
   final fileModificationWindow = Duration(milliseconds: 100);
@@ -30,15 +28,14 @@ class DirectoryService extends OriginService {
 
   DirectoryService(this.directory) {
     writeInterval = PausableInterval(Duration(seconds: 5), () async {
-      debugPrint("Interval.");
       for (final entry in pagesCache.entries) {
         String pageUid = entry.key;
-        PageRecord pageRecord = entry.value;
+        PageChangedRecord pageChangedRecord = entry.value;
 
         final page = File(
           p.join(
             directory.path,
-            pagesFolderName,
+            pageChangedRecord.folderName,
             '$pageUid.md',
           ),
         );
@@ -47,9 +44,9 @@ class DirectoryService extends OriginService {
           await page.create();
         }
 
-        await page.writeAsString(pageRecord.pageContent.copyWith(modified: DateTime.now()).toMarkdown());
+        await page.writeAsString(pageChangedRecord.pageContent.copyWith(modified: DateTime.now()).toMarkdown());
 
-        debugPrint("Written to file $pageUid.");
+        debugPrint("Written to file $pageUid / ${pageChangedRecord.pageContent.title.toString()} to ${page.path}.");
       }
     });
     writeInterval.start();
@@ -66,9 +63,18 @@ class DirectoryService extends OriginService {
 
     final models = <PageModel>[];
     await for (final item in list) {
-      if (item is File) models.add(await _getModel(item));
+      debugPrint('getModels: ${item.path}');
+      if (item is File) {
+        try {
+          models.add(await _getModel(item));
+        } catch (e) {
+          // TODO: Do something with failed file parsing?
+          debugPrint(e.toString());
+        }
+      }
     }
 
+    debugPrint('Models length: ${models.length.toString()}');
     return models;
   }
 
@@ -91,12 +97,13 @@ class DirectoryService extends OriginService {
 
       final pageUid = p.basenameWithoutExtension(event.path);
 
-      debugPrint('Modified event.');
+      debugPrint('Modified event: ${event.path}.');
 
       switch (event.type) {
         case ChangeType.ADD:
-        // Create new page.case
-        // Handle not being exactly Onyx format.
+          // Create new page.case
+          // Handle not being exactly Onyx format.
+          break;
         case ChangeType.MODIFY:
           PageModel modifiedPageObject;
 
@@ -107,25 +114,19 @@ class DirectoryService extends OriginService {
             return;
           }
 
-          final didOnyxTriggerModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
+          final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
 
-          debugPrint(
-              '${DateTime.now()} - ${modifiedPageObject.modified} = ${DateTime.now().difference(modifiedPageObject.modified)} < $fileModificationWindow');
-
-          if (didOnyxTriggerModifyEvent) {
-            debugPrint('Onyx did this!');
-          } else {
-            // trigger
+          if (!onyxTriggeredModifyEvent) {
             debugPrint('Wow this is unexpected, $pageUid was modified! Throw the conflict dialog and pause writing to files!');
             writeInterval.pause();
-            //DirectoryCubit.triggerConflict(modifiedPageObject.uid, modifiedPageObject.);
+            context.read<DirectoryCubit>().triggerConflict(modifiedPageObject.uid, modifiedPageObject);
           }
         case ChangeType.REMOVE:
-        // Delete page.
+          // Delete page.
+          break;
       }
 
-      // TODO uncomment once dialog implemented
-      // writeInterval.resume();
+      writeInterval.resume();
     });
   }
 
@@ -153,6 +154,7 @@ class DirectoryService extends OriginService {
   Future<void> _writePage(String collection, PageModel model) async {
     pagesCache[model.uid] = (
       lastModified: model.modified,
+      folderName: collection,
       pageContent: model,
     );
   }

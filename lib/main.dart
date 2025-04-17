@@ -133,18 +133,23 @@ class _OnyxAppState extends State<OnyxApp> {
             fontFamily: 'Futura',
           ),
           home: BlocListener<DirectoryCubit, OriginState>(
-            listener: (context, state) {
+            listener: (context, state) async {
               final navCubit = context.read<NavigationCubit>();
               final favCubit = context.read<FavoritesCubit>();
+
               if (state is OriginSuccess) {
                 store.originServices = [state.service];
                 imageStore.originServices = [state.service];
                 favoriteStore.originServices = [state.service];
                 navCubit.init();
                 favCubit.init();
-              }
-              if (state is OriginPrompt || state is OriginError) {
+              } else if (state is OriginPrompt || state is OriginError) {
                 navCubit.navigateTo(RouteState.settings);
+              } else if (state is OriginConflict) {
+                final OriginConflictResolutionType? conflictResolution = await openConflictMenu(context,
+                    conflictFileUid: state.conflictUid, isJournal: state.isJournal, internalContent: state.internalValue, externalContent: state.externalValue);
+
+                if (conflictResolution != null) store.resolveConflict(state.conflictUid, state.isJournal, conflictResolution);
               }
             },
             child: BlocConsumer<NavigationCubit, NavigationState>(
