@@ -1,16 +1,16 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/github.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/editor/codeblock.dart';
 import 'package:onyx/editor/image_builder.dart';
 import 'package:onyx/editor/markdown.dart';
 import 'package:onyx/editor/model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class ListItemEditor extends StatefulWidget {
@@ -47,9 +47,9 @@ class _ListItemEditorState extends State<ListItemEditor> {
   bool hasMatch = false;
   String match = '';
 
-  static const double _fontSize = 16;
-  static const double _lineHeight = 1.6;
-  static const EdgeInsets _contentPadding =
+  static const double fontSize = 16;
+  static const double lineHeight = 1.6;
+  static const EdgeInsets contentPadding =
       EdgeInsets.symmetric(vertical: 8, horizontal: 10);
 
   void updatePos() {
@@ -81,10 +81,10 @@ class _ListItemEditorState extends State<ListItemEditor> {
   Widget _buildParsedPart(ListItemState model, int index) {
     final hasCode = hasCodeblock(model.textPart);
     return Padding(
-      padding: _contentPadding,
+      padding: contentPadding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [
+        children: <Widget>[
           if (model.operator != Operator.none)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -115,7 +115,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
               width: 60,
               child: Text(
                 model.number.toString(),
-                style: TextStyle(fontSize: _fontSize),
+                style: const TextStyle(fontSize: fontSize),
               ),
             ),
           if (model.operator == Operator.equals)
@@ -126,7 +126,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                     .calculateUntil(widget.cubit.state.items, index)
                     .toDouble()
                     .toStringAsFixed(2),
-                style: TextStyle(fontSize: _fontSize),
+                style: const TextStyle(fontSize: fontSize),
               ),
             ),
           if (hasCode)
@@ -138,8 +138,8 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   language: getCodeblockLanguage(model.textPart),
                   theme: githubTheme,
                   padding: const EdgeInsets.all(12),
-                  textStyle: TextStyle(
-                    fontSize: _fontSize,
+                  textStyle: const TextStyle(
+                    fontSize: fontSize,
                     fontFamily: 'Source Code Pro',
                   ),
                 ),
@@ -161,13 +161,13 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 },
                 extensionSet: onyxFlavored,
                 styleSheet: MarkdownStyleSheet(
-                  p: TextStyle(
-                    fontSize: _fontSize,
-                    height: _lineHeight,
+                  p: const TextStyle(
+                    fontSize: fontSize,
+                    height: lineHeight,
                     letterSpacing: 0,
                   ),
                   code: const TextStyle(
-                    fontSize: 16,
+                    fontSize: fontSize,
                     fontFamily: 'Source Code Pro',
                     backgroundColor: Color(0xffddffdd),
                   ),
@@ -226,12 +226,11 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   minLines: 1,
                   maxLines: 100,
                   cursorColor: Colors.black,
-                  decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: _contentPadding),
-                  style: TextStyle(
-                    fontSize: _fontSize,
-                    height: _lineHeight,
+                  decoration: const InputDecoration(
+                      border: InputBorder.none, contentPadding: contentPadding),
+                  style: const TextStyle(
+                    fontSize: fontSize,
+                    height: lineHeight,
                     letterSpacing: 0,
                   ),
                   scrollPadding: EdgeInsets.zero,
