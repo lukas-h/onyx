@@ -37,7 +37,8 @@ class DirectoryService extends OriginService {
           p.join(
             directory.path,
             pageChangedRecord.folderName,
-            '$pageUid.md',
+            // Need to replace slashes as the journal uid is the current date (eg. 18/04/2025);
+            pageChangedRecord.folderName == journalsFolderName ? '${pageUid.replaceAll('/', '.')}.md' : '$pageUid.md',
           ),
         );
 
@@ -135,7 +136,9 @@ class DirectoryService extends OriginService {
   Future<List<PageModel>> getJournals() => _getModels(journalsFolderName);
 
   @override
-  void subscribeToJournals() {}
+  void subscribeToJournals() {
+    // Remember to convert file name to uid by replacing with slashes.
+  }
 
   @override
   Future<void> createPage(PageModel model) => _writePage(pagesFolderName, model);

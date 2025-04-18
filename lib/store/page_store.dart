@@ -69,7 +69,7 @@ ${fullText.join('\n')}
         created: DateTime.tryParse(createdGroupMatch ?? '') ?? DateTime.now(),
         modified: DateTime.tryParse(modifiedGroupMatch ?? '') ?? DateTime.now(),
         uid: uidGroupMatch ?? nanoid(15),
-        fullText: fullTextGroupMatch?.split('\n') ?? const [''],
+        fullText: fullTextGroupMatch?.split('\n') ?? [],
       );
     }
 
