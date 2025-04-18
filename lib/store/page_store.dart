@@ -116,24 +116,26 @@ class PageStore {
   Future<void> init() async {
     _initPages();
     _initJournals();
+    // pages.clear();
+    // journals.clear();
+    // pages.deleteFromDisk();
+    // journals.deleteFromDisk();
   }
 
   void _initPages() async {
     final originPages = await _originServices?.firstOrNull?.getPages() ?? [];
 
     // Origin pages which do not exist in Hive.
-    for (var page in originPages) {
-      debugPrint('Testing ${page.uid}.');
-      if (!pages.containsKey(page.uid)) {
-        pages.put(page.uid, page);
+    for (var originPage in originPages) {
+      if (!pages.containsKey(originPage.uid)) {
+        pages.put(originPage.uid, originPage);
       }
     }
 
     // Hive pages which do not exist in Origin.
-    for (var page in pages.values) {
-      if (!originPages.any((originPage) => originPage.uid == page.uid)) {
-        debugPrint('Hive but not Origin: ${page.uid}.');
-        _originServices?.firstOrNull?.createPage(page);
+    for (var hivePage in pages.values) {
+      if (!originPages.any((originPage) => originPage.uid == hivePage.uid)) {
+        _originServices?.firstOrNull?.createPage(hivePage);
       }
     }
 
@@ -143,7 +145,25 @@ class PageStore {
   }
 
   void _initJournals() async {
-    // TODO: Repeat above for journals.
+    final originJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
+
+    // Origin journals which do not exist in Hive.
+    for (var originJournal in originJournals) {
+      if (!journals.containsKey(originJournal.uid)) {
+        journals.put(originJournal.uid, originJournal);
+      }
+    }
+
+    // Hive journals which do not exist in Origin.
+    for (var hiveJournal in journals.values) {
+      if (!originJournals.any((originJournal) => originJournal.uid == hiveJournal.uid)) {
+        _originServices?.firstOrNull?.createJournal(hiveJournal);
+      }
+    }
+
+    // TODO: Check origin vs Hive page content.
+
+    _originServices?.firstOrNull?.subscribeToJournals();
   }
 
   void resolveConflict(String modelUid, bool isJournal, OriginConflictResolutionType resolution) async {

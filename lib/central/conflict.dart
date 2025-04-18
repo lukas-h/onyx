@@ -51,15 +51,15 @@ class _ConflictMenuState extends State<ConflictMenu> {
               ),
               ListTile(
                 title: Text(
-                  '${widget.isJournal ? 'Journal' : 'page'} ${widget.conflictFileUid} has been modified outside of Onyx. Which version do you want to use?',
+                  '${widget.isJournal ? 'Journal' : 'Page'} with uid "${widget.conflictFileUid}" has been modified outside of Onyx. Which version do you want to use?',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 15.0),
                 child: PrettyDiffText(
-                  oldText: widget.externalContent,
-                  newText: widget.internalContent,
+                  oldText: widget.internalContent,
+                  newText: widget.externalContent,
                 ),
               )
             ],
@@ -69,22 +69,20 @@ class _ConflictMenuState extends State<ConflictMenu> {
           Button(
             'Use version from Onyx',
             maxWidth: false,
-            borderColor: Color.fromARGB(255, 139, 197, 139), // Colors from PrettyDiffText to match the above diff.
+            borderColor: Color.fromARGB(255, 255, 129, 129), // Colors from PrettyDiffText to match the above diff.
             icon: const Icon(Icons.edit),
             active: false,
             onTap: () {
-              debugPrint("chose to use onyx edited version");
               Navigator.pop(context, OriginConflictResolutionType.useInternal);
             },
           ),
           Button(
             'Use local version',
             maxWidth: true,
-            borderColor: Color.fromARGB(255, 255, 129, 129), // Colors from PrettyDiffText to match the above diff.
+            borderColor: Color.fromARGB(255, 139, 197, 139), // Colors from PrettyDiffText to match the above diff.
             icon: const Icon(Icons.folder),
             active: false,
             onTap: () {
-              debugPrint("chose to use local file");
               Navigator.pop(context, OriginConflictResolutionType.useExternal);
             },
           ),

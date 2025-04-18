@@ -146,10 +146,19 @@ class _OnyxAppState extends State<OnyxApp> {
               } else if (state is OriginPrompt || state is OriginError) {
                 navCubit.navigateTo(RouteState.settings);
               } else if (state is OriginConflict) {
-                final OriginConflictResolutionType? conflictResolution = await openConflictMenu(context,
-                    conflictFileUid: state.conflictUid, isJournal: state.isJournal, internalContent: state.internalValue, externalContent: state.externalValue);
+                final internalModel = state.isJournal ? store.getJournal(state.conflictUid) : store.getPage(state.conflictUid);
 
-                if (conflictResolution != null) store.resolveConflict(state.conflictUid, state.isJournal, conflictResolution);
+                if (internalModel == null) return;
+
+                final OriginConflictResolutionType? conflictResolution = await openConflictMenu(context,
+                    conflictFileUid: state.conflictUid,
+                    isJournal: state.isJournal,
+                    internalContent: internalModel.fullText.join('\n'),
+                    externalContent: state.externalValue);
+
+                if (conflictResolution == null) return;
+
+                store.resolveConflict(state.conflictUid, state.isJournal, conflictResolution);
               }
             },
             child: BlocConsumer<NavigationCubit, NavigationState>(

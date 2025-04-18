@@ -33,6 +33,8 @@ class DirectoryService extends OriginService {
         String pageUid = entry.key;
         PageChangedRecord pageChangedRecord = entry.value;
 
+        debugPrint("Trying to write ${pageChangedRecord.folderName} $pageUid");
+
         final page = File(
           p.join(
             directory.path,
@@ -48,7 +50,7 @@ class DirectoryService extends OriginService {
 
         await page.writeAsString(pageChangedRecord.pageContent.copyWith(modified: DateTime.now()).toMarkdown());
 
-        debugPrint("Written to file $pageUid / ${pageChangedRecord.pageContent.title.toString()} to ${page.path}.");
+        debugPrint("${DateTime.now()} | Written to file $pageUid / ${pageChangedRecord.pageContent.title.toString()} to ${page.path}.");
       }
     });
     writeInterval.start();
@@ -89,15 +91,36 @@ class DirectoryService extends OriginService {
   Future<List<PageModel>> getPages() => _getModels(pagesFolderName);
 
   @override
-  void subscribeToPages() {
-    debugPrint('Now watching $pagesFolderName directory.');
+  void subscribeToPages() => _watchDirectory(pagesFolderName);
+
+  @override
+  Future<List<PageModel>> getJournals() => _getModels(journalsFolderName);
+
+  @override
+  void subscribeToJournals() => _watchDirectory(journalsFolderName);
+
+  @override
+  Future<void> createPage(PageModel model) => _writePage(pagesFolderName, model);
+
+  @override
+  Future<void> createJournal(PageModel model) => _writePage(journalsFolderName, model);
+
+  @override
+  Future<void> updatePage(PageModel model) => _writePage(pagesFolderName, model);
+
+  @override
+  Future<void> updateJournal(PageModel model) => _writePage(journalsFolderName, model);
+
+  @override
+  Future<void> deletePage(String uid) => _deleteItem(pagesFolderName, uid);
+
+  void _watchDirectory(String directoryName) {
     DirectoryWatcher(p.join(
       directory.path,
-      pagesFolderName,
+      directoryName,
     )).events.listen((WatchEvent event) async {
-      final pageUid = p.basenameWithoutExtension(event.path);
-
-      debugPrint('Modified event: ${event.path}.');
+      final fileName = p.basenameWithoutExtension(event.path);
+      final pageUid = fileName.contains('.') ? fileName.replaceAll('.', '/') : fileName;
 
       switch (event.type) {
         case ChangeType.ADD:
@@ -117,11 +140,8 @@ class DirectoryService extends OriginService {
           final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
 
           if (!onyxTriggeredModifyEvent) {
-            debugPrint('Wow this is unexpected, $pageUid was modified! Throw the conflict dialog and pause writing to files!');
-
             writeInterval.pause();
-            // TODO get internal value;
-            cubit.triggerConflict(modifiedPageObject.uid, false, "", modifiedPageObject.fullText.join('\\n'));
+            cubit.triggerConflict(modifiedPageObject.uid, false, modifiedPageObject.fullText.join('\n'));
           }
         case ChangeType.REMOVE:
           // Delete page.
@@ -131,29 +151,6 @@ class DirectoryService extends OriginService {
       writeInterval.resume();
     });
   }
-
-  @override
-  Future<List<PageModel>> getJournals() => _getModels(journalsFolderName);
-
-  @override
-  void subscribeToJournals() {
-    // Remember to convert file name to uid by replacing with slashes.
-  }
-
-  @override
-  Future<void> createPage(PageModel model) => _writePage(pagesFolderName, model);
-
-  @override
-  Future<void> createJournal(PageModel model) => _writePage(journalsFolderName, model);
-
-  @override
-  Future<void> updatePage(PageModel model) => _writePage(pagesFolderName, model);
-
-  @override
-  Future<void> updateJournal(PageModel model) => _writePage(journalsFolderName, model);
-
-  @override
-  Future<void> deletePage(String uid) => _deleteItem(pagesFolderName, uid);
 
   Future<void> _writePage(String collection, PageModel model) async {
     pagesCache[model.uid] = (
