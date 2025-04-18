@@ -6,6 +6,8 @@ enum Operator {
   multiply,
   divide,
   equals,
+  uncheck,
+  check,
   none,
 }
 
