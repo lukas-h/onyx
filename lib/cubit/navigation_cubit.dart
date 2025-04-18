@@ -14,6 +14,7 @@ enum RouteState {
   pages,
   pageSelected,
   journalSelected,
+  graphview,
   settings,
 }
 
@@ -27,6 +28,7 @@ class NavigationSuccess extends NavigationState {
   bool get pagesNav => route == RouteState.pageSelected || route == RouteState.pages;
 
   bool get settingsNav => route == RouteState.settings;
+  bool get graphViewNav => route == RouteState.graphview;
 
   NavigationSuccess({
     required this.route,
@@ -255,6 +257,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
         RouteState.pageSelected => store.getPage(currentState.pageId ?? '')?.toPageState(false),
         RouteState.journalSelected => store.getJournal(currentState.pageId ?? '').toPageState(true),
         RouteState.settings => null,
+        RouteState.graphview => null
       };
     } else {
       return null;
