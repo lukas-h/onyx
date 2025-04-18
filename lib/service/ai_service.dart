@@ -75,27 +75,48 @@ class OpenAiResponse {
 }
 
 class AiService {
-  String apiToken;
-  String model = 'gpt-4.1-nano';
+  String _apiToken;
+  String _model = 'gpt-4.1-nano';
 
-  AiService(this.apiToken);
+  List<String> _availableModels = ['gpt-4.1-nano'];
 
-  Future<bool> checkConnection() async {
-    final checkResponse = await _apiRequest('test request');
-    print(checkResponse?.output);
+  AiService(this._apiToken);
 
-    return true;
+  set apiToken(String token) {
+    _apiToken = token;
   }
 
-  Future<OpenAiResponse?> _apiRequest(String input) async {
+  set model(String newModel) {
+    if (_availableModels.contains(newModel)) {
+      _model = newModel;
+    }
+  }
+
+  String get model {
+    return _model;
+  }
+
+  Future<bool> updateModels() async {
+    // todo get models
+    _availableModels = ['gpt-4.1-nano'];
+    return false;
+  }
+
+  Future<OpenAiResponse?> request(String input) async {
     final url = Uri.https('api.openai.com', '/v1/responses');
 
     final Map<String, String> headers = <String, String>{};
     headers["Content-Type"] = "application/json";
-    headers["Authorization"] = apiToken;
+    headers["Authorization"] = "Barer $_apiToken";
 
-    final response = await http.post(url, headers: headers, body: {model: model, input: input});
+    try {
+      final response = await http.post(url, headers: headers, body: {'model': _model, 'input': input});
 
-    return OpenAiResponse.fromJson(jsonDecode(response.body));
+      return OpenAiResponse.fromJson(jsonDecode(response.body));
+    } catch (e) {
+      // todo better logging
+      print(e);
+      return null;
+    }
   }
 }
