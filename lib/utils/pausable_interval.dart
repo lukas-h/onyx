@@ -18,7 +18,6 @@ class PausableInterval {
 
     _isRunning = true;
     _currentTimer = Timer.periodic(interval, (timer) {
-      debugPrint("INTERVAL ${DateTime.now()}");
       method();
     });
   }

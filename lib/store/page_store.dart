@@ -139,8 +139,6 @@ class PageStore {
       }
     }
 
-    // TODO: Check origin vs Hive page content.
-
     _originServices?.firstOrNull?.subscribeToPages();
   }
 
@@ -160,8 +158,6 @@ class PageStore {
         _originServices?.firstOrNull?.createJournal(hiveJournal.copyWith(modified: DateTime.now()));
       }
     }
-
-    // TODO: Check origin vs Hive page content.
 
     _originServices?.firstOrNull?.subscribeToJournals();
   }

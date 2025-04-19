@@ -129,8 +129,8 @@ class DirectoryService extends OriginService {
 
       switch (event.type) {
         case ChangeType.ADD:
-          // Create new page.case
-          // Handle not being exactly Onyx format.
+          // TODO: Handle create new page case.
+          // TODO Handle not being Onyx format.
           break;
         case ChangeType.MODIFY:
           try {
@@ -149,7 +149,7 @@ class DirectoryService extends OriginService {
             debugPrint('Modified file ${event.path} ($pageUid) is not a parsable Onyx markdown file. Exception: $e.');
           }
         case ChangeType.REMOVE:
-          // Delete page.
+          // TODO: Handle delete page.
           break;
       }
     });
