@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:onyx/editor/model.dart';
 import 'package:onyx/editor/parser.dart';
+import 'package:onyx/store/page_store.dart';
 
 void main() {
   group('Calculation Parser', () {
@@ -145,7 +146,7 @@ void main() {
   });
 
   group('Indent Parser', () {
-    test('test indent parser', () {
+    test('parses 2 levels of indentation indentation for 4 spaces', () {
       const text = '    hello';
       final model = ListItemState(
         index: 0,

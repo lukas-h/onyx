@@ -20,14 +20,15 @@ class PageModelAdapter extends TypeAdapter<PageModel> {
       uid: fields[0] as String,
       title: fields[1] as String,
       created: fields[2] as DateTime,
-      fullText: (fields[3] as List).cast<String>(),
+      modified: fields[3] as DateTime,
+      fullText: (fields[4] as List).cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, PageModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -35,6 +36,8 @@ class PageModelAdapter extends TypeAdapter<PageModel> {
       ..writeByte(2)
       ..write(obj.created)
       ..writeByte(3)
+      ..write(obj.modified)
+      ..writeByte(4)
       ..write(obj.fullText);
   }
 
@@ -42,9 +45,5 @@ class PageModelAdapter extends TypeAdapter<PageModel> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is PageModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is PageModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
