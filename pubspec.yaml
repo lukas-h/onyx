@@ -9,7 +9,6 @@ environment:
 dependencies:
     flutter:
         sdk: flutter
-
     cupertino_icons: ^1.0.8
     nanoid: ^1.0.0
     flutter_bloc: ^9.1.0
@@ -17,20 +16,21 @@ dependencies:
     meta: ^1.15.0
     equatable: ^2.0.7
     flutter_markdown:
-        # path: ../flutter_packages/packages/flutter_markdown
-        git:
-            url: https://github.com/lukas-h/flutter_packages
-            path: packages/flutter_markdown
+      # path: ../flutter_packages/packages/flutter_markdown
+      git:
+        url: https://github.com/lukas-h/flutter_packages
+        path: packages/flutter_markdown
     flutter_highlight:
-        git:
-            url: https://github.com/lukas-h/highlight.dart
-            path: flutter_highlight
+      git:
+        url: https://github.com/lukas-h/highlight.dart
+        path: flutter_highlight
     intl: ^0.20.2
     image_picker: ^1.1.2
     collection: ^1.18.0
     path: ^1.9.0
     yaml: ^3.1.2
     watcher: ^1.1.1
+    flutter_math_fork: ^0.7.3
     url_launcher: ^6.3.1
     markdown: ^7.3.0
     replay_bloc: ^0.3.0
@@ -41,7 +41,7 @@ dependencies:
     hive_ce_flutter: ^2.2.0
     hive_ce: ^2.10.1
     build_runner: ^2.4.15
-
+  
 dev_dependencies:
     flutter_test:
         sdk: flutter
