@@ -57,10 +57,9 @@ class PocketBaseService extends OriginService {
       );
 
   @override
-  Future<void> createJournal(PageModel model) =>
-      pb.collection('journals').create(
-            body: model.toJson(),
-          );
+  Future<void> createJournal(PageModel model) => pb.collection('journals').create(
+        body: model.toJson(),
+      );
 
   @override
   Future<void> updatePage(PageModel model) => pb.collection('pages').update(
@@ -88,8 +87,7 @@ class PocketBaseService extends OriginService {
   Future<void> deletePage(String uid) => pb.collection('pages').delete(uid);
 
   @override
-  Future<void> createFavorite(String uid) =>
-      pb.collection('favorites').create(body: {
+  Future<void> createFavorite(String uid) => pb.collection('favorites').create(body: {
         'uid': uid,
       });
 
@@ -107,8 +105,7 @@ class PocketBaseService extends OriginService {
   }
 
   @override
-  Future<void> createImage(ImageModel image) async =>
-      pb.collection('assets').create(
+  Future<void> createImage(ImageModel image) async => pb.collection('assets').create(
         body: {
           'title': image.title,
           'id': image.uid,
@@ -149,6 +146,11 @@ class PocketBaseService extends OriginService {
 
   @override
   void close() {
+    // TODO: Implement;
+  }
+
+  @override
+  void markConflictResolved() {
     // TODO: Implement;
   }
 }

@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/widgets/button.dart';
-import 'package:pretty_diff_text/pretty_diff_text.dart';
 
-Future<OriginConflictResolutionType?> openConflictMenu(BuildContext context,
-        {required String conflictFileUid, required bool isJournal, required String internalContent, required String externalContent}) async =>
+Future<OriginConflictResolutionType?> openConflictMenu(BuildContext context, {required String conflictFileUid, required bool isJournal}) async =>
     showDialog<OriginConflictResolutionType>(
       context: context,
       barrierDismissible: false,
-      builder: (context) =>
-          ConflictMenu(conflictFileUid: conflictFileUid, isJournal: isJournal, internalContent: internalContent, externalContent: externalContent),
+      builder: (context) => ConflictMenu(conflictFileUid: conflictFileUid, isJournal: isJournal),
     );
 
 class ConflictMenu extends StatefulWidget {
   final String conflictFileUid;
   final bool isJournal;
-  final String internalContent;
-  final String externalContent;
 
-  const ConflictMenu({super.key, required this.conflictFileUid, required this.isJournal, required this.internalContent, required this.externalContent});
+  const ConflictMenu({super.key, required this.conflictFileUid, required this.isJournal});
 
   @override
   State<ConflictMenu> createState() => _ConflictMenuState();
@@ -39,7 +34,7 @@ class _ConflictMenuState extends State<ConflictMenu> {
           constraints: const BoxConstraints(
             maxWidth: 350,
             minWidth: 350,
-            maxHeight: 650,
+            maxHeight: 200,
           ),
           child: Column(
             children: [
@@ -51,17 +46,10 @@ class _ConflictMenuState extends State<ConflictMenu> {
               ),
               ListTile(
                 title: Text(
-                  '${widget.isJournal ? 'Journal' : 'Page'} with uid "${widget.conflictFileUid}" has been modified outside of Onyx. Which version do you want to use?',
+                  '${widget.isJournal ? 'Journal from' : 'Page with uid'} ${widget.conflictFileUid} has been modified outside of Onyx. Which version do you want to use?',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 15.0),
-                child: PrettyDiffText(
-                  oldText: widget.internalContent,
-                  newText: widget.externalContent,
-                ),
-              )
             ],
           ),
         ),

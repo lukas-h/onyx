@@ -177,7 +177,6 @@ class ListEditorState extends State<ListEditor> {
                                       IconButton(
                                         icon: const Icon(Icons.add),
                                         onPressed: () {
-                                          debugPrint("Added item: ${state.items.length.toString()}");
                                           cubit.add(
                                             ListItemState.unparsed(
                                               index: state.items.length,

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 typedef IntervalMethod = Future<Null> Function();
 
 class PausableInterval {
@@ -16,6 +18,7 @@ class PausableInterval {
 
     _isRunning = true;
     _currentTimer = Timer.periodic(interval, (timer) {
+      debugPrint("INTERVAL ${DateTime.now()}");
       method();
     });
   }

@@ -128,14 +128,14 @@ class PageStore {
     // Origin pages which do not exist in Hive.
     for (var originPage in originPages) {
       if (!pages.containsKey(originPage.uid)) {
-        pages.put(originPage.uid, originPage);
+        pages.put(originPage.uid, originPage.copyWith(modified: DateTime.now()));
       }
     }
 
     // Hive pages which do not exist in Origin.
     for (var hivePage in pages.values) {
       if (!originPages.any((originPage) => originPage.uid == hivePage.uid)) {
-        _originServices?.firstOrNull?.createPage(hivePage);
+        _originServices?.firstOrNull?.createPage(hivePage.copyWith(modified: DateTime.now()));
       }
     }
 
@@ -150,14 +150,14 @@ class PageStore {
     // Origin journals which do not exist in Hive.
     for (var originJournal in originJournals) {
       if (!journals.containsKey(originJournal.uid)) {
-        journals.put(originJournal.uid, originJournal);
+        journals.put(originJournal.uid, originJournal.copyWith(modified: DateTime.now()));
       }
     }
 
     // Hive journals which do not exist in Origin.
     for (var hiveJournal in journals.values) {
       if (!originJournals.any((originJournal) => originJournal.uid == hiveJournal.uid)) {
-        _originServices?.firstOrNull?.createJournal(hiveJournal);
+        _originServices?.firstOrNull?.createJournal(hiveJournal.copyWith(modified: DateTime.now()));
       }
     }
 
@@ -172,12 +172,12 @@ class PageStore {
         if (isJournal) {
           final internalJournal = journals.get(modelUid);
           if (internalJournal != null) {
-            _originServices?.firstOrNull?.updateJournal(internalJournal);
+            _originServices?.firstOrNull?.updateJournal(internalJournal.copyWith(modified: DateTime.now()));
           }
         } else {
           final internalPage = pages.get(modelUid);
           if (internalPage != null) {
-            _originServices?.firstOrNull?.updatePage(internalPage);
+            _originServices?.firstOrNull?.updatePage(internalPage.copyWith(modified: DateTime.now()));
           }
         }
         break;
@@ -186,19 +186,20 @@ class PageStore {
           final originJournals = await _originServices?.firstOrNull?.getJournals();
           final externalJournal = originJournals?.firstWhereOrNull((journal) => journal.uid == modelUid);
           if (externalJournal != null) {
-            journals.put(externalJournal.uid, externalJournal);
+            journals.put(externalJournal.uid, externalJournal.copyWith(modified: DateTime.now()));
           }
         } else {
           final originPages = await _originServices?.firstOrNull?.getPages();
           final externalPage = originPages?.firstWhereOrNull((page) => page.uid == modelUid);
           if (externalPage != null) {
-            pages.put(externalPage.uid, externalPage);
+            pages.put(externalPage.uid, externalPage.copyWith(modified: DateTime.now()));
           }
         }
         break;
       default:
         throw Exception("Unknown OriginConflictResolutionType.");
     }
+    _originServices?.firstOrNull?.markConflictResolved();
   }
 
   String createPage() {

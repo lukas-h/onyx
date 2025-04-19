@@ -32,5 +32,7 @@ abstract class OriginService {
 
   Future<List<ImageModel>> getImages();
 
+  void markConflictResolved();
+
   void close();
 }

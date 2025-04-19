@@ -33,8 +33,6 @@ class DirectoryService extends OriginService {
         String pageUid = entry.key;
         PageChangedRecord pageChangedRecord = entry.value;
 
-        debugPrint("Trying to write ${pageChangedRecord.folderName} $pageUid");
-
         final page = File(
           p.join(
             directory.path,
@@ -49,8 +47,6 @@ class DirectoryService extends OriginService {
         }
 
         await page.writeAsString(pageChangedRecord.pageContent.copyWith(modified: DateTime.now()).toMarkdown());
-
-        debugPrint("${DateTime.now()} | Written to file $pageUid / ${pageChangedRecord.pageContent.title.toString()} to ${page.path}.");
       }
     });
     writeInterval.start();
@@ -67,18 +63,16 @@ class DirectoryService extends OriginService {
 
     final models = <PageModel>[];
     await for (final item in list) {
-      debugPrint('getModels: ${item.path}');
       if (item is File) {
         try {
           models.add(await _getModel(item));
         } catch (e) {
           // TODO: Do something with failed file parsing?
-          debugPrint(e.toString());
+          debugPrint('Failed to parse file "${item.path}". Error: ${e.toString()}.');
         }
       }
     }
 
-    debugPrint('Models length: ${models.length.toString()}');
     return models;
   }
 
@@ -114,13 +108,24 @@ class DirectoryService extends OriginService {
   @override
   Future<void> deletePage(String uid) => _deleteItem(pagesFolderName, uid);
 
+  @override
+  void markConflictResolved() {
+    writeInterval.resume();
+    cubit.markConflictResolved();
+  }
+
   void _watchDirectory(String directoryName) {
-    DirectoryWatcher(p.join(
-      directory.path,
-      directoryName,
-    )).events.listen((WatchEvent event) async {
+    DirectoryWatcher(
+            p.join(
+              directory.path,
+              directoryName,
+            ),
+            pollingDelay: Duration(seconds: 5))
+        .events
+        .listen((WatchEvent event) async {
       final fileName = p.basenameWithoutExtension(event.path);
-      final pageUid = fileName.contains('.') ? fileName.replaceAll('.', '/') : fileName;
+      final fileIsJournal = fileName.contains('.');
+      final pageUid = fileIsJournal ? fileName.replaceAll('.', '/') : fileName;
 
       switch (event.type) {
         case ChangeType.ADD:
@@ -128,27 +133,25 @@ class DirectoryService extends OriginService {
           // Handle not being exactly Onyx format.
           break;
         case ChangeType.MODIFY:
-          PageModel modifiedPageObject;
-
           try {
-            modifiedPageObject = await _getModel(File(event.path));
+            final modifiedPageObject = await _getModel(File(event.path));
+            final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
+
+            if (!onyxTriggeredModifyEvent) {
+              pagesCache.remove(modifiedPageObject.uid);
+              writeInterval.pause();
+
+              cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal);
+            }
+
+            break;
           } catch (e) {
             debugPrint('Modified file ${event.path} ($pageUid) is not a parsable Onyx markdown file. Exception: $e.');
-            return;
-          }
-
-          final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
-
-          if (!onyxTriggeredModifyEvent) {
-            writeInterval.pause();
-            cubit.triggerConflict(modifiedPageObject.uid, false, modifiedPageObject.fullText.join('\n'));
           }
         case ChangeType.REMOVE:
           // Delete page.
           break;
       }
-
-      writeInterval.resume();
     });
   }
 

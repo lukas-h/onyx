@@ -33,12 +33,10 @@ class OriginLoading extends OriginState {}
 class OriginConflict extends OriginState {
   final String conflictUid;
   final bool isJournal;
-  final String externalValue;
 
   OriginConflict({
     required this.conflictUid,
     required this.isJournal,
-    required this.externalValue,
   });
 }
 
@@ -86,11 +84,11 @@ abstract class OriginCubit<C> extends Cubit<OriginState> {
     }
   }
 
-  void triggerConflict(String uid, bool isJournal, String externalValue) {
-    emit(OriginConflict(conflictUid: uid, isJournal: isJournal, externalValue: externalValue));
+  void triggerConflict(String uid, bool isJournal) {
+    emit(OriginConflict(conflictUid: uid, isJournal: isJournal));
   }
 
-  // Future<void> resolveConflict(String uid) {
-
-  // }
+  void markConflictResolved() {
+    _init();
+  }
 }

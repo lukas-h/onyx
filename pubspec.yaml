@@ -31,7 +31,6 @@ dependencies:
     path: ^1.9.0
     yaml: ^3.1.2
     watcher: ^1.1.1
-    pretty_diff_text: ^2.0.0
     url_launcher: ^6.3.1
     markdown: ^7.3.0
     replay_bloc: ^0.3.0

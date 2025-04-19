@@ -133,6 +133,9 @@ class _OnyxAppState extends State<OnyxApp> {
             fontFamily: 'Futura',
           ),
           home: BlocListener<DirectoryCubit, OriginState>(
+            listenWhen: (previousState, currentState) {
+              return previousState.runtimeType != currentState.runtimeType;
+            },
             listener: (context, state) async {
               final navCubit = context.read<NavigationCubit>();
               final favCubit = context.read<FavoritesCubit>();
@@ -146,19 +149,12 @@ class _OnyxAppState extends State<OnyxApp> {
               } else if (state is OriginPrompt || state is OriginError) {
                 navCubit.navigateTo(RouteState.settings);
               } else if (state is OriginConflict) {
-                final internalModel = state.isJournal ? store.getJournal(state.conflictUid) : store.getPage(state.conflictUid);
+                final OriginConflictResolutionType? conflictResolution =
+                    await openConflictMenu(context, conflictFileUid: state.conflictUid, isJournal: state.isJournal);
 
-                if (internalModel == null) return;
-
-                final OriginConflictResolutionType? conflictResolution = await openConflictMenu(context,
-                    conflictFileUid: state.conflictUid,
-                    isJournal: state.isJournal,
-                    internalContent: internalModel.fullText.join('\n'),
-                    externalContent: state.externalValue);
-
-                if (conflictResolution == null) return;
-
-                store.resolveConflict(state.conflictUid, state.isJournal, conflictResolution);
+                if (conflictResolution != null) {
+                  store.resolveConflict(state.conflictUid, state.isJournal, conflictResolution);
+                }
               }
             },
             child: BlocConsumer<NavigationCubit, NavigationState>(
