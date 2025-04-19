@@ -19,6 +19,8 @@ final ExtensionSet onyxFlavored = ExtensionSet(
       StrikethroughSyntax(),
       AutolinkExtensionSyntax(),
       InternalLinkSyntax(),
+      InlineLatexSyntax(),
+      BlockLatexSyntax()
     ],
   ),
 );
@@ -50,6 +52,29 @@ class InternalLinkSyntax extends InlineSyntax {
     internalLink = internalLink.substring(2, internalLink.length - 2);
 
     parser.addNode(Element.text('internalLink', internalLink));
+    return true;
+  }
+}
+
+class InlineLatexSyntax extends InlineSyntax {
+  InlineLatexSyntax() : super(r'(?<!\\)\$([^$\n]+?)\$(?!\$)');
+
+  @override
+  bool onMatch(InlineParser parser, Match match) {
+    final latex = match.group(1);
+    parser.addNode(Element.text('inline-latex', latex!));
+    return true;
+  }
+}
+
+class BlockLatexSyntax extends InlineSyntax {
+  BlockLatexSyntax() : super(r'(?<!\\)(\${2})([\s\S]*?)(?<!\\)\1');
+
+  @override
+  bool onMatch(InlineParser parser, Match match) {
+    //final delimiter = match.group(1);
+    final latex = match.group(2);
+    parser.addNode(Element.text('block-latex', latex!));
     return true;
   }
 }
