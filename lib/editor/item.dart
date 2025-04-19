@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_highlight/flutter_highlight.dart';
 import 'package:flutter_highlight/themes/github.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/editor/codeblock.dart';
@@ -7,9 +12,6 @@ import 'package:onyx/editor/image_builder.dart';
 import 'package:onyx/editor/latex_builder.dart';
 import 'package:onyx/editor/markdown.dart';
 import 'package:onyx/editor/model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:flutter/foundation.dart';
 
@@ -48,6 +50,11 @@ class _ListItemEditorState extends State<ListItemEditor> {
 
   String match = '';
 
+  static const double fontSize = 16;
+  static const double lineHeight = 1.6;
+  static const EdgeInsets contentPadding =
+      EdgeInsets.symmetric(vertical: 8, horizontal: 10);
+
   void updatePos() {
     widget.onChanged(
       widget.model.copyWith(
@@ -80,7 +87,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
         model.operator == Operator.uncheck);
     bool? defaultCheck = model.operator == Operator.check ? true : false;
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0),
+      padding: contentPadding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -112,7 +119,6 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 ),
               ),
             ),
-          if (model.operator == Operator.none) const SizedBox(width: 30),
           if (model.operator != Operator.none &&
               model.operator != Operator.equals &&
               model.operator != Operator.check &&
@@ -121,10 +127,10 @@ class _ListItemEditorState extends State<ListItemEditor> {
               width: 60,
               child: Text(
                 model.number.toString(),
+                style: const TextStyle(fontSize: fontSize),
                 maxLines: 1,
                 overflow: TextOverflow.visible,
                 softWrap: false,
-                style: const TextStyle(fontSize: 16),
               ),
             ),
           if (model.operator == Operator.equals)
@@ -135,10 +141,10 @@ class _ListItemEditorState extends State<ListItemEditor> {
                     .calculateUntil(widget.cubit.state.items, index)
                     .toDouble()
                     .toStringAsFixed(2),
+                style: const TextStyle(fontSize: fontSize),
                 maxLines: 1,
                 overflow: TextOverflow.visible,
                 softWrap: false,
-                style: const TextStyle(fontSize: 16),
               ),
             ),
           if (hasCheck)
@@ -182,7 +188,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   theme: githubTheme,
                   padding: const EdgeInsets.all(12),
                   textStyle: const TextStyle(
-                    fontSize: 16,
+                    fontSize: fontSize,
                     fontFamily: 'Source Code Pro',
                   ),
                 ),
@@ -238,12 +244,12 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 extensionSet: onyxFlavored,
                 styleSheet: MarkdownStyleSheet(
                   p: const TextStyle(
-                    fontSize: 16,
-                    height: 1.6,
+                    fontSize: fontSize,
+                    height: lineHeight,
                     letterSpacing: 0,
                   ),
                   code: const TextStyle(
-                    fontSize: 16,
+                    fontSize: fontSize,
                     fontFamily: 'Source Code Pro',
                     backgroundColor: Color(0xffddffdd),
                   ),
@@ -269,16 +275,12 @@ class _ListItemEditorState extends State<ListItemEditor> {
         widget.onTap();
       },
       child: Container(
-        //constraints: const BoxConstraints(minHeight: 44),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: widget.inFocus
               ? Colors.black.withValues(alpha: 0.03)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(3),
-          //border: Border(
-          //  bottom: BorderSide(color: Colors.grey[300]!, width: 0.5),
-          //),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -294,34 +296,31 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   ),
                 ),
               ),
+            SizedBox(
+              width: 20,
+            ),
             if (widget.inFocus)
               Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 0),
-                  constraints: const BoxConstraints(minHeight: 0),
-                  padding: const EdgeInsets.only(bottom: 0, left: 29),
-                  child: TextField(
-                    textInputAction:
-                        defaultTargetPlatform == TargetPlatform.iOS ||
-                                defaultTargetPlatform == TargetPlatform.android
-                            ? TextInputAction.done
-                            : TextInputAction.none,
-                    minLines: 1,
-                    maxLines: 100,
-                    cursorColor: Colors.black,
-                    decoration: const InputDecoration(border: InputBorder.none),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      height: 1.6,
-                      letterSpacing: 0,
-                    ),
-                    scrollPadding: EdgeInsets.zero,
-                    textAlign: TextAlign.start,
-                    textAlignVertical: TextAlignVertical.top,
-                    expands: false,
-                    focusNode: _node,
-                    controller: _controller,
+                child: TextField(
+                  textInputAction: Platform.isIOS || Platform.isAndroid
+                      ? TextInputAction.done
+                      : TextInputAction.none,
+                  minLines: 1,
+                  maxLines: 100,
+                  cursorColor: Colors.black,
+                  decoration: const InputDecoration(
+                      border: InputBorder.none, contentPadding: contentPadding),
+                  style: const TextStyle(
+                    fontSize: fontSize,
+                    height: lineHeight,
+                    letterSpacing: 0,
                   ),
+                  scrollPadding: EdgeInsets.zero,
+                  textAlign: TextAlign.start,
+                  textAlignVertical: TextAlignVertical.top,
+                  expands: false,
+                  focusNode: _node,
+                  controller: _controller,
                 ),
               ),
             if (!widget.inFocus)
