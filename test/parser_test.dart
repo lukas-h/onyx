@@ -46,7 +46,7 @@ void main() {
     });
 
     test('test indent paser', () {
-      const text = '    hello';
+      const text = '    hello world';
       final model = ListItemState(
         index: 0,
         fullText: text,
@@ -55,15 +55,60 @@ void main() {
         operator: Operator.none,
         number: 0,
         indent: 0,
-        position: text.length - 1, //TODO
+        position: text.length,
       );
 
       final result = Parser.parse(model);
 
       expect(result.operator, Operator.none);
-      expect(result.textPart, 'hello');
+      expect(result.fullText, 'hello world');
+      expect(result.textPart, 'hello world');
       expect(result.number, 0);
       expect(result.indent, 2);
+    });
+
+    test('test single space indent paser', () {
+      const text = ' hello world';
+      final model = ListItemState(
+        index: 0,
+        fullText: text,
+        textPart: '',
+        checked: false,
+        operator: Operator.none,
+        number: 0,
+        indent: 0,
+        position: text.length,
+      );
+
+      final result = Parser.parse(model);
+
+      expect(result.operator, Operator.none);
+      expect(result.fullText, ' hello world');
+      expect(result.textPart, ' hello world');
+      expect(result.number, 0);
+      expect(result.indent, 0);
+    });
+
+    test('test newline indent paser', () {
+      const text = '\n  hello world';
+      final model = ListItemState(
+        index: 0,
+        fullText: text,
+        textPart: '',
+        checked: false,
+        operator: Operator.none,
+        number: 0,
+        indent: 0,
+        position: text.length,
+      );
+
+      final result = Parser.parse(model);
+
+      expect(result.operator, Operator.none);
+      expect(result.fullText, '\n  hello world');
+      expect(result.textPart, '\n  hello world');
+      expect(result.number, 0);
+      expect(result.indent, 0);
     });
   });
 }

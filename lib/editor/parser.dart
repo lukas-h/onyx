@@ -4,8 +4,23 @@ final expression = RegExp(r'^\:[0-9]+(([\.\,])+[0-9]+)?');
 
 abstract class Parser {
   static ListItemState parse(ListItemState model) {
+    int parseIndent(String fullText) {
+      final leadingWhitespace = RegExp(r'^ +');
+      final match = leadingWhitespace.firstMatch(fullText);
+      final count = match?.group(0)?.length ?? 0;
+
+      return (count / 2).toInt();
+    }
+
     var updatedModel = model;
-    var source = model.fullText.trim();
+    var source = model.fullText;
+    final indentCount = parseIndent(source);
+    if (indentCount > 0) {
+      source = source.trimLeft();
+      updatedModel = updatedModel.copyWith(
+          indent: updatedModel.indent + indentCount,
+          position: updatedModel.position - (indentCount * 2));
+    }
 
     Operator operator = Operator.none;
 
@@ -39,6 +54,7 @@ abstract class Parser {
     }
 
     updatedModel = updatedModel.copyWith(
+      fullText: source,
       textPart: source,
       operator: operator,
       number: number,
