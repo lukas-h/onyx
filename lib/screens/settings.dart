@@ -1,3 +1,4 @@
+import 'package:onyx/cubit/ai_cubit.dart';
 import 'package:onyx/cubit/pb_cubit.dart';
 import 'package:onyx/extensions/extensions_registry.dart';
 import 'package:onyx/widgets/button.dart';
@@ -43,9 +44,8 @@ class SettingsScreen extends StatelessWidget {
             child: ListView(
               children: [
                 const _PocketBaseSettings(),
-                for (final ext in context
-                    .read<ExtensionsRegistry>()
-                    .settingsExtensions) ...[
+                const _AiSettings(),
+                for (final ext in context.read<ExtensionsRegistry>().settingsExtensions) ...[
                   const SizedBox(height: 32),
                   _SettingsCard(
                     child: ListTile(
@@ -246,6 +246,103 @@ class _PocketBaseFormState extends State<_PocketBaseForm> {
                       email: _emailController.text,
                       password: _passwordController.text,
                     );
+                  }
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AiSettings extends StatelessWidget {
+  const _AiSettings();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AiServiceCubit, AiServiceState>(
+      builder: (context, state) {
+        return _AiForm(
+          initialModel: state.model,
+          initialApiToken: state.apiToken,
+          saveButtonText: 'Update credentials',
+        );
+      },
+    );
+  }
+}
+
+class _AiForm extends StatefulWidget {
+  final String initialModel;
+  final String initialApiToken;
+  final String saveButtonText;
+
+  const _AiForm({
+    required this.initialModel,
+    required this.initialApiToken,
+    required this.saveButtonText,
+  });
+
+  @override
+  State<_AiForm> createState() => _AiFormState();
+}
+
+class _AiFormState extends State<_AiForm> {
+  late final TextEditingController _modelController;
+  late final TextEditingController _apiTokenController;
+  bool changed = false;
+
+  @override
+  void initState() {
+    _modelController = TextEditingController(text: widget.initialModel);
+    _apiTokenController = TextEditingController(text: widget.initialApiToken);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, right: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _modelController,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Open Ai model',
+            ),
+            cursorColor: Colors.black,
+            onChanged: (v) {
+              setState(() {
+                changed = true;
+              });
+            },
+          ),
+          TextField(
+            controller: _apiTokenController,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: 'api token',
+            ),
+            cursorColor: Colors.black,
+            onChanged: (v) {
+              setState(() {
+                changed = true;
+              });
+            },
+          ),
+          Button(
+            widget.saveButtonText,
+            maxWidth: false,
+            icon: const Icon(Icons.done),
+            active: false,
+            onTap: changed
+                ? () {
+                    final aiServiceCubit = context.read<AiServiceCubit>();
+                    aiServiceCubit.apiToken = _apiTokenController.text;
+                    aiServiceCubit.model = _modelController.text;
                   }
                 : null,
           ),

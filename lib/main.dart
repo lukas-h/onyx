@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:onyx/central/body.dart';
+import 'package:onyx/cubit/ai_cubit.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
@@ -67,6 +68,9 @@ class _OnyxAppState extends State<OnyxApp> {
       ),
       child: MultiBlocProvider(
         providers: [
+          BlocProvider(
+            create: (context) => AiServiceCubit(apiToken: ""),
+          ),
           BlocProvider(
             create: (context) => ConnectivityCubit(),
           ),
