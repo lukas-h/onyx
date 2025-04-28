@@ -64,5 +64,7 @@ flutter:
     - family: Source Code Pro
       fonts:
         - asset: fonts/SCP.ttf
+        - asset: fonts/SCP-Regular.ttf
+          weight: 400
         - asset: fonts/SCP-Italic.ttf
           style: italic

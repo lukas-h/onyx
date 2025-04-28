@@ -23,6 +23,7 @@ class CodeBlockBuilder extends MarkdownElementBuilder {
         padding: const EdgeInsets.all(8),
         textStyle: const TextStyle(
           fontSize: ListItemEditor.fontSize,
+          fontWeight: FontWeight.w400,
           fontFamily: 'Source Code Pro',
         ),
       ),
