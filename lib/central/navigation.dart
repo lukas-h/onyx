@@ -183,11 +183,11 @@ class NavigationMenu extends StatelessWidget {
             height: 40,
             maxWidth: true,
             icon: const Icon(Icons.account_tree),
-            active: state.pagesNav,
-            onTap: () {
+            active: state.pagesNav ,
+            onTap: context.read<NavigationCubit>().store.journals.length>1 || context.read<NavigationCubit>().store.pages.length>0 ? () {
               onTapCollapse();
               context.read<NavigationCubit>().navigateTo(RouteState.graphview);
-            },
+            }:null
           ),
           Divider(
             height: 12,
