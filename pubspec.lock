@@ -887,6 +887,7 @@ packages:
       sha256: "3284b6d2ac454cf34f114e1d3319866fdd1e19cdc329999057e44ffe936cfa77"
       url: "https://pub.dev"
     source: hosted
+    version: "3.1.4"
   vector_math:
     dependency: transitive
     description:
