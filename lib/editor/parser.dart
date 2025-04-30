@@ -19,9 +19,25 @@ final operators = {
 
 abstract class Parser {
   static ListItemState parse(ListItemState model) {
-    var updatedModel = model;
-    var source = model.fullText.trim();
+    int parseIndent(String fullText) {
+      final leadingWhitespace = RegExp(r'^ +');
+      final match = leadingWhitespace.firstMatch(fullText);
+      final count = match?.group(0)?.length ?? 0;
 
+      return (count / 2).toInt();
+    }
+
+    var updatedModel = model;
+    var source = model.fullText;
+    final indentCount = parseIndent(source);
+    if (indentCount > 0) {
+      source = source.trimLeft();
+      updatedModel = updatedModel.copyWith(
+          fullText: source,
+          indent: updatedModel.indent + indentCount,
+          position: updatedModel.position - (indentCount * 2));
+    }
+    
     Operator operator = Operator.none;
     num? number;
 
