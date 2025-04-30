@@ -18,6 +18,7 @@ abstract class Parser {
     if (indentCount > 0) {
       source = source.trimLeft();
       updatedModel = updatedModel.copyWith(
+          fullText: source,
           indent: updatedModel.indent + indentCount,
           position: updatedModel.position - (indentCount * 2));
     }
@@ -54,7 +55,6 @@ abstract class Parser {
     }
 
     updatedModel = updatedModel.copyWith(
-      fullText: source,
       textPart: source,
       operator: operator,
       number: number,
