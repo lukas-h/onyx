@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:onyx/cubit/ai_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/extensions/page_extension.dart';
-import 'package:onyx/extensions/settings_extension.dart';
 import 'package:onyx/widgets/button.dart';
 
 class ChatPageExtension extends PageExtension {
@@ -15,7 +15,26 @@ class ChatPageExtension extends PageExtension {
 
   @override
   Widget buildBody(BuildContext context, PageState state) {
-    return const Center(child: Text('Hi'));
+    final chatHistory = context.read<AiServiceCubit>().chatHistory;
+    return Container(
+      width: 380,
+      padding: EdgeInsets.all(8),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemBuilder: (context, index) => PageCard(
+                state: pages[index],
+                onTap: () {
+                  context.read<NavigationCubit>().switchToPage(pages[index].uid);
+                },
+              ),
+              itemCount: pages.length,
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -38,34 +57,5 @@ class ChatPageExtension extends PageExtension {
   List<BlocProvider> registerBlocProviders(BuildContext context) => [];
 
   @override
-  List<RepositoryProvider> registerRepositoryProviders(BuildContext context) =>
-      [];
-}
-
-class ChatSettingsExtension extends SettingsExtension {
-  ChatSettingsExtension()
-      : super(
-          icon: const Icon(Icons.mode_comment_outlined),
-          title: 'AI Chat',
-        );
-
-  @override
-  Widget buildBody(BuildContext context) {
-    return TextField(
-      controller: TextEditingController(),
-      decoration: const InputDecoration(
-        border: InputBorder.none,
-        hintText: 'OpenAI Key',
-      ),
-      cursorColor: Colors.black,
-      onChanged: (v) {},
-    );
-  }
-
-  @override
-  List<BlocProvider> registerBlocProviders(BuildContext context) => [];
-
-  @override
-  List<RepositoryProvider> registerRepositoryProviders(BuildContext context) =>
-      [];
+  List<RepositoryProvider> registerRepositoryProviders(BuildContext context) => [];
 }

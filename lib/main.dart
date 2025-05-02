@@ -62,9 +62,7 @@ class _OnyxAppState extends State<OnyxApp> {
         pagesExtensions: [
           ChatPageExtension(),
         ],
-        settingsExtensions: [
-          ChatSettingsExtension(),
-        ],
+        settingsExtensions: [],
       ),
       child: MultiBlocProvider(
         providers: [

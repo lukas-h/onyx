@@ -1,9 +1,56 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:replay_bloc/replay_bloc.dart';
 
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+
+class OpenAiContent {
+  final String type;
+  final String text;
+  final List annotations;
+
+  OpenAiContent({
+    required this.type,
+    required this.text,
+    required this.annotations,
+  });
+
+  factory OpenAiContent.fromJson(Map<String, dynamic> json) {
+    return OpenAiContent(
+      type: json['type'] as String,
+      text: json['text'] as String,
+      annotations: json['annotations'] as List,
+    );
+  }
+}
+
+class OpenAiOutput {
+  final String id;
+  final String role;
+  final String status;
+  final String type;
+  final List<OpenAiContent> content;
+
+  OpenAiOutput({
+    required this.id,
+    required this.role,
+    required this.status,
+    required this.type,
+    required this.content,
+  });
+
+  factory OpenAiOutput.fromJson(Map<String, dynamic> json) {
+    return OpenAiOutput(
+      id: json['id'] as String,
+      role: json['role'] as String,
+      status: json['status'] as String,
+      type: json['type'] as String,
+      content: json['content'] as List<OpenAiContent>,
+    );
+  }
+}
 
 class OpenAiResponse {
   final int createdAt;
@@ -15,7 +62,7 @@ class OpenAiResponse {
   final Object metadata;
   final String model;
   final String object;
-  final List output;
+  final List<OpenAiOutput> output;
   final bool parallelToolCalls;
   final String? previousResponseId;
   final Object? reasoning;
@@ -61,7 +108,7 @@ class OpenAiResponse {
       metadata: json['metadata'] as Object,
       model: json['model'] as String,
       object: json['object'] as String,
-      output: json['output'] as List,
+      output: json['output'] as List<OpenAiOutput>,
       parallelToolCalls: json['parallel_tool_calls'] as bool,
       previousResponseId: json['previous_response_id'] as String?,
       reasoning: json['reasoning'] as Object?,
@@ -76,27 +123,60 @@ class OpenAiResponse {
   }
 }
 
+enum ContextSource { message, ai, page }
+
+class AiChatModel {
+  String text;
+  ContextSource source;
+  DateTime created;
+
+  AiChatModel({
+    required this.text,
+    required this.source,
+    required this.created,
+  });
+}
+
 class AiServiceState {
   final String apiToken;
   final String model;
   final List<String> availableModels;
+  final List<AiChatModel> chatHistory;
 
   AiServiceState(
     this.apiToken, {
     this.model = "gpt-4.1-nano",
     this.availableModels = const [],
+    this.chatHistory = const [],
   });
 
-  AiServiceState copyWith({String? newApiToken, String? newModel, List<String>? newAvailableModels}) {
-    return AiServiceState(newApiToken ?? apiToken, model: newModel ?? model, availableModels: newAvailableModels ?? availableModels);
+  AiServiceState copyWith({String? newApiToken, String? newModel, List<String>? newAvailableModels, List<AiChatModel>? newChatHistory}) {
+    return AiServiceState(newApiToken ?? apiToken,
+        model: newModel ?? model, availableModels: newAvailableModels ?? availableModels, chatHistory: newChatHistory ?? chatHistory);
   }
 }
 
 class AiServiceCubit extends Cubit<AiServiceState> {
+  static const storage = FlutterSecureStorage();
+
   AiServiceCubit({
     required String apiToken,
     String? model,
-  }) : super(AiServiceState(apiToken, model: model ?? "gpt-4.1-nano"));
+  }) : super(AiServiceState(apiToken, model: model ?? "gpt-4.1-nano")) {
+    init();
+  }
+
+  Future<void> init() async {
+    final storedModel = await storage.read(key: 'model');
+    final storedApiToken = await storage.read(key: 'apiToken');
+
+    if (storedModel != null) {
+      model = storedModel;
+    }
+    if (storedApiToken != null) {
+      apiToken = storedApiToken;
+    }
+  }
 
   set model(String newModel) {
     if (state.availableModels.contains(newModel)) {
@@ -124,6 +204,26 @@ class AiServiceCubit extends Cubit<AiServiceState> {
     return state.availableModels;
   }
 
+  List<AiChatModel> get chatHistory {
+    return state.chatHistory;
+  }
+
+  void resetHistory() {
+    emit(state.copyWith(newChatHistory: []));
+  }
+
+  Future<void> sendMessage(String message) async {
+    _addToChatHistory(message, ContextSource.message);
+
+    final response = await request(message);
+
+    if (response != null && response.output.isNotEmpty && response.output[0].content.isNotEmpty) {
+      _addToChatHistory(response.output[0].content[0].text, ContextSource.ai);
+    } else {
+      _addToChatHistory('error', ContextSource.ai);
+    }
+  }
+
   Future<OpenAiResponse?> request(String input) async {
     final url = Uri.https('api.openai.com', '/v1/responses');
 
@@ -140,5 +240,12 @@ class AiServiceCubit extends Cubit<AiServiceState> {
       print(e);
       return null;
     }
+  }
+
+  void _addToChatHistory(String text, ContextSource source) {
+    final chatHistory = List.of(state.chatHistory, growable: true);
+    final model = AiChatModel(text: text, source: source, created: DateTime.now());
+    chatHistory.add(model);
+    emit(state.copyWith(newChatHistory: chatHistory));
   }
 }
