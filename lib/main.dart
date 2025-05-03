@@ -135,6 +135,9 @@ class _OnyxAppState extends State<OnyxApp> {
                     context.read<PageCubit>().index(-1);
                   }
                 }
+                if(currentPage == null && state is NavigationInitial){
+                  context.read<NavigationCubit>().redo();
+                }
               },
               builder: (context, state) => state is NavigationSuccess
                   ? HomeScreen(state: state)
