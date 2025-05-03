@@ -182,7 +182,8 @@ void main() {
       final result = Parser.parse(model);
 
       expect(result.operator, Operator.none);
-      expect(result.textPart, '\nhello world');
+      expect(result.fullText, 'hello world');
+      expect(result.textPart, 'hello world');
       expect(result.number, 0);
       expect(result.indent, 1);
     });

@@ -39,22 +39,6 @@ abstract class Parser {
     }
 
     Operator operator = Operator.none;
-
-    <String, Operator>{
-      ':-': Operator.subtract,
-      ':+': Operator.add,
-      ':/': Operator.divide,
-      ':*': Operator.multiply,
-      ':=': Operator.equals,
-    }.forEach((key, value) {
-      if (source.startsWith(key)) {
-        operator = value;
-      }
-    });
-
-    if (operator != Operator.none) {
-      source = ':${source.substring(2)}';
-    }
     
     num? number;
 
