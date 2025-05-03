@@ -166,6 +166,27 @@ void main() {
       expect(result.indent, 2);
     });
 
+    test('test indent parser with newLine', () {
+      const text = '  \nhello world';
+      final model = ListItemState(
+        index: 0,
+        fullText: text,
+        textPart: '',
+        checked: false,
+        operator: Operator.none,
+        number: 0,
+        indent: 0,
+        position: text.length,
+      );
+
+      final result = Parser.parse(model);
+
+      expect(result.operator, Operator.none);
+      expect(result.textPart, '\nhello world');
+      expect(result.number, 0);
+      expect(result.indent, 1);
+    });
+
     test('test indent parser with single space', () {
       const text = ' hello world';
       final model = ListItemState(
