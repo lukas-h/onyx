@@ -31,7 +31,7 @@ class PocketBaseCubit extends OriginCubit<PocketBaseCredentials> {
           email: email,
           password: password,
         ),
-        service: PocketBaseService(pb),
+        service: PocketBaseService(pb, this),
       );
     } else {
       return OriginPrompt();
@@ -53,7 +53,7 @@ class PocketBaseCubit extends OriginCubit<PocketBaseCredentials> {
     );
     return OriginSuccess<PocketBaseCredentials, PocketBaseService>(
       credentials: credentials,
-      service: PocketBaseService(pb),
+      service: PocketBaseService(pb, this),
     );
   }
 }

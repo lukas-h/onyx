@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:onyx/cubit/origin/directory_cubit.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/service/origin_service.dart';
@@ -126,30 +127,29 @@ class DirectoryService extends OriginService {
       final fileName = p.basenameWithoutExtension(event.path);
       final fileIsJournal = fileName.contains('.');
       final pageUid = fileIsJournal ? fileName.replaceAll('.', '/') : fileName;
+      late final PageModel modifiedPageObject;
+
+      try {
+        modifiedPageObject = await _getModel(File(event.path));
+      } catch (e) {
+        // TODO: Throw user-facing error?
+        debugPrint('Modified file ${event.path} ($pageUid) is not a parsable Onyx markdown file. Exception: $e.');
+        return;
+      }
+
+      pagesCache.remove(modifiedPageObject.uid);
+      writeInterval.pause();
 
       switch (event.type) {
         case ChangeType.ADD:
-          // TODO: Handle create new page case.
-          // TODO Handle not being Onyx format.
-          break;
         case ChangeType.MODIFY:
-          try {
-            final modifiedPageObject = await _getModel(File(event.path));
-            final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
-
-            if (!onyxTriggeredModifyEvent) {
-              pagesCache.remove(modifiedPageObject.uid);
-              writeInterval.pause();
-
-              cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal);
-            }
-
-            break;
-          } catch (e) {
-            debugPrint('Modified file ${event.path} ($pageUid) is not a parsable Onyx markdown file. Exception: $e.');
+          final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
+          if (!onyxTriggeredModifyEvent) {
+            cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal, event.type == ChangeType.ADD ? OriginConflictType.add : OriginConflictType.modify);
           }
+          break;
         case ChangeType.REMOVE:
-          // TODO: Handle delete page.
+          cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal, OriginConflictType.delete);
           break;
       }
     });
