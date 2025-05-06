@@ -16,7 +16,7 @@ class NavigationMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200,
+      width: 196,
       decoration: const BoxDecoration(),
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -192,27 +192,28 @@ class NavigationMenu extends StatelessWidget {
           Spacer(),
           Row(
             children: [
-              Button(
-                'Settings',
-                maxWidth: false,
-                icon: const Icon(Icons.settings_outlined),
-                active: state.settingsNav,
-                onTap: () {
-                  onTapCollapse();
-                  context.read<NavigationCubit>().navigateTo(RouteState.settings);
-                },
-              ),
               Expanded(
                 child: Button(
-                  '⌘',
-                  iconSize: 18,
+                  'Settings',
                   maxWidth: false,
-                  icon: const Icon(Icons.help_outline_outlined),
-                  active: false,
+                  icon: const Icon(Icons.settings_outlined),
+                  active: state.settingsNav,
                   onTap: () {
-                    openHelpMenu(context);
+                    onTapCollapse();
+                    context.read<NavigationCubit>().navigateTo(RouteState.settings);
                   },
                 ),
+              ),
+              Button(
+                '⌘',
+                width: 60,
+                iconSize: 18,
+                maxWidth: false,
+                icon: const Icon(Icons.help_outline_outlined),
+                active: false,
+                onTap: () {
+                  openHelpMenu(context);
+                },
               ),
             ],
           ),

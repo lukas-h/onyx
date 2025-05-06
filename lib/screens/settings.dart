@@ -30,12 +30,16 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ListTile(
-          contentPadding: const EdgeInsets.only(left: 64),
+        PageHeader(
           title: Text(
             'Settings',
             style: Theme.of(context).textTheme.headlineLarge,
           ),
+          buttons: [
+            SizedBox(
+              height: 40,
+            )
+          ],
         ),
         Expanded(
           child: NarrowBody(
@@ -51,7 +55,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
                     child: ext.buildBody(context),
                   ),
                 ]
@@ -185,7 +189,7 @@ class _PocketBaseFormState extends State<_PocketBaseForm> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8),
+      padding: const EdgeInsets.only(left: 12, right: 12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
