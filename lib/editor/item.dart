@@ -189,7 +189,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
               ),
             ),
           ),
-          const SizedBox(width: 64),
+          const SizedBox(width: 48),
         ],
       ),
     );
@@ -197,7 +197,6 @@ class _ListItemEditorState extends State<ListItemEditor> {
 
   @override
   Widget build(BuildContext context) {
-    print(defaultTargetPlatform);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.inFocus) {
         _node.requestFocus();
