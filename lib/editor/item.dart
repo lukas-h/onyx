@@ -1,17 +1,15 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/cubit/page_cubit.dart';
+import 'package:onyx/editor/code_block_builder.dart';
+import 'package:onyx/editor/image_builder.dart';
+import 'package:onyx/editor/latex_builder.dart';
+import 'package:onyx/editor/markdown.dart';
+import 'package:onyx/editor/model.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-
-import '../cubit/navigation_cubit.dart';
-import '../cubit/page_cubit.dart';
-import 'code_block_builder.dart';
-import 'image_builder.dart';
-import 'latex_builder.dart';
-import 'markdown.dart';
-import 'model.dart';
 
 class ListItemEditor extends StatefulWidget {
   static const double fontSize = 16;
@@ -85,9 +83,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          if (model.operator != Operator.none &&
-              model.operator != Operator.check && 
-              model.operator != Operator.uncheck)
+          if (model.operator != Operator.none && model.operator != Operator.check && model.operator != Operator.uncheck)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 4),
               height: 20,
@@ -113,10 +109,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 ),
               ),
             ),
-          if (model.operator != Operator.none &&
-              model.operator != Operator.equals && 
-              model.operator != Operator.check && 
-              model.operator != Operator.uncheck)
+          if (model.operator != Operator.none && model.operator != Operator.equals && model.operator != Operator.check && model.operator != Operator.uncheck)
             SizedBox(
               width: 60,
               child: Text(
@@ -196,7 +189,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
               ),
             ),
           ),
-          const SizedBox(width: 64),
+          const SizedBox(width: 48),
         ],
       ),
     );
@@ -240,7 +233,9 @@ class _ListItemEditorState extends State<ListItemEditor> {
             if (widget.inFocus)
               Expanded(
                 child: TextField(
-                  textInputAction: Platform.isIOS || Platform.isAndroid ? TextInputAction.done : TextInputAction.none,
+                  textInputAction: defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android
+                      ? TextInputAction.done
+                      : TextInputAction.none,
                   minLines: 1,
                   maxLines: 100,
                   cursorColor: Colors.black,
