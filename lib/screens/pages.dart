@@ -43,25 +43,22 @@ class _PagesList extends StatelessWidget {
     final pages = context.read<NavigationCubit>().pages;
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0),
-          child: PageHeader(
-            title: Text(
-              'Pages',
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-            buttons: [
-              Button(
-                'New Page',
-                maxWidth: false,
-                icon: const Icon(Icons.note_add_outlined),
-                active: false,
-                onTap: () {
-                  context.read<NavigationCubit>().createPage();
-                },
-              ),
-            ],
+        PageHeader(
+          title: Text(
+            'Pages',
+            style: Theme.of(context).textTheme.headlineLarge,
           ),
+          buttons: [
+            Button(
+              'New Page',
+              maxWidth: false,
+              icon: const Icon(Icons.note_add_outlined),
+              active: false,
+              onTap: () {
+                context.read<NavigationCubit>().createPage();
+              },
+            ),
+          ],
         ),
         Expanded(
           child: NarrowBody(
@@ -69,9 +66,7 @@ class _PagesList extends StatelessWidget {
               itemBuilder: (context, index) => PageCard(
                 state: pages[index],
                 onTap: () {
-                  context
-                      .read<NavigationCubit>()
-                      .switchToPage(pages[index].uid);
+                  context.read<NavigationCubit>().switchToPage(pages[index].uid);
                 },
               ),
               itemCount: pages.length,
@@ -109,8 +104,7 @@ class PageCard extends StatelessWidget {
         child: ListTile(
           title: Text(state.title),
           dense: small,
-          subtitle:
-              small ? null : Text(DateFormat.yMMMMd().format(state.created)),
+          subtitle: small ? null : Text(DateFormat.yMMMMd().format(state.created)),
           leading: icon ?? const Icon(Icons.summarize_outlined),
           onTap: onTap,
         ),
@@ -145,12 +139,9 @@ class _PageDetailState extends State<_PageDetail> {
                         FavoriteButton(uid: state.uid),
                         const SizedBox(width: 8),
                         DeleteButton(state: state),
-                        for (final ext in context
-                            .read<ExtensionsRegistry>()
-                            .pagesExtensions) ...[
+                        for (final ext in context.read<ExtensionsRegistry>().pagesExtensions) ...[
                           const SizedBox(width: 8),
-                          ext.buildControlButton(
-                              context, state, ext == selectedExtension, () {
+                          ext.buildControlButton(context, state, ext == selectedExtension, () {
                             setState(() {
                               if (ext == selectedExtension) {
                                 selectedExtension = null;
