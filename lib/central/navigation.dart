@@ -16,7 +16,7 @@ class NavigationMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 196,
+      width: 200,
       decoration: const BoxDecoration(),
       padding: const EdgeInsets.all(12),
       child: Column(

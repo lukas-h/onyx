@@ -180,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(0),
             side: BorderSide.none,
           ),
-          width: 191,
+          width: 200,
           child: SafeArea(
             child: NavigationMenu(
               state: widget.state,
