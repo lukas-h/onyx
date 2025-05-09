@@ -38,14 +38,14 @@ class _ConflictMenuState extends State<ConflictMenu> {
 
     switch (widget.conflictType) {
       case OriginConflictType.add:
-        title = '${widget.isJournal ? 'Journal from' : 'Page with uid'} ${widget.conflictFileUid} has been created outside of Onyx. What do you want to do?';
+        title = '${widget.isJournal ? 'Journal from' : 'Page with uid'} ${widget.conflictFileUid} has been CREATED outside of Onyx. What do you want to do?';
         internalButtonText = 'Delete file';
         externalButtonText = 'Import file to Onyx';
         internalResolutionType = OriginConflictResolutionType.deleteExternal; // Delete from origin service.
         externalResolutionType = OriginConflictResolutionType.useExternal; // Copy from origin service to Hive.
       case OriginConflictType.modify:
         title =
-            '${widget.isJournal ? 'Journal from' : 'Page with uid'} ${widget.conflictFileUid} has been modified outside of Onyx. Which version do you want to use?';
+            '${widget.isJournal ? 'Journal from' : 'Page with uid'} ${widget.conflictFileUid} has been MODIFIED outside of Onyx. Which version do you want to use?';
         internalButtonText = 'Use version from Onyx';
         externalButtonText = 'Use local version';
         internalResolutionType = OriginConflictResolutionType.useInternal; // Copy from Hive to origin service.
