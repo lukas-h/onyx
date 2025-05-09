@@ -125,31 +125,37 @@ class DirectoryService extends OriginService {
         .events
         .listen((WatchEvent event) async {
       final fileName = p.basenameWithoutExtension(event.path);
-      final fileIsJournal = fileName.contains('.');
-      final pageUid = fileIsJournal ? fileName.replaceAll('.', '/') : fileName;
-      late final PageModel modifiedPageObject;
 
-      try {
-        modifiedPageObject = await _getModel(File(event.path));
-      } catch (e) {
-        // TODO: Throw user-facing error?
-        debugPrint('Modified file ${event.path} ($pageUid) is not a parsable Onyx markdown file. Exception: $e.');
+      // Ignore GLib temporary files in Linux.
+      // See here: https://github.com/mate-desktop/caja/issues/1439#issuecomment-671674987.
+      if (fileName.startsWith('.goutputstream')) {
         return;
       }
 
-      pagesCache.remove(modifiedPageObject.uid);
+      final fileIsJournal = fileName.contains('.');
+      final pageUid = fileIsJournal ? fileName.replaceAll('.', '/') : fileName;
+
+      pagesCache.remove(pageUid);
       writeInterval.pause();
 
       switch (event.type) {
         case ChangeType.ADD:
         case ChangeType.MODIFY:
+          late final PageModel modifiedPageObject;
+          try {
+            modifiedPageObject = await _getModel(File(event.path));
+          } catch (e) {
+            debugPrint('Modified file ${event.path} ($pageUid) is not a parsable Onyx markdown file. Exception: $e.');
+            return;
+          }
+
           final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
           if (!onyxTriggeredModifyEvent) {
             cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal, event.type == ChangeType.ADD ? OriginConflictType.add : OriginConflictType.modify);
           }
           break;
         case ChangeType.REMOVE:
-          cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal, OriginConflictType.delete);
+          cubit.triggerConflict(pageUid, fileIsJournal, OriginConflictType.delete);
           break;
       }
     });
