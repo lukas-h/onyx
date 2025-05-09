@@ -43,9 +43,11 @@ abstract class OriginService {
 
   void markConflictResolved();
 
-  List<String> getCommitHashes() => List.empty();
+  Future<List<String>> getVersionIds() => Future.value(List<String>.empty());
 
-  Future<PageModel> getModelAtVersion(String uid, bool isJournal, String versionHash) async => isJournal ? await getPage(uid) : await getJournal(uid);
+  Future<String> getVersionDiff(String versionId) => throw Exception('Version not found for id: $versionId');
 
-  void commitChanges() {}
+  Future<PageModel> getModelAtVersion(String uid, bool isJournal, String versionId) async => isJournal ? await getPage(uid) : await getJournal(uid);
+
+  void commitChanges(String message) {}
 }

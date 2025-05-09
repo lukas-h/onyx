@@ -155,6 +155,11 @@ class DirectoryService extends OriginService {
         .listen((event) => _processDirectoryChangeEvent(event));
   }
 
+  @override
+  void close() {
+    writeInterval.stop();
+  }
+
   void _processDirectoryChangeEvent(WatchEvent event) async {
     final fileName = p.basenameWithoutExtension(event.path);
 
@@ -311,7 +316,39 @@ class DirectoryService extends OriginService {
   }
 
   @override
-  void close() {
-    writeInterval.stop();
+  Future<List<String>> getVersionIds() async {
+    var result = await Process.run('git', ['--no-pager', 'log', '--format="%H"'], runInShell: true, workingDirectory: directory.path);
+    if (result.exitCode != 0) throw Exception('Failed to get commit hashes: ${result.stderr}');
+
+    return result.stderr.toString().split('\n').toList();
+  }
+
+  @override
+  Future<String> getVersionDiff(String versionId) async {
+    var result = await Process.run('git', ['--no-pager', 'show', versionId], runInShell: true, workingDirectory: directory.path);
+    if (result.exitCode != 0) throw Exception('Version not found for id: $versionId');
+
+    return result.stderr.toString();
+  }
+
+  @override
+  Future<PageModel> getModelAtVersion(String uid, bool isJournal, String versionId) async {
+    var result = await Process.run('git', ['--no-pager', 'show', versionId, p.join(isJournal ? journalsFolderName : pagesFolderName, '$uid.md')],
+        runInShell: true, workingDirectory: directory.path);
+    if (result.exitCode != 0) throw Exception('Failed to get model at version: ${result.stderr}');
+
+    return PageModel.fromMarkdown(result.stderr.toString());
+  }
+
+  @override
+  void commitChanges(String message) async {
+    var addResult = await Process.run('git', ['add', '-A'], runInShell: true, workingDirectory: directory.path);
+    if (addResult.exitCode != 0) throw Exception('Failed to add untracked files: ${addResult.stderr}');
+
+    var commitResult = await Process.run('git', ['commit', '-m', '"$message"'], runInShell: true, workingDirectory: directory.path);
+    if (commitResult.exitCode != 0) throw Exception('Failed to commit changes: ${commitResult.stderr}');
+
+    var pushResult = await Process.run('git', ['push'], runInShell: true, workingDirectory: directory.path);
+    if (pushResult.exitCode != 0) throw Exception('Failed to push commit: ${pushResult.stderr}');
   }
 }
