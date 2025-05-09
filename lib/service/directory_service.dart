@@ -31,7 +31,18 @@ class DirectoryService extends OriginService {
 
   DirectoryService(this.directory, this.cubit) {
     writeInterval = PausableInterval(Duration(seconds: 5), () async {
-      for (final entry in pagesCache.entries) {
+      // Deep copy pages cache to avoid modifying it while iterating.
+      final pagesCacheCopy = pagesCache.map((key, value) {
+        final copiedRecord = (
+          lastModified: DateTime.fromMillisecondsSinceEpoch(value.lastModified.millisecondsSinceEpoch),
+          folderName: value.folderName,
+          pageContent: value.pageContent.copyWith()
+        );
+        return MapEntry(key, copiedRecord);
+      });
+
+      pagesCache.clear();
+      for (final entry in pagesCacheCopy.entries) {
         String pageUid = entry.key;
         PageChangedRecord pageChangedRecord = entry.value;
 
@@ -161,6 +172,8 @@ class DirectoryService extends OriginService {
         final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
         if (!onyxTriggeredModifyEvent) {
           cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal, event.type == ChangeType.ADD ? OriginConflictType.add : OriginConflictType.modify);
+        } else {
+          writeInterval.resume();
         }
         break;
       case ChangeType.REMOVE:
