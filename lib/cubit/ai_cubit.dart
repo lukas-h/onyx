@@ -47,9 +47,29 @@ class OpenAiOutput {
       role: json['role'] as String,
       status: json['status'] as String,
       type: json['type'] as String,
-      content: json['content'] as List<OpenAiContent>,
+      content: parseOpenAiContentList(json['content']),
     );
   }
+}
+
+List<OpenAiOutput> parseOpenAiOutputList(List<dynamic> json) {
+  final output = List<OpenAiOutput>.empty(growable: true);
+
+  for (final unparsedOutput in json) {
+    output.add(OpenAiOutput.fromJson(unparsedOutput as Map<String, dynamic>));
+  }
+
+  return output;
+}
+
+List<OpenAiContent> parseOpenAiContentList(List<dynamic> json) {
+  final output = List<OpenAiContent>.empty(growable: true);
+
+  for (final unparsedOutput in json) {
+    output.add(OpenAiContent.fromJson(unparsedOutput as Map<String, dynamic>));
+  }
+
+  return output;
 }
 
 class OpenAiResponse {
@@ -67,12 +87,12 @@ class OpenAiResponse {
   final String? previousResponseId;
   final Object? reasoning;
   final String status;
-  final int? temperature;
+  final double? temperature;
   final Object? text;
-  final int? topP;
+  final double? topP;
   final String? truncation;
   final Object usage;
-  final String user;
+  final String? user;
 
   OpenAiResponse({
     required this.createdAt,
@@ -108,17 +128,17 @@ class OpenAiResponse {
       metadata: json['metadata'] as Object,
       model: json['model'] as String,
       object: json['object'] as String,
-      output: json['output'] as List<OpenAiOutput>,
+      output: parseOpenAiOutputList(json['output']),
       parallelToolCalls: json['parallel_tool_calls'] as bool,
       previousResponseId: json['previous_response_id'] as String?,
       reasoning: json['reasoning'] as Object?,
       status: json['status'] as String,
-      temperature: json['temperature'] as int?,
+      temperature: json['temperature'] as double?,
       text: json['text'] as Object?,
-      topP: json['top_p'] as int?,
+      topP: json['top_p'] as double?,
       truncation: json['truncation'] as String?,
       usage: json['usage'] as Object,
-      user: json['user'] as String,
+      user: json['user'] as String?,
     );
   }
 }
@@ -136,6 +156,8 @@ class AiChatModel {
     required this.created,
   });
 }
+
+var testmodel = [AiChatModel(created: DateTime.now(), source: ContextSource.message, text: 'test')];
 
 class AiServiceState {
   final String apiToken;
@@ -162,7 +184,7 @@ class AiServiceCubit extends Cubit<AiServiceState> {
   AiServiceCubit({
     required String apiToken,
     String? model,
-  }) : super(AiServiceState(apiToken, model: model ?? "gpt-4.1-nano")) {
+  }) : super(AiServiceState(apiToken, model: model ?? "gpt-4.1-nano", chatHistory: testmodel)) {
     init();
   }
 
@@ -229,15 +251,14 @@ class AiServiceCubit extends Cubit<AiServiceState> {
 
     final Map<String, String> headers = <String, String>{};
     headers["Content-Type"] = "application/json";
-    headers["Authorization"] = "Barer $apiToken";
+    headers["Authorization"] = "Bearer $apiToken";
 
     try {
-      final response = await http.post(url, headers: headers, body: {'model': model, 'input': input});
+      final response = await http.post(url, headers: headers, body: jsonEncode({'model': model, 'input': input}));
 
       return OpenAiResponse.fromJson(jsonDecode(response.body));
     } catch (e) {
       // todo better logging
-      print(e);
       return null;
     }
   }
