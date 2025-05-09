@@ -4,14 +4,17 @@ import 'package:onyx/store/page_store.dart';
 abstract class OriginService {
   void close();
 
-  // --- FAVORITES ---
-
   Future<List<String>> getFavorites();
+
   Future<List<PageModel>> getPages();
+
+  Future<PageModel> getPage(String uid);
 
   void subscribeToPages();
 
   Future<List<PageModel>> getJournals();
+
+  Future<PageModel> getJournal(String uid);
 
   void subscribeToJournals();
 
@@ -28,15 +31,21 @@ abstract class OriginService {
   // Only used for conflict resolution; journals cannot be deleted by UI actions.
   Future<void> deleteJournal(String uid);
 
-  Future<List<PageModel>> getPageVersions();
+  Future<void> createFavorite(String uid);
 
-  PageModel usePageVersion();
+  Future<void> deleteFavorite(String uid);
 
-  void commitPage(PageModel model);
+  Future<void> createImage(ImageModel image);
 
-  Future<List<PageModel>> getJournalVersions();
+  Future<void> deleteImage(String uid);
 
-  PageModel useJournalVersion(model);
+  Future<List<ImageModel>> getImages();
 
-  void commitJournal(PageModel model);
+  void markConflictResolved();
+
+  List<String> getCommitHashes() => List.empty();
+
+  Future<PageModel> getModelAtVersion(String uid, bool isJournal, String versionHash) async => isJournal ? await getPage(uid) : await getJournal(uid);
+
+  void commitChanges() {}
 }

@@ -98,10 +98,22 @@ class DirectoryService extends OriginService {
   Future<List<PageModel>> getPages() => _getModels(pagesFolderName);
 
   @override
+  Future<PageModel> getPage(String uid) {
+    final pageFile = File(p.join(directory.path, pagesFolderName, '$uid.md'));
+    return _getModel(pageFile);
+  }
+
+  @override
   void subscribeToPages() => _watchDirectory(pagesFolderName);
 
   @override
   Future<List<PageModel>> getJournals() => _getModels(journalsFolderName);
+
+  @override
+  Future<PageModel> getJournal(String uid) {
+    final journalFile = File(p.join(directory.path, journalsFolderName, '$uid.md'));
+    return _getModel(journalFile);
+  }
 
   @override
   void subscribeToJournals() => _watchDirectory(journalsFolderName);
