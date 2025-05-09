@@ -4,7 +4,7 @@ import 'package:onyx/service/origin_service.dart';
 
 enum OriginConflictType { add, modify, delete }
 
-enum OriginConflictResolutionType { useInternal, useExternal, deleteExternal }
+enum OriginConflictResolutionType { useInternal, useExternal, deleteInternal, deleteExternal }
 
 class OriginState {}
 

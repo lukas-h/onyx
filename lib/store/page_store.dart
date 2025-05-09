@@ -192,9 +192,14 @@ class PageStore {
           }
         }
         break;
-      default:
-        throw Exception("Unknown OriginConflictResolutionType.");
+      case OriginConflictResolutionType.deleteInternal:
+        isJournal ? journals.delete(modelUid) : pages.delete(modelUid);
+        break;
+      case OriginConflictResolutionType.deleteExternal:
+        isJournal ? _originServices?.firstOrNull?.deleteJournal(modelUid) : _originServices?.firstOrNull?.deletePage(modelUid);
+        break;
     }
+
     _originServices?.firstOrNull?.markConflictResolved();
   }
 

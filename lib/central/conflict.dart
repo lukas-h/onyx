@@ -33,22 +33,30 @@ class _ConflictMenuState extends State<ConflictMenu> {
     late final String title;
     late final String internalButtonText;
     late final String externalButtonText;
+    late final OriginConflictResolutionType internalResolutionType;
+    late final OriginConflictResolutionType externalResolutionType;
 
     switch (widget.conflictType) {
       case OriginConflictType.add:
         title = '${widget.isJournal ? 'Journal from' : 'Page with uid'} ${widget.conflictFileUid} has been created outside of Onyx. What do you want to do?';
         internalButtonText = 'Delete file';
         externalButtonText = 'Import file to Onyx';
+        internalResolutionType = OriginConflictResolutionType.deleteExternal; // Delete from origin service.
+        externalResolutionType = OriginConflictResolutionType.useExternal; // Copy from origin service to Hive.
       case OriginConflictType.modify:
         title =
             '${widget.isJournal ? 'Journal from' : 'Page with uid'} ${widget.conflictFileUid} has been modified outside of Onyx. Which version do you want to use?';
         internalButtonText = 'Use version from Onyx';
         externalButtonText = 'Use local version';
+        internalResolutionType = OriginConflictResolutionType.useInternal; // Copy from Hive to origin service.
+        externalResolutionType = OriginConflictResolutionType.useExternal; // Copy from origin service to Hive.
       case OriginConflictType.delete:
         title =
             '${widget.isJournal ? 'Journal from' : 'Page with uid'} ${widget.conflictFileUid} has been DELETED outside of Onyx. Are you sure you want to delete it?';
-        internalButtonText = 'Delete file';
-        externalButtonText = 'Keep file';
+        internalButtonText = 'Keep file';
+        externalButtonText = 'Delete file from Onyx';
+        internalResolutionType = OriginConflictResolutionType.useInternal; // Copy from Hive to origin service.
+        externalResolutionType = OriginConflictResolutionType.deleteInternal; // Delete from Hive.
     }
 
     return IconTheme(
@@ -85,7 +93,7 @@ class _ConflictMenuState extends State<ConflictMenu> {
             icon: const Icon(Icons.edit),
             active: false,
             onTap: () {
-              Navigator.pop(context, OriginConflictResolutionType.useInternal);
+              Navigator.pop(context, internalResolutionType);
             },
           ),
           Button(
@@ -95,7 +103,7 @@ class _ConflictMenuState extends State<ConflictMenu> {
             icon: const Icon(Icons.folder),
             active: false,
             onTap: () {
-              Navigator.pop(context, OriginConflictResolutionType.useExternal);
+              Navigator.pop(context, externalResolutionType);
             },
           ),
         ],

@@ -123,6 +123,9 @@ class PocketBaseService extends OriginService {
   Future<void> deletePage(String uid) => pb.collection(pagesCollectionId).delete(uid);
 
   @override
+  Future<void> deleteJournal(String uid) => pb.collection(journalsCollectionId).delete(uid);
+
+  @override
   Future<void> createFavorite(String uid) => pb.collection(favoritesCollectionId).create(body: {
         'uid': uid,
       });
