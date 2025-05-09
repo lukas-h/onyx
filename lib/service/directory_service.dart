@@ -119,6 +119,8 @@ class DirectoryService extends OriginService {
     cubit.markConflictResolved();
   }
 
+  // Still potential for issues with concurrent changes (eg. selecting multiple files to delete).
+  // TODO: Queue changes and wait for the conflict dialog to close before resolving the next one.
   void _watchDirectory(String directoryName) async {
     DirectoryWatcher(
             p.join(
@@ -127,9 +129,7 @@ class DirectoryService extends OriginService {
             ),
             pollingDelay: Duration(seconds: 5))
         .events
-        .listen((event) {
-      _processDirectoryChangeEvent(event);
-    });
+        .listen((event) => _processDirectoryChangeEvent(event));
   }
 
   void _processDirectoryChangeEvent(WatchEvent event) async {
