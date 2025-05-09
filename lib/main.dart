@@ -150,7 +150,7 @@ class _OnyxAppState extends State<OnyxApp> {
                 navCubit.navigateTo(RouteState.settings);
               } else if (state is OriginConflict) {
                 final OriginConflictResolutionType? conflictResolution =
-                    await openConflictMenu(context, conflictFileUid: state.conflictUid, isJournal: state.isJournal);
+                    await openConflictMenu(context, conflictFileUid: state.conflictUid, isJournal: state.isJournal, conflictType: state.conflictType);
 
                 if (conflictResolution != null) {
                   store.resolveConflict(state.conflictUid, state.isJournal, conflictResolution);

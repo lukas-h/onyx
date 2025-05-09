@@ -7,45 +7,36 @@ abstract class OriginService {
   // --- FAVORITES ---
 
   Future<List<String>> getFavorites();
-  Future<void> createFavorite(String uid);
-  Future<void> deleteFavorite(String uid);
-
-  // --- GET ---
-
   Future<List<PageModel>> getPages();
-  Future<List<PageModel>> getJournals();
-  Future<List<ImageModel>> getImages();
-
-  // --- CREATE ---
-
-  Future<void> createPage(PageModel model);
-  Future<void> createJournal(PageModel model);
-  Future<void> createImage(ImageModel image);
-
-  // --- UPDATE ---
-
-  Future<void> updatePage(PageModel model);
-  Future<void> updateJournal(PageModel model);
-
-  // --- DELETE ---
-
-  Future<void> deletePage(String uid);
-  Future<void> deleteImage(String uid);
-
-  // --- WATCH CHANGES ---
 
   void subscribeToPages();
+
+  Future<List<PageModel>> getJournals();
+
   void subscribeToJournals();
 
-  void markConflictResolved();
+  Future<void> createPage(PageModel model);
 
-  // --- VERSION CONTROL ---
+  Future<void> createJournal(PageModel model);
+
+  Future<void> updatePage(PageModel model);
+
+  Future<void> updateJournal(PageModel model);
+
+  Future<void> deletePage(String uid);
+
+  // Only used for conflict resolution; journals cannot be deleted by UI actions.
+  Future<void> deleteJournal(String uid);
 
   Future<List<PageModel>> getPageVersions();
+
   PageModel usePageVersion();
+
   void commitPage(PageModel model);
 
   Future<List<PageModel>> getJournalVersions();
+
   PageModel useJournalVersion(model);
+
   void commitJournal(PageModel model);
 }
