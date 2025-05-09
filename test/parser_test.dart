@@ -146,8 +146,8 @@ void main() {
   });
 
   group('Indent Parser', () {
-    test('parses 2 levels of indentation indentation for 4 spaces', () {
-      const text = '    hello';
+    test('test indent parser', () {
+      const text = '    hello world';
       final model = ListItemState(
         index: 0,
         fullText: text,
@@ -156,15 +156,79 @@ void main() {
         operator: Operator.none,
         number: 0,
         indent: 0,
-        position: text.length - 1, //TODO
+        position: text.length,
       );
 
       final result = Parser.parse(model);
 
       expect(result.operator, Operator.none);
-      expect(result.textPart, 'hello');
+      expect(result.textPart, 'hello world');
       expect(result.number, 0);
       expect(result.indent, 2);
+    });
+
+    test('test indent parser with newLine', () {
+      const text = '  \nhello world';
+      final model = ListItemState(
+        index: 0,
+        fullText: text,
+        textPart: '',
+        checked: false,
+        operator: Operator.none,
+        number: 0,
+        indent: 0,
+        position: text.length,
+      );
+
+      final result = Parser.parse(model);
+
+      expect(result.operator, Operator.none);
+      expect(result.fullText, 'hello world');
+      expect(result.textPart, 'hello world');
+      expect(result.number, 0);
+      expect(result.indent, 1);
+    });
+
+    test('test indent parser with single space', () {
+      const text = ' hello world';
+      final model = ListItemState(
+        index: 0,
+        fullText: text,
+        textPart: '',
+        checked: false,
+        operator: Operator.none,
+        number: 0,
+        indent: 0,
+        position: text.length,
+      );
+
+      final result = Parser.parse(model);
+
+      expect(result.operator, Operator.none);
+      expect(result.textPart, ' hello world');
+      expect(result.number, 0);
+      expect(result.indent, 0);
+    });
+
+    test('test indent parser with operator', () {
+      const text = '  :20 apples';
+      final model = ListItemState(
+        index: 0,
+        fullText: text,
+        textPart: '',
+        checked: false,
+        operator: Operator.none,
+        number: 0,
+        indent: 0,
+        position: text.length,
+      );
+
+      final result = Parser.parse(model);
+
+      expect(result.operator, Operator.add);
+      expect(result.textPart, 'apples');
+      expect(result.number, 20);
+      expect(result.indent, 1);
     });
   });
 }

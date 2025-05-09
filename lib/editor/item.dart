@@ -1,19 +1,23 @@
-import 'package:flutter_highlight/flutter_highlight.dart';
-import 'package:flutter_highlight/themes/github.dart';
-import 'package:onyx/cubit/navigation_cubit.dart';
-import 'package:onyx/cubit/page_cubit.dart';
-import 'package:onyx/editor/codeblock.dart';
-import 'package:onyx/editor/image_builder.dart';
-import 'package:onyx/editor/latex_builder.dart';
-import 'package:onyx/editor/markdown.dart';
-import 'package:onyx/editor/model.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:flutter/foundation.dart';
+
+import '../cubit/navigation_cubit.dart';
+import '../cubit/page_cubit.dart';
+import 'code_block_builder.dart';
+import 'image_builder.dart';
+import 'latex_builder.dart';
+import 'markdown.dart';
+import 'model.dart';
 
 class ListItemEditor extends StatefulWidget {
+  static const double fontSize = 16;
+  static const double lineHeight = 1.6;
+  static const EdgeInsets contentPadding = EdgeInsets.symmetric(vertical: 8, horizontal: 10);
+
   final ListItemState model;
   final int index;
   final ValueChanged<ListItemState> onChanged;
@@ -62,8 +66,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
   void initState() {
     _node = FocusNode();
     _controller.text = widget.model.fullText;
-    _controller.selection =
-        TextSelection.fromPosition(TextPosition(offset: widget.model.position));
+    _controller.selection = TextSelection.fromPosition(TextPosition(offset: widget.model.position));
     _controller.addListener(updatePos);
     super.initState();
   }
@@ -75,17 +78,15 @@ class _ListItemEditorState extends State<ListItemEditor> {
   }
 
   Widget _buildParsedPart(ListItemState model, int index) {
-    final hasCode = hasCodeblock(model.textPart);
-    final hasCheck = (model.operator == Operator.check ||
-        model.operator == Operator.uncheck);
+    final hasCheck = (model.operator == Operator.check || model.operator == Operator.uncheck);
     bool? defaultCheck = model.operator == Operator.check ? true : false;
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0),
+      padding: ListItemEditor.contentPadding,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           if (model.operator != Operator.none &&
-              model.operator != Operator.check &&
+              model.operator != Operator.check && 
               model.operator != Operator.uncheck)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -112,33 +113,29 @@ class _ListItemEditorState extends State<ListItemEditor> {
                 ),
               ),
             ),
-          if (model.operator == Operator.none) const SizedBox(width: 30),
           if (model.operator != Operator.none &&
-              model.operator != Operator.equals &&
-              model.operator != Operator.check &&
+              model.operator != Operator.equals && 
+              model.operator != Operator.check && 
               model.operator != Operator.uncheck)
             SizedBox(
               width: 60,
               child: Text(
                 model.number.toString(),
+                style: const TextStyle(fontSize: ListItemEditor.fontSize),
                 maxLines: 1,
                 overflow: TextOverflow.visible,
                 softWrap: false,
-                style: const TextStyle(fontSize: 16),
               ),
             ),
           if (model.operator == Operator.equals)
             SizedBox(
               width: 60,
               child: Text(
-                widget.cubit
-                    .calculateUntil(widget.cubit.state.items, index)
-                    .toDouble()
-                    .toStringAsFixed(2),
+                widget.cubit.calculateUntil(widget.cubit.state.items, index).toDouble().toStringAsFixed(2),
+                style: const TextStyle(fontSize: ListItemEditor.fontSize),
                 maxLines: 1,
                 overflow: TextOverflow.visible,
                 softWrap: false,
-                style: const TextStyle(fontSize: 16),
               ),
             ),
           if (hasCheck)
@@ -150,106 +147,55 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   setState(() {
                     defaultCheck = value;
                     if (value == true) {
-                      final String source =
-                          '-[x]${model.textPart.substring(4)}';
+                      final String source = '-[x]${model.textPart.substring(4)}';
                       var updatedmodel = model.copyWith(
-                          fullText: source,
-                          textPart: source,
-                          operator: Operator.check,
-                          position: source.length);
+                        fullText: source,
+                        textPart: source,
+                        operator: Operator.check,
+                        position: source.length,
+                      );
                       widget.cubit.update(index, updatedmodel);
                     } else {
-                      final String source =
-                          '-[ ]${model.textPart.substring(4)}';
+                      final String source = '-[ ]${model.textPart.substring(4)}';
                       var updatedmodel = model.copyWith(
-                          fullText: source,
-                          textPart: source,
-                          operator: Operator.uncheck,
-                          position: source.length);
+                        fullText: source,
+                        textPart: source,
+                        operator: Operator.uncheck,
+                        position: source.length,
+                      );
                       widget.cubit.update(index, updatedmodel);
                     }
                   });
                 },
               ),
             ),
-          if (hasCode)
-            Expanded(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(3),
-                child: HighlightView(
-                  getCodeblockContent(model.textPart),
-                  language: getCodeblockLanguage(model.textPart),
-                  theme: githubTheme,
-                  padding: const EdgeInsets.all(12),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Source Code Pro',
-                  ),
+          Expanded(
+            child: MarkdownBody(
+              data: model.textPart,
+              imageBuilder: (uri, title, alt) => ImageBuilder(uri: uri, title: title, alt: alt),
+              builders: {
+                'inline-latex': LatexElementBuilder(),
+                'block-latex': LatexElementBuilder(),
+                'code': CodeBlockBuilder(),
+              },
+              onTapLink: (text, href, title) {
+                if (Uri.tryParse(href ?? '') != null) {
+                  launchUrlString(href!);
+                }
+              },
+              onTapInternalLink: (text) {
+                context.read<NavigationCubit>().openPageOrJournal(text);
+              },
+              extensionSet: onyxFlavored,
+              styleSheet: MarkdownStyleSheet(
+                p: const TextStyle(
+                  fontSize: ListItemEditor.fontSize,
+                  height: ListItemEditor.lineHeight,
+                  letterSpacing: 0,
                 ),
               ),
             ),
-          if (!hasCode && hasCheck)
-            Expanded(
-              child: MarkdownBody(
-                data: (model.textPart.substring(4)),
-                imageBuilder: (uri, title, alt) =>
-                    ImageBuilder(uri: uri, title: title, alt: alt),
-                onTapLink: (text, href, title) {
-                  if (Uri.tryParse(href ?? '') != null) {
-                    launchUrlString(href!);
-                  }
-                },
-                onTapInternalLink: (text) {
-                  context.read<NavigationCubit>().openPageOrJournal(text);
-                },
-                extensionSet: onyxFlavored,
-                styleSheet: MarkdownStyleSheet(
-                  p: const TextStyle(
-                    fontSize: 16,
-                    height: 1.6,
-                    letterSpacing: 0,
-                  ),
-                  code: const TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Source Code Pro',
-                    backgroundColor: Color(0xffddffdd),
-                  ),
-                ),
-              ),
-            )
-          else if (!hasCode)
-            Expanded(
-              child: MarkdownBody(
-                data: model.textPart,
-                imageBuilder: (uri, title, alt) =>
-                    ImageBuilder(uri: uri, title: title, alt: alt),
-                builders: {
-                  'inline-latex': LatexElementBuilder(),
-                  'block-latex': LatexElementBuilder(),
-                },
-                onTapLink: (text, href, title) {
-                  if (Uri.tryParse(href ?? '') != null) {
-                    launchUrlString(href!);
-                  }
-                },
-                onTapInternalLink: (text) {
-                  context.read<NavigationCubit>().openPageOrJournal(text);
-                },
-                extensionSet: onyxFlavored,
-                styleSheet: MarkdownStyleSheet(
-                  p: const TextStyle(
-                    fontSize: 16,
-                    height: 1.6,
-                    letterSpacing: 0,
-                  ),
-                  code: const TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'Source Code Pro',
-                    backgroundColor: Color(0xffddffdd),
-                  ),
-                ),
-              ),
-            ),
+          ),
           const SizedBox(width: 64),
         ],
       ),
@@ -269,16 +215,10 @@ class _ListItemEditorState extends State<ListItemEditor> {
         widget.onTap();
       },
       child: Container(
-        //constraints: const BoxConstraints(minHeight: 44),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: widget.inFocus
-              ? Colors.black.withValues(alpha: 0.03)
-              : Colors.transparent,
+          color: widget.inFocus ? Colors.black.withValues(alpha: 0.03) : Colors.transparent,
           borderRadius: BorderRadius.circular(3),
-          //border: Border(
-          //  bottom: BorderSide(color: Colors.grey[300]!, width: 0.5),
-          //),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -294,34 +234,28 @@ class _ListItemEditorState extends State<ListItemEditor> {
                   ),
                 ),
               ),
+            SizedBox(
+              width: 20,
+            ),
             if (widget.inFocus)
               Expanded(
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 0),
-                  constraints: const BoxConstraints(minHeight: 0),
-                  padding: const EdgeInsets.only(bottom: 0, left: 29),
-                  child: TextField(
-                    textInputAction:
-                        defaultTargetPlatform == TargetPlatform.iOS ||
-                                defaultTargetPlatform == TargetPlatform.android
-                            ? TextInputAction.done
-                            : TextInputAction.none,
-                    minLines: 1,
-                    maxLines: 100,
-                    cursorColor: Colors.black,
-                    decoration: const InputDecoration(border: InputBorder.none),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      height: 1.6,
-                      letterSpacing: 0,
-                    ),
-                    scrollPadding: EdgeInsets.zero,
-                    textAlign: TextAlign.start,
-                    textAlignVertical: TextAlignVertical.top,
-                    expands: false,
-                    focusNode: _node,
-                    controller: _controller,
+                child: TextField(
+                  textInputAction: Platform.isIOS || Platform.isAndroid ? TextInputAction.done : TextInputAction.none,
+                  minLines: 1,
+                  maxLines: 100,
+                  cursorColor: Colors.black,
+                  decoration: const InputDecoration(border: InputBorder.none, contentPadding: ListItemEditor.contentPadding),
+                  style: const TextStyle(
+                    fontSize: ListItemEditor.fontSize,
+                    height: ListItemEditor.lineHeight,
+                    letterSpacing: 0,
                   ),
+                  scrollPadding: EdgeInsets.zero,
+                  textAlign: TextAlign.start,
+                  textAlignVertical: TextAlignVertical.top,
+                  expands: false,
+                  focusNode: _node,
+                  controller: _controller,
                 ),
               ),
             if (!widget.inFocus)
