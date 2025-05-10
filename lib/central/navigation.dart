@@ -2,6 +2,7 @@ import 'package:onyx/central/conflict.dart';
 import 'package:onyx/central/favorites.dart';
 import 'package:onyx/central/help.dart';
 import 'package:onyx/central/recents.dart';
+import 'package:onyx/central/version.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/central/search.dart';
@@ -12,8 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class NavigationMenu extends StatelessWidget {
   final NavigationSuccess state;
   final VoidCallback onTapCollapse;
-  const NavigationMenu(
-      {super.key, required this.state, required this.onTapCollapse});
+  const NavigationMenu({super.key, required this.state, required this.onTapCollapse});
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +64,18 @@ class NavigationMenu extends StatelessWidget {
                       }
                     : null,
               ),
+              Button(
+                '',
+                width: 40,
+                height: 40,
+                iconSize: 18,
+                maxWidth: false,
+                icon: const Icon(Icons.account_tree_outlined),
+                active: false,
+                onTap: () {
+                  openVersionMenu(context);
+                },
+              ),
             ],
           ),
           Divider(
@@ -99,9 +111,7 @@ class NavigationMenu extends StatelessWidget {
                                       ),
                                     )
                                   : Icon(
-                                      state
-                                          ? Icons.sync
-                                          : Icons.cloud_off_outlined,
+                                      state ? Icons.sync : Icons.cloud_off_outlined,
                                     );
                             },
                           ),
@@ -163,9 +173,7 @@ class NavigationMenu extends StatelessWidget {
             active: state.journalNav,
             onTap: () {
               onTapCollapse();
-              context
-                  .read<NavigationCubit>()
-                  .navigateTo(RouteState.journalSelected);
+              context.read<NavigationCubit>().navigateTo(RouteState.journalSelected);
             },
           ),
           Button(
@@ -187,8 +195,7 @@ class NavigationMenu extends StatelessWidget {
           ),
           const FavoritesList(),
           const RecentsList(),
-          if (state.route != RouteState.pages &&
-              state.route != RouteState.settings)
+          if (state.route != RouteState.pages && state.route != RouteState.settings)
             Button(
               'References',
               maxWidth: true,
@@ -207,9 +214,7 @@ class NavigationMenu extends StatelessWidget {
                 active: state.settingsNav,
                 onTap: () {
                   onTapCollapse();
-                  context
-                      .read<NavigationCubit>()
-                      .navigateTo(RouteState.settings);
+                  context.read<NavigationCubit>().navigateTo(RouteState.settings);
                 },
               ),
               Button(
