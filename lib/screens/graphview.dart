@@ -8,9 +8,12 @@ import 'package:onyx/cubit/page_cubit.dart';
 class GraphViewScreen extends StatelessWidget {
   const GraphViewScreen({super.key});
   @override
-  Widget build(BuildContext context) => BlocBuilder<PageCubit, PageState>(builder: (context, state) {
-        return TreeViewPage();
-      });
+  Widget build(BuildContext context) {
+    return BlocProvider<GraphCubit>(
+      create: (_) => GraphCubit(context.read<PageCubit>()),
+      child: TreeViewPage(), // Make TreeViewPage const if possible
+    );
+  }
 }
 
 class TreeViewPage extends StatefulWidget {
@@ -36,25 +39,23 @@ class _TreeViewPageState extends State<TreeViewPage> {
                 children: [
                   Positioned.fill(
                     child: Align(
-                      alignment: Alignment.center,
-                      child: BlocBuilder<GraphCubit,GraphState>(
-                        bloc: GraphCubit(context.read<PageCubit>()),
-                        builder: (context,state) {
-                          return GraphView(
-                            graph: state.graph,
-                            algorithm: SugiyamaAlgorithm(builder),
-                            paint: Paint()
-                              ..color = Colors.green
-                              ..strokeWidth = 1
-                              ..style = PaintingStyle.stroke,
-                            builder: (Node node) {
-                              String? key = state.titleNode.entries.firstWhere((entry) => entry.value == node).key;
-                              return state.recursionExist.contains(node) ? nodeWithRecursionWidget(key) : nodeWidget(key);
-                            },
-                          );
-                        }
-                      ),
-                    ),
+                        alignment: Alignment.center,
+                        child: BlocBuilder<GraphCubit, GraphState>(
+                          builder: (context, state) {
+                            return GraphView(
+                              graph: state.graph,
+                              algorithm: SugiyamaAlgorithm(builder),
+                              paint: Paint()
+                                ..color = Colors.green
+                                ..strokeWidth = 1
+                                ..style = PaintingStyle.stroke,
+                              builder: (Node node) {
+                                String? key = state.titleNode.entries.firstWhere((entry) => entry.value == node).key;
+                                return state.recursionExist.contains(node) ? nodeWithRecursionWidget(key) : nodeWidget(key);
+                              },
+                            );
+                          },
+                        )),
                   ),
                 ],
               ),

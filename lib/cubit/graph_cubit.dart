@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphview/GraphView.dart';
 import 'package:onyx/cubit/page_cubit.dart';
@@ -10,19 +9,34 @@ class GraphState {
   final Graph graph;
   final List<Node> recursionExist;
   final Map<String, Node> titleNode;
+  final Map<Node,PageModel> dataNode;
 
-  GraphState({required this.graph, required this.recursionExist, required this.titleNode}); 
+  GraphState({required this.graph, required this.recursionExist, required this.titleNode, required this.dataNode}); 
 }
 
 class GraphCubit extends Cubit<GraphState>{
   final PageCubit cubit;
-  GraphCubit(this.cubit):super(GraphState(graph:Graph(), recursionExist: [], titleNode: {})){
+  final Graph graph = Graph()..isTree = false;
+  Map<String, Node> titleNode = {};
+  Map<Node,PageModel> dataNode = {};
+  final List<Node> recursionExist = [];
+  
+  Node? getNodeByTitle(String title) => state.titleNode[title];
+
+  PageModel? getPageModelForNode(Node node) => state.dataNode[node];
+
+  PageModel? getPageModelByTitle(String title) {
+    final node = getNodeByTitle(title);
+    if (node != null) {
+      return getPageModelForNode(node);
+    }
+    return null;
+  }
+
+  GraphCubit(this.cubit):super(GraphState(graph:Graph(), recursionExist: [], titleNode: {}, dataNode: {})){
     init();
   }
   init(){
-    final Graph graph = Graph()..isTree = false;
-    Map<String, Node> titleNode = {};
-    final List<Node> recursionExist = [];
     final pattern = RegExp(r'\[\[(.*?)\]\]');
     // Journal add nodes code starts here
     for (int i = 0; i < cubit.store.journals.length; i++) {
@@ -33,6 +47,7 @@ class GraphCubit extends Cubit<GraphState>{
         final node = Node.Id(numericDate);
         titleNode[page.title] = node;
         graph.addNode(node);
+        dataNode[node] = page;
       }
     }
     // Journal add nodes code ends here
@@ -45,6 +60,7 @@ class GraphCubit extends Cubit<GraphState>{
         final node = Node.Id(randomId);
         titleNode[page.title] = node;
         graph.addNode(node);
+        dataNode[node] = page;
       }
     }
     //Page add node code ends here
@@ -103,7 +119,8 @@ class GraphCubit extends Cubit<GraphState>{
     }
     // Pages edges code ends here
 
-    emit(GraphState(graph: graph, recursionExist: recursionExist, titleNode: titleNode));
+    emit(GraphState(graph: graph, recursionExist: recursionExist, titleNode: titleNode, dataNode:dataNode));
 
   }
+
 }
