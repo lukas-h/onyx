@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -240,7 +241,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
             if (widget.inFocus)
               Expanded(
                 child: TextField(
-                  textInputAction: Platform.isIOS || Platform.isAndroid ? TextInputAction.done : TextInputAction.none,
+                  textInputAction: defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android ? TextInputAction.done : TextInputAction.none,
                   minLines: 1,
                   maxLines: 100,
                   cursorColor: Colors.black,

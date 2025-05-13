@@ -14,6 +14,7 @@ enum RouteState {
   pages,
   pageSelected,
   journalSelected,
+  calendarview,
   settings,
 }
 
@@ -27,6 +28,8 @@ class NavigationSuccess extends NavigationState {
   bool get pagesNav => route == RouteState.pageSelected || route == RouteState.pages;
 
   bool get settingsNav => route == RouteState.settings;
+
+  bool get calendarViewNav => route == RouteState.calendarview;
 
   NavigationSuccess({
     required this.route,
@@ -235,6 +238,17 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     }
   }
 
+  void openJournalFromCalendar(String text){
+    final journal = store.journals.values.firstWhereOrNull((e) => e.title == text)?.uid;
+      if (journal != null) {
+        switchToJournal(journal);
+      }
+      else{
+        PageState pagestate = store.getJournal(text).toPageState(true);
+        switchToJournal(pagestate.uid);
+      }
+  }
+
   void openPageOrJournal(String text) {
     final page = store.pages.values.firstWhereOrNull((e) => e.title == text)?.uid;
     if (page != null) {
@@ -255,6 +269,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
         RouteState.pageSelected => store.getPage(currentState.pageId ?? '')?.toPageState(false),
         RouteState.journalSelected => store.getJournal(currentState.pageId ?? '').toPageState(true),
         RouteState.settings => null,
+        RouteState.calendarview => null
       };
     } else {
       return null;
