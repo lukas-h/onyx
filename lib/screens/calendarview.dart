@@ -35,7 +35,7 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
       final pageModel = pageCubit.store.journals.values.elementAt(i);
       if (pageModel.title.isNotEmpty) {
         final pageState = pageModel.toPageState(true);
-        if (pageState.items.length > 1 || (pageState.items.length==1 && pageState.items.elementAt(0).fullText!="")) {
+        if (pageState.items.length > 1 || (pageState.items.length == 1 && pageState.items.elementAt(0).fullText != "")) {
           try {
             List<String> parts = pageModel.title.split("/");
             DateTime date = DateTime(
@@ -79,7 +79,7 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
             ),
             const SizedBox(height: 12),
             SizedBox(
-              height: screenHeight * 0.8, // 50% of the screen height
+              height: screenHeight * 0.8,
               child: SfCalendar(
                 view: CalendarView.month,
                 initialSelectedDate: DateTime.now(),
@@ -113,15 +113,15 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
                         ),
                         if (isJournaled)
                           Icon(
-                            Icons.edit, // Pencil icon for journaled days
+                            Icons.edit,
                             size: 16,
-                            color: Colors.white, // White icon for visibility on blue background
+                            color: Colors.white,
                           ),
                         if (!isJournaled)
                           Icon(
-                            Icons.add_circle_outline, // Pencil icon for journaled days
+                            Icons.add_circle_outline,
                             size: 16,
-                            color:Colors.black, // White icon for visibility on blue background
+                            color: Colors.black,
                           ),
                       ],
                     ),
@@ -130,9 +130,7 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
                 onTap: (calendarTapDetails) {
                   final tappedDate = calendarTapDetails.date;
                   if (tappedDate == null) return;
-
                   final normalized = _normalizeDate(tappedDate);
-                  print(normalized);
                   if (_dateTitleMap.containsKey(normalized)) {
                     context.read<NavigationCubit>().openPageOrJournal(_dateTitleMap[normalized]!);
                   } else {
@@ -146,7 +144,6 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
                 ),
               ),
             ),
-            // You can add more widgets here if needed
           ],
         ),
       ),
