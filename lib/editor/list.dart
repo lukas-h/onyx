@@ -54,13 +54,9 @@ class ListEditorState extends State<ListEditor> {
               if (event.logicalKey != LogicalKeyboardKey.backspace) {
                 return KeyEventResult.ignored;
               }
-              final currentlyEmpty =
-                  state.currentItem?.fullText.isEmpty == true;
+              final currentlyEmpty = state.currentItem?.fullText.isEmpty == true;
 
-              if (currentlyEmpty &&
-                  state.index > 0 &&
-                  !_eventHandled &&
-                  _previouslyEmpty) {
+              if (currentlyEmpty && state.index > 0 && !_eventHandled && _previouslyEmpty) {
                 _previouslyEmpty = true;
                 _eventHandled = true;
                 context.read<PageCubit>().removeCurrent();
@@ -126,8 +122,7 @@ class ListEditorState extends State<ListEditor> {
                         ? Container(
                             decoration: BoxDecoration(
                               border: Border(
-                                top: BorderSide(
-                                    width: 0.5, color: Colors.grey[300]!),
+                                top: BorderSide(width: 0.5, color: Colors.grey[300]!),
                               ),
                             ),
                             child: ListTile(
@@ -146,8 +141,7 @@ class ListEditorState extends State<ListEditor> {
                 ),
                 LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
-                    final bottomInset =
-                        MediaQuery.of(context).viewInsets.bottom;
+                    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
                     final keyboardActive = bottomInset != 0.0;
 
                     return Material(
@@ -169,10 +163,8 @@ class ListEditorState extends State<ListEditor> {
                         ),
                         child: Padding(
                           padding: EdgeInsets.only(
-                              bottom: (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android) &&
-                                      keyboardActive
-                                  ? 32
-                                  : 0),
+                              bottom:
+                                  (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android) && keyboardActive ? 32 : 0),
                           child: Row(
                             children: [
                               Expanded(
@@ -195,21 +187,15 @@ class ListEditorState extends State<ListEditor> {
                                         },
                                       ),
                                       IconButton(
-                                        icon: const Icon(
-                                            Icons.keyboard_arrow_left),
-                                        onPressed: state.items.isNotEmpty &&
-                                                state.index >= 0 &&
-                                                state.items[state.index]
-                                                        .indent >
-                                                    0
+                                        icon: const Icon(Icons.keyboard_arrow_left),
+                                        onPressed: state.items.isNotEmpty && state.index >= 0 && state.items[state.index].indent > 0
                                             ? () {
                                                 cubit.decreaseIndent();
                                               }
                                             : null,
                                       ),
                                       IconButton(
-                                        icon: const Icon(
-                                            Icons.keyboard_arrow_right),
+                                        icon: const Icon(Icons.keyboard_arrow_right),
                                         onPressed: state.items.isNotEmpty
                                             ? () {
                                                 cubit.increaseIndent();
@@ -217,8 +203,7 @@ class ListEditorState extends State<ListEditor> {
                                             : null,
                                       ),
                                       IconButton(
-                                        icon: const Icon(
-                                            Icons.add_photo_alternate_outlined),
+                                        icon: const Icon(Icons.add_photo_alternate_outlined),
                                         onPressed: state.items.isNotEmpty
                                             ? () {
                                                 cubit.insertImage();
@@ -226,16 +211,12 @@ class ListEditorState extends State<ListEditor> {
                                             : null,
                                       ),
                                       IconButton(
-                                        icon: const Icon(
-                                            Icons.data_array_outlined),
+                                        icon: const Icon(Icons.data_array_outlined),
                                         onPressed: state.items.isNotEmpty
                                             ? () async {
-                                                final page =
-                                                    await openInsertMenu(
-                                                        context);
+                                                final page = await openInsertMenu(context);
                                                 if (page != null) {
-                                                  cubit.insertInternalLink(
-                                                      page.title);
+                                                  cubit.insertInternalLink(page.title);
                                                 }
                                               }
                                             : null,
@@ -244,12 +225,9 @@ class ListEditorState extends State<ListEditor> {
                                         icon: const Icon(Icons.link),
                                         onPressed: state.items.isNotEmpty
                                             ? () async {
-                                                final link =
-                                                    await openExternalLinkInsertMenu(
-                                                        context);
+                                                final link = await openExternalLinkInsertMenu(context);
                                                 if (link != null) {
-                                                  cubit.insertExternalLink(
-                                                      link.$1, link.$2);
+                                                  cubit.insertExternalLink(link.$1, link.$2);
                                                 }
                                               }
                                             : null,
@@ -296,8 +274,7 @@ class ListEditorState extends State<ListEditor> {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.keyboard_arrow_down),
-                                onPressed: state.items.isNotEmpty &&
-                                        state.index < state.items.length - 1
+                                onPressed: state.items.isNotEmpty && state.index < state.items.length - 1
                                     ? () {
                                         cubit.index(state.index + 1);
                                       }
