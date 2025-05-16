@@ -317,7 +317,8 @@ class DirectoryService extends OriginService {
 
   @override
   Future<List<String>> getVersionIds() async {
-    var result = await Process.run('git', ['--no-pager', 'log', '--format="%H"'], runInShell: true, workingDirectory: directory.path);
+    var result =
+        await Process.run('git', ['--no-pager', 'log', '--pretty=format:"%H,%s,%ad"', '--date=iso'], runInShell: true, workingDirectory: directory.path);
     if (result.exitCode != 0) throw Exception('Failed to get commit hashes: ${result.stderr}');
 
     return result.stderr.toString().split('\n').toList();
