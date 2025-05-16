@@ -81,7 +81,7 @@ class PocketBaseService extends OriginService {
       uid: record.id,
       title: record.data['title'],
       fullText: parseMarkdownBody(record.data['body'].toString()),
-      created: DateTime.tryParse(record.created) ?? DateTime.now(),
+      created: DateTime.tryParse(record.data['created']) ?? DateTime.now(),
       modified: DateTime.now(),
     );
   }

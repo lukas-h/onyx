@@ -1,13 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
+import 'package:onyx/service/origin_service.dart';
 import 'package:onyx/widgets/button.dart';
 
-void openVersionMenu(BuildContext context) async => showDialog(
+typedef VersionMenuResult = ({OriginVersionActionType versionActionType, String? versionId, String? commitMessage});
+
+Future<VersionMenuResult?> openVersionMenu(
+  BuildContext context, {
+  required List<ChangeRecord> changes,
+  required List<VersionRecord> history,
+}) async =>
+    showDialog<VersionMenuResult>(
       context: context,
-      builder: (context) => VersionMenu(),
+      builder: (context) => VersionMenu(
+        changes: changes,
+        history: history,
+      ),
     );
 
 class VersionMenu extends StatefulWidget {
-  const VersionMenu({super.key});
+  final List<ChangeRecord> changes;
+  final List<VersionRecord> history;
+
+  const VersionMenu({
+    super.key,
+    required this.changes,
+    required this.history,
+  });
 
   @override
   State<VersionMenu> createState() => _VersionMenuState();
@@ -15,27 +34,65 @@ class VersionMenu extends StatefulWidget {
 
 class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStateMixin {
   final _node = FocusNode();
-  String? selectedVersion;
 
-  late TextEditingController _textEditingController;
+  late TextEditingController _commitMessageController;
   late TabController _tabController;
+
+  bool isCommitButtonEnabled = false;
+  String? selectedVersion;
+  String? commitMessage;
 
   @override
   void initState() {
     super.initState();
-    _textEditingController = TextEditingController();
+
+    _commitMessageController = TextEditingController();
+    _commitMessageController.addListener(handleTextChanged);
+
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {
-      if (_tabController.indexIsChanging) {
-        // Rebuild on tab change so the action button can change.
-        setState(() {});
-      }
+    _tabController.addListener(handleTabChanged);
+  }
+
+  void handleTextChanged() {
+    setState(() {
+      commitMessage = _commitMessageController.text;
+      isCommitButtonEnabled = _commitMessageController.text.isNotEmpty;
     });
+  }
+
+  void handleTabChanged() {
+    setState(() {
+      // Rerender to ensure actions match the selected tab.
+    });
+  }
+
+  void commitChanges() {
+    debugPrint("Commit Changes");
+    Navigator.pop(
+      context,
+      (
+        versionActionType: OriginVersionActionType.commitChanges,
+        versionId: selectedVersion,
+        commitMessage: commitMessage,
+      ),
+    );
+  }
+
+  void selectVersion() {
+    debugPrint("Selected Version");
+    Navigator.pop(
+      context,
+      (
+        versionActionType: OriginVersionActionType.useVersion,
+        versionId: selectedVersion,
+        commitMessage: commitMessage,
+      ),
+    );
   }
 
   @override
   void dispose() {
-    _textEditingController.dispose();
+    _commitMessageController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -45,16 +102,6 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _node.requestFocus();
     });
-
-    final List<Map<String, String>> changes = [
-      {'file': 'lib/main.dart', 'status': 'Modified'},
-      {'file': 'lib/utils.dart', 'status': 'Added'},
-    ];
-
-    final List<Map<String, String>> history = [
-      {'version': 'v1.3.0', 'date': '2025-05-01', 'message': 'Bug fix in utils'},
-      {'version': 'v1.2.0', 'date': '2025-04-15', 'message': 'New feature'},
-    ];
 
     return IconTheme(
         data: const IconThemeData(size: 15),
@@ -84,41 +131,50 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
                         children: [
                           SizedBox(
                             height: 150,
-                            child: ListView.builder(
-                              itemCount: changes.length,
-                              itemBuilder: (context, index) {
-                                final change = changes[index];
-                                return ListTile(
-                                  leading: Icon(Icons.edit),
-                                  title: Text(change['file']!),
-                                  subtitle: Text(change['status']!),
-                                );
-                              },
-                            ),
+                            child: widget.changes.isEmpty
+                                ? Center(child: const Text('No changes yet.'))
+                                : ListView.builder(
+                                    itemCount: widget.changes.length,
+                                    itemBuilder: (context, index) {
+                                      final change = widget.changes[index];
+                                      return ListTile(
+                                        leading: Icon(Icons.edit),
+                                        title: Text(change.filePath),
+                                        subtitle: Text(change.changeType),
+                                      );
+                                    },
+                                  ),
                           ),
-                          TextField(
-                            controller: _textEditingController,
-                            onSubmitted: (String value) {},
-                          )
                         ],
                       ),
                       // History Tab
-                      ListView.builder(
-                        itemCount: history.length,
-                        itemBuilder: (context, index) {
-                          final item = history[index];
-                          final isSelected = selectedVersion == item['version'];
-                          return ListTile(
-                            title: Text(item['version']!),
-                            subtitle: Text('${item['date']} - ${item['message']}'),
-                            tileColor: isSelected ? Colors.blue.shade100 : null,
-                            onTap: () {
-                              setState(() {
-                                selectedVersion = item['version'];
-                              });
-                            },
-                          );
-                        },
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height: 150,
+                            child: widget.history.isEmpty
+                                ? Center(child: const Text('No history yet.'))
+                                : ListView.builder(
+                                    itemCount: widget.history.length,
+                                    itemBuilder: (context, index) {
+                                      final item = widget.history[index];
+                                      final isSelected = selectedVersion == item.versionId;
+                                      return ListTile(
+                                        title: Text(item.versionId),
+                                        subtitle: Text('${item.versionDate} - ${item.commitMessage}'),
+                                        tileColor: isSelected ? Colors.blue.shade100 : null,
+                                        onTap: () {
+                                          setState(() {
+                                            selectedVersion = item.versionId;
+                                          });
+                                        },
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -127,21 +183,32 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
             ),
           ),
           actions: [
-            if (_tabController.index == 0)
+            if (_tabController.index == 0) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: TextField(
+                  controller: _commitMessageController,
+                  decoration: const InputDecoration(
+                    labelText: 'Commit Message',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
               Button(
                 'Commit Changes',
                 maxWidth: true,
                 icon: const Icon(Icons.folder),
                 active: false,
-                onTap: () {},
-              )
-            else
+                onTap: isCommitButtonEnabled ? commitChanges : null,
+              ),
+            ] else
               Button(
                 'Use Selected Version',
                 maxWidth: true,
                 icon: const Icon(Icons.folder),
                 active: false,
-                onTap: () {},
+                onTap: selectedVersion != null ? selectVersion : null,
               ),
           ],
         ));

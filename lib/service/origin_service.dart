@@ -1,6 +1,10 @@
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 
+typedef VersionRecord = ({String versionId, String commitMessage, DateTime versionDate});
+
+typedef ChangeRecord = ({String changeType, String filePath});
+
 abstract class OriginService {
   void close();
 
@@ -43,11 +47,11 @@ abstract class OriginService {
 
   void markConflictResolved();
 
-  Future<List<String>> getVersionIds() => Future.value(List<String>.empty());
+  Future<List<VersionRecord>> getVersions() => Future.value(List<VersionRecord>.empty());
 
-  Future<String> getVersionDiff(String versionId) => throw Exception('Version not found for id: $versionId');
+  Future<List<ChangeRecord>> getCurrentDiff(String versionId) => Future.value(List<ChangeRecord>.empty());
 
-  Future<PageModel> getModelAtVersion(String uid, bool isJournal, String versionId) async => isJournal ? await getPage(uid) : await getJournal(uid);
+  Future<void> revertToVersion(String versionId) async => Future.value();
 
   void commitChanges(String message) {}
 }

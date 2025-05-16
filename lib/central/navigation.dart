@@ -9,6 +9,8 @@ import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../service/origin_service.dart';
+
 class NavigationMenu extends StatelessWidget {
   final NavigationSuccess state;
   final VoidCallback onTapCollapse;
@@ -71,8 +73,17 @@ class NavigationMenu extends StatelessWidget {
                 maxWidth: false,
                 icon: const Icon(Icons.account_tree_outlined),
                 active: false,
-                onTap: () {
-                  openVersionMenu(context);
+                onTap: () async {
+                  final versionMenuResult = await openVersionMenu(
+                    context,
+                    changes: List<ChangeRecord>.empty(),
+                    history: List<VersionRecord>.empty(),
+                  );
+
+                  if (versionMenuResult != null) {
+                    // TODO do something!
+                    debugPrint(versionMenuResult.versionActionType.toString());
+                  }
                 },
               ),
             ],

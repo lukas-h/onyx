@@ -186,7 +186,11 @@ class DirectoryService extends OriginService {
 
         final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
         if (!onyxTriggeredModifyEvent) {
-          cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal, event.type == ChangeType.ADD ? OriginConflictType.add : OriginConflictType.modify);
+          cubit.triggerConflict(
+            modifiedPageObject.uid,
+            fileIsJournal,
+            event.type == ChangeType.ADD ? OriginConflictType.add : OriginConflictType.modify,
+          );
         } else {
           writeInterval.resume();
         }
@@ -314,29 +318,71 @@ class DirectoryService extends OriginService {
   }
 
   @override
-  Future<List<String>> getVersionIds() async {
-    var result =
-        await Process.run('git', ['--no-pager', 'log', '--pretty=format:"%H,%s,%ad"', '--date=iso'], runInShell: true, workingDirectory: directory.path);
-    if (result.exitCode != 0) throw Exception('Failed to get commit hashes: ${result.stderr}');
+  Future<List<VersionRecord>> getVersions() async {
+    try {
+      final commandResult = await Process.run(
+        'git',
+        ['--no-pager', 'log', '--pretty=format:"%H,%ad,%s"', '--date=iso'],
+        runInShell: true,
+        workingDirectory: directory.path,
+      );
+      if (commandResult.exitCode != 0) throw Exception('Git command failed: ${commandResult.stderr}');
 
-    return result.stderr.toString().split('\n').toList();
+      final gitCommitStrings = commandResult.stderr.toString().split('\n');
+
+      return gitCommitStrings.map<VersionRecord>((commitString) {
+        final splitCommitString = commitString.split(',');
+        return (
+          versionId: splitCommitString[0],
+          versionDate: DateTime.parse(splitCommitString[1]),
+          commitMessage: splitCommitString.sublist(1, splitCommitString.length - 1).join(','), // Join back together as it may contain commas.
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('Failed to parse Git response. ${e.toString()}.');
+      return [];
+    }
   }
 
   @override
-  Future<String> getVersionDiff(String versionId) async {
-    var result = await Process.run('git', ['--no-pager', 'show', versionId], runInShell: true, workingDirectory: directory.path);
-    if (result.exitCode != 0) throw Exception('Version not found for id: $versionId');
+  Future<List<ChangeRecord>> getCurrentDiff(String versionId) async {
+    try {
+      final commandResult = await Process.run(
+        'git',
+        ['--no-pager', 'status', '--porcelain'],
+        runInShell: true,
+        workingDirectory: directory.path,
+      );
+      if (commandResult.exitCode != 0) throw Exception('Git command failed: ${commandResult.stderr}');
 
-    return result.stderr.toString();
+      final gitChangesStrings = commandResult.stderr.toString().split('\n');
+
+      return gitChangesStrings.map<ChangeRecord>((changeString) {
+        final splitChangeString = changeString.replaceAll('"', '').split(',');
+        return (
+          changeType: splitChangeString[0],
+          filePath: splitChangeString.sublist(1, splitChangeString.length - 1).join(','), // Join back together as it may contain commas.
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('Failed to get Git diff. ${e.toString()}.');
+      return [];
+    }
   }
 
   @override
-  Future<PageModel> getModelAtVersion(String uid, bool isJournal, String versionId) async {
-    var result = await Process.run('git', ['--no-pager', 'show', versionId, p.join(isJournal ? journalsFolderName : pagesFolderName, '$uid.md')],
-        runInShell: true, workingDirectory: directory.path);
-    if (result.exitCode != 0) throw Exception('Failed to get model at version: ${result.stderr}');
-
-    return PageModel.fromMarkdown(result.stderr.toString());
+  Future<void> revertToVersion(String versionId) async {
+    try {
+      var commandResult = await Process.run(
+        'git',
+        ['reset', '--hard', versionId],
+        runInShell: true,
+        workingDirectory: directory.path,
+      );
+      if (commandResult.exitCode != 0) throw Exception('Git command failed: ${commandResult.stderr}');
+    } catch (e) {
+      debugPrint('Failed to revert. ${e.toString()}.');
+    }
   }
 
   @override
