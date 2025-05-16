@@ -1,4 +1,3 @@
-import 'package:onyx/central/conflict.dart';
 import 'package:onyx/central/favorites.dart';
 import 'package:onyx/central/help.dart';
 import 'package:onyx/central/recents.dart';

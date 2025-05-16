@@ -164,7 +164,7 @@ class _OnyxAppState extends State<OnyxApp> {
                     context.read<PageCubit>().index(0);
                   }
                 }
-                if(currentPage == null && state is NavigationInitial){
+                if (currentPage == null && state is NavigationInitial) {
                   context.read<NavigationCubit>().redo();
                 }
               },
