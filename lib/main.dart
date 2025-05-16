@@ -12,8 +12,6 @@ import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/central/keyboard.dart';
 import 'package:onyx/central/navigation.dart';
 import 'package:onyx/cubit/origin/pb_cubit.dart';
-import 'package:onyx/service/directory_service.dart';
-import 'package:onyx/cubit/origin/pb_cubit.dart';
 import 'package:onyx/extensions/chat_extension.dart';
 import 'package:onyx/extensions/extensions_registry.dart';
 import 'package:onyx/hive/hive_registrar.g.dart';
@@ -166,7 +164,7 @@ class _OnyxAppState extends State<OnyxApp> {
                     context.read<PageCubit>().index(0);
                   }
                 }
-                if(currentPage == null && state is NavigationInitial){
+                if (currentPage == null && state is NavigationInitial) {
                   context.read<NavigationCubit>().redo();
                 }
               },
