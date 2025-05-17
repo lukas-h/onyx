@@ -17,18 +17,20 @@ class ChatPageExtension extends PageExtension {
 
   @override
   Widget buildBody(BuildContext context, PageState state) {
-    final chatHistory = context.read<AiServiceCubit>().chatHistory;
     return Container(
       width: 380,
       padding: EdgeInsets.all(8),
       child: Column(
         children: [
-          Expanded(
-            child: ListView.builder(
-              itemBuilder: (context, index) => MessageCard(chatHistory[index]),
-              itemCount: chatHistory.length,
-            ),
-          ),
+          Expanded(child: BlocBuilder<AiServiceCubit, AiServiceState>(
+            builder: (context, aiState) {
+              final chatHistory = aiState.chatHistory;
+              return ListView.builder(
+                itemBuilder: (context, index) => MessageCard(chatHistory[index]),
+                itemCount: chatHistory.length,
+              );
+            },
+          )),
           TextField(
             controller: _messageController,
             decoration: const InputDecoration(

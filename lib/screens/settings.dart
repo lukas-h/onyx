@@ -557,6 +557,7 @@ class _AiFormState extends State<_AiForm> {
                     final aiServiceCubit = context.read<AiServiceCubit>();
                     aiServiceCubit.apiToken = _apiTokenController.text;
                     aiServiceCubit.model = _modelController.text;
+                    changed = false;
                   }
                 : null,
           ),
