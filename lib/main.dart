@@ -3,6 +3,7 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:onyx/central/body.dart';
 import 'package:onyx/central/conflict.dart';
+import 'package:onyx/cubit/ai_cubit.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
@@ -66,12 +67,13 @@ class _OnyxAppState extends State<OnyxApp> {
         pagesExtensions: [
           ChatPageExtension(),
         ],
-        settingsExtensions: [
-          ChatSettingsExtension(),
-        ],
+        settingsExtensions: [],
       ),
       child: MultiBlocProvider(
         providers: [
+          BlocProvider(
+            create: (context) => AiServiceCubit(apiToken: ""),
+          ),
           BlocProvider(
             create: (context) => ConnectivityCubit(),
           ),
@@ -166,7 +168,7 @@ class _OnyxAppState extends State<OnyxApp> {
                     context.read<PageCubit>().index(0);
                   }
                 }
-                if(currentPage == null && state is NavigationInitial){
+                if (currentPage == null && state is NavigationInitial) {
                   context.read<NavigationCubit>().redo();
                 }
               },
