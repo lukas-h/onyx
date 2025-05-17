@@ -139,6 +139,7 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
                   child: TabBarView(
                     controller: _tabController,
                     children: [
+                      // TODO: Add another tab for the git log?
                       // Changes Tab
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
