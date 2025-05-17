@@ -80,7 +80,6 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
   }
 
   void commitChanges() {
-    debugPrint("Commit Changes");
     Navigator.pop(
       context,
       (
@@ -92,7 +91,6 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
   }
 
   void selectVersion() {
-    debugPrint("Selected Version");
     Navigator.pop(
       context,
       (

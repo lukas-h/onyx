@@ -5,6 +5,7 @@ import 'package:onyx/central/version.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/central/search.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
@@ -77,10 +78,19 @@ class NavigationMenu extends StatelessWidget {
                     context,
                     pageStore: context.read<PageCubit>().store,
                   );
+                  if (versionMenuResult == null || !context.mounted) return;
+                  switch (versionMenuResult.versionActionType) {
+                    case OriginVersionActionType.commitChanges:
+                      if (versionMenuResult.commitMessage != null) {
+                        context.read<PageCubit>().store.originServices?.firstOrNull?.commitChanges(versionMenuResult.commitMessage!);
+                      }
+                    case OriginVersionActionType.useVersion:
+                      if (versionMenuResult.versionId != null) {
+                        await context.read<PageCubit>().store.originServices?.firstOrNull?.revertToVersion(versionMenuResult.versionId!);
 
-                  if (versionMenuResult != null) {
-                    // TODO do something!
-                    debugPrint(versionMenuResult.versionActionType.toString());
+                        if (!context.mounted) return;
+                        context.read<PageCubit>().store.init();
+                      }
                   }
                 },
               ),
