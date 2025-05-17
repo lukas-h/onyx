@@ -2,30 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/service/origin_service.dart';
 import 'package:onyx/widgets/button.dart';
+import 'package:onyx/store/page_store.dart';
+import 'package:get_time_ago/get_time_ago.dart';
 
 typedef VersionMenuResult = ({OriginVersionActionType versionActionType, String? versionId, String? commitMessage});
 
 Future<VersionMenuResult?> openVersionMenu(
   BuildContext context, {
-  required List<ChangeRecord> changes,
-  required List<VersionRecord> history,
+  required PageStore pageStore,
 }) async =>
     showDialog<VersionMenuResult>(
       context: context,
       builder: (context) => VersionMenu(
-        changes: changes,
-        history: history,
+        pageStore: pageStore,
       ),
     );
 
 class VersionMenu extends StatefulWidget {
-  final List<ChangeRecord> changes;
-  final List<VersionRecord> history;
+  final PageStore pageStore;
 
   const VersionMenu({
     super.key,
-    required this.changes,
-    required this.history,
+    required this.pageStore,
   });
 
   @override
@@ -38,6 +36,9 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
   late TextEditingController _commitMessageController;
   late TabController _tabController;
 
+  List<ChangeRecord> changes = [];
+  List<VersionRecord> history = [];
+
   bool isCommitButtonEnabled = false;
   String? selectedVersion;
   String? commitMessage;
@@ -46,6 +47,8 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
   void initState() {
     super.initState();
 
+    getChangesAndHistoryAsync();
+
     _commitMessageController = TextEditingController();
     _commitMessageController.addListener(handleTextChanged);
 
@@ -53,16 +56,26 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
     _tabController.addListener(handleTabChanged);
   }
 
+  void getChangesAndHistoryAsync() async {
+    final changes = await widget.pageStore.originServices?.firstOrNull?.getCurrentDiff() ?? [];
+    final history = await widget.pageStore.originServices?.firstOrNull?.getVersions() ?? [];
+
+    setState(() {
+      this.changes = changes;
+      this.history = history;
+    });
+  }
+
   void handleTextChanged() {
     setState(() {
       commitMessage = _commitMessageController.text;
-      isCommitButtonEnabled = _commitMessageController.text.isNotEmpty;
+      isCommitButtonEnabled = _commitMessageController.text.isNotEmpty && changes.isNotEmpty;
     });
   }
 
   void handleTabChanged() {
     setState(() {
-      // Rerender to ensure actions match the selected tab.
+      // Re-render to ensure actions match the selected tab.
     });
   }
 
@@ -107,8 +120,13 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
         data: const IconThemeData(size: 15),
         child: AlertDialog(
           title: Text('Version Control'),
-          content: SizedBox(
-            width: 400,
+          content: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minWidth: 400,
+              maxWidth: 400,
+              minHeight: 300,
+              maxHeight: 600,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -119,8 +137,7 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
                     Tab(text: 'Change History'),
                   ],
                 ),
-                SizedBox(
-                  height: 200,
+                Flexible(
                   child: TabBarView(
                     controller: _tabController,
                     children: [
@@ -129,21 +146,27 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(
-                            height: 150,
-                            child: widget.changes.isEmpty
-                                ? Center(child: const Text('No changes yet.'))
-                                : ListView.builder(
-                                    itemCount: widget.changes.length,
-                                    itemBuilder: (context, index) {
-                                      final change = widget.changes[index];
-                                      return ListTile(
-                                        leading: Icon(Icons.edit),
-                                        title: Text(change.filePath),
-                                        subtitle: Text(change.changeType),
-                                      );
-                                    },
-                                  ),
+                          Flexible(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                minHeight: 200,
+                                maxHeight: 400,
+                              ),
+                              child: changes.isEmpty
+                                  ? Center(child: const Text('No changes yet.'))
+                                  : ListView.builder(
+                                      itemCount: changes.length,
+                                      itemBuilder: (context, index) {
+                                        final change = changes[index];
+                                        return ListTile(
+                                          // TODO: Add icons for different change types.
+                                          leading: Icon(Icons.edit),
+                                          title: Text(change.filePath),
+                                          subtitle: Text(change.changeType),
+                                        );
+                                      },
+                                    ),
+                            ),
                           ),
                         ],
                       ),
@@ -152,27 +175,33 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(
-                            height: 150,
-                            child: widget.history.isEmpty
-                                ? Center(child: const Text('No history yet.'))
-                                : ListView.builder(
-                                    itemCount: widget.history.length,
-                                    itemBuilder: (context, index) {
-                                      final item = widget.history[index];
-                                      final isSelected = selectedVersion == item.versionId;
-                                      return ListTile(
-                                        title: Text(item.versionId),
-                                        subtitle: Text('${item.versionDate} - ${item.commitMessage}'),
-                                        tileColor: isSelected ? Colors.blue.shade100 : null,
-                                        onTap: () {
-                                          setState(() {
-                                            selectedVersion = item.versionId;
-                                          });
-                                        },
-                                      );
-                                    },
-                                  ),
+                          Flexible(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                minHeight: 200,
+                                maxHeight: 400,
+                              ),
+                              child: history.isEmpty
+                                  ? Center(child: const Text('No history yet.'))
+                                  : ListView.builder(
+                                      itemCount: history.length,
+                                      itemBuilder: (context, index) {
+                                        final item = history[index];
+                                        final isSelected = selectedVersion == item.versionId;
+
+                                        return ListTile(
+                                          title: Text(item.commitMessage),
+                                          subtitle: Text('${item.author}, ${GetTimeAgo.parse(item.versionDate)}'),
+                                          tileColor: isSelected ? Colors.blue.shade100 : null,
+                                          onTap: () {
+                                            setState(() {
+                                              selectedVersion = item.versionId;
+                                            });
+                                          },
+                                        );
+                                      },
+                                    ),
+                            ),
                           ),
                         ],
                       ),
@@ -189,8 +218,8 @@ class _VersionMenuState extends State<VersionMenu> with SingleTickerProviderStat
                 child: TextField(
                   controller: _commitMessageController,
                   decoration: const InputDecoration(
-                    labelText: 'Commit Message',
-                    border: OutlineInputBorder(),
+                    hintText: 'Commit message',
+                    border: InputBorder.none,
                   ),
                 ),
               ),

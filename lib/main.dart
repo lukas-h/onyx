@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/widgets/button.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -104,6 +105,9 @@ class _OnyxAppState extends State<OnyxApp> {
               store: store,
               imageStore: imageStore,
             ),
+          ),
+          Provider<PageStore>(
+            create: (context) => store,
           ),
         ],
         child: MaterialApp(

@@ -1,7 +1,7 @@
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 
-typedef VersionRecord = ({String versionId, String commitMessage, DateTime versionDate});
+typedef VersionRecord = ({String versionId, String commitMessage, DateTime versionDate, String author});
 
 typedef ChangeRecord = ({String changeType, String filePath});
 
@@ -49,7 +49,7 @@ abstract class OriginService {
 
   Future<List<VersionRecord>> getVersions() => Future.value(List<VersionRecord>.empty());
 
-  Future<List<ChangeRecord>> getCurrentDiff(String versionId) => Future.value(List<ChangeRecord>.empty());
+  Future<List<ChangeRecord>> getCurrentDiff() => Future.value(List<ChangeRecord>.empty());
 
   Future<void> revertToVersion(String versionId) async => Future.value();
 

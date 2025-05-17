@@ -5,11 +5,10 @@ import 'package:onyx/central/version.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/central/search.dart';
+import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../service/origin_service.dart';
 
 class NavigationMenu extends StatelessWidget {
   final NavigationSuccess state;
@@ -76,8 +75,7 @@ class NavigationMenu extends StatelessWidget {
                 onTap: () async {
                   final versionMenuResult = await openVersionMenu(
                     context,
-                    changes: List<ChangeRecord>.empty(),
-                    history: List<VersionRecord>.empty(),
+                    pageStore: context.read<PageCubit>().store,
                   );
 
                   if (versionMenuResult != null) {

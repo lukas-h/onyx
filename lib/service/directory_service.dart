@@ -322,20 +322,22 @@ class DirectoryService extends OriginService {
     try {
       final commandResult = await Process.run(
         'git',
-        ['--no-pager', 'log', '--pretty=format:"%H,%ad,%s"', '--date=iso'],
+        ['--no-pager', 'log', '--pretty=format:%H,%ad,%an,%s', '--date=iso'],
         runInShell: true,
         workingDirectory: directory.path,
       );
       if (commandResult.exitCode != 0) throw Exception('Git command failed: ${commandResult.stderr}');
 
-      final gitCommitStrings = commandResult.stderr.toString().split('\n');
+      final gitCommitStrings = commandResult.stdout.toString().split('\n');
 
       return gitCommitStrings.map<VersionRecord>((commitString) {
         final splitCommitString = commitString.split(',');
+        debugPrint(splitCommitString.join('|||'));
         return (
           versionId: splitCommitString[0],
           versionDate: DateTime.parse(splitCommitString[1]),
-          commitMessage: splitCommitString.sublist(1, splitCommitString.length - 1).join(','), // Join back together as it may contain commas.
+          author: splitCommitString[2],
+          commitMessage: splitCommitString.sublist(3).join(','), // Include author in commit message
         );
       }).toList();
     } catch (e) {
@@ -345,7 +347,7 @@ class DirectoryService extends OriginService {
   }
 
   @override
-  Future<List<ChangeRecord>> getCurrentDiff(String versionId) async {
+  Future<List<ChangeRecord>> getCurrentDiff() async {
     try {
       final commandResult = await Process.run(
         'git',
@@ -355,13 +357,13 @@ class DirectoryService extends OriginService {
       );
       if (commandResult.exitCode != 0) throw Exception('Git command failed: ${commandResult.stderr}');
 
-      final gitChangesStrings = commandResult.stderr.toString().split('\n');
+      final gitChangesStrings = commandResult.stdout.toString().split('\n');
+      gitChangesStrings.removeLast(); // Remove the trailing empty string after the final newline.
 
       return gitChangesStrings.map<ChangeRecord>((changeString) {
-        final splitChangeString = changeString.replaceAll('"', '').split(',');
         return (
-          changeType: splitChangeString[0],
-          filePath: splitChangeString.sublist(1, splitChangeString.length - 1).join(','), // Join back together as it may contain commas.
+          changeType: changeString.substring(0, 2), // First two characters (plus the joining space) describe the change type.
+          filePath: changeString.substring(3), // The rest of the string is the filepath.
         );
       }).toList();
     } catch (e) {
