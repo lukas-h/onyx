@@ -538,7 +538,7 @@ class _AiFormState extends State<_AiForm> {
             controller: _apiTokenController,
             decoration: const InputDecoration(
               border: InputBorder.none,
-              hintText: 'api token',
+              hintText: 'Api Token',
             ),
             cursorColor: Colors.black,
             onChanged: (v) {
@@ -547,6 +547,15 @@ class _AiFormState extends State<_AiForm> {
               });
             },
           ),
+          if (_apiTokenController.text == '')
+            ListTile(
+              leading: Icon(
+                Icons.info_outline,
+                color: Colors.yellow,
+              ),
+              title: Text('Open Ai configuration'),
+              subtitle: Text('Please provide your api token'),
+            ),
           Button(
             widget.saveButtonText,
             maxWidth: false,
