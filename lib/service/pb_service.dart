@@ -75,14 +75,31 @@ class PocketBaseService extends OriginService {
     ).toList();
   }
 
+  Future<PageModel> _getModel(String uid, String collection) async {
+    final record = await pb.collection(journalsCollectionId).getOne(uid);
+    return PageModel(
+      uid: record.id,
+      title: record.data['title'],
+      fullText: parseMarkdownBody(record.data['body'].toString()),
+      created: DateTime.tryParse(record.data['created']) ?? DateTime.now(),
+      modified: DateTime.now(),
+    );
+  }
+
   @override
   Future<List<PageModel>> getPages() => _getModels(pagesCollectionId);
+
+  @override
+  Future<PageModel> getPage(String uid) => _getModel(uid, pagesCollectionId);
 
   @override
   void subscribeToPages() => _subscribeToRealtime(pagesCollectionId);
 
   @override
   Future<List<PageModel>> getJournals() => _getModels(journalsCollectionId);
+
+  @override
+  Future<PageModel> getJournal(String uid) => _getModel(uid, journalsCollectionId);
 
   @override
   void subscribeToJournals() => _subscribeToRealtime(journalsCollectionId);

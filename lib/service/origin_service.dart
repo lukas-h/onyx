@@ -1,14 +1,24 @@
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 
+typedef VersionRecord = ({String versionId, String commitMessage, DateTime versionDate, String author});
+
+typedef ChangeRecord = ({String changeType, String filePath});
+
 abstract class OriginService {
+  void close();
+
   Future<List<String>> getFavorites();
 
   Future<List<PageModel>> getPages();
 
+  Future<PageModel> getPage(String uid);
+
   void subscribeToPages();
 
   Future<List<PageModel>> getJournals();
+
+  Future<PageModel> getJournal(String uid);
 
   void subscribeToJournals();
 
@@ -37,5 +47,11 @@ abstract class OriginService {
 
   void markConflictResolved();
 
-  void close();
+  Future<List<VersionRecord>> getVersions() => Future.value(List<VersionRecord>.empty());
+
+  Future<List<ChangeRecord>> getCurrentDiff() => Future.value(List<ChangeRecord>.empty());
+
+  Future<void> revertToVersion(String versionId) async => Future.value();
+
+  void commitChanges(String message) {}
 }

@@ -6,6 +6,8 @@ enum OriginConflictType { add, modify, delete }
 
 enum OriginConflictResolutionType { useInternal, useExternal, deleteInternal, deleteExternal }
 
+enum OriginVersionActionType { commitChanges, useVersion }
+
 class OriginState {}
 
 class OriginError<C> extends OriginState {
@@ -38,6 +40,14 @@ class OriginConflict extends OriginState {
   final OriginConflictType conflictType;
 
   OriginConflict({required this.conflictUid, required this.isJournal, required this.conflictType});
+}
+
+class OriginVersionAction extends OriginState {
+  final String? versionId;
+  final String? versionMessage;
+  final OriginVersionActionType versionActionType;
+
+  OriginVersionAction({required this.versionActionType, this.versionId, this.versionMessage});
 }
 
 abstract class OriginCubit<C> extends Cubit<OriginState> {
