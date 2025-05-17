@@ -157,8 +157,6 @@ class AiChatModel {
   });
 }
 
-var testmodel = [AiChatModel(created: DateTime.now(), source: ContextSource.message, text: 'test')];
-
 class AiServiceState {
   final String apiToken;
   final String model;
@@ -184,7 +182,10 @@ class AiServiceCubit extends Cubit<AiServiceState> {
   AiServiceCubit({
     required String apiToken,
     String? model,
-  }) : super(AiServiceState(apiToken, model: model ?? "gpt-4.1-nano", chatHistory: testmodel)) {
+  }) : super(AiServiceState(
+          apiToken,
+          model: model ?? "gpt-4.1-nano",
+        )) {
     init();
   }
 
