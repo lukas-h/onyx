@@ -24,14 +24,14 @@ class PocketBaseCubit extends OriginCubit<PocketBaseCredentials> {
 
     if (url != null && email != null && password != null) {
       final pb = PocketBase(url);
-      await pb.admins.authWithPassword(email, password);
+      await pb.collection('_superusers').authWithPassword(email, password);
       return OriginSuccess(
         credentials: PocketBaseCredentials(
           url: url,
           email: email,
           password: password,
         ),
-        service: PocketBaseService(pb),
+        service: PocketBaseService(pb, this),
       );
     } else {
       return OriginPrompt();
@@ -47,13 +47,13 @@ class PocketBaseCubit extends OriginCubit<PocketBaseCredentials> {
     await storage.write(key: 'email', value: credentials.email);
     await storage.write(key: 'password', value: credentials.password);
     final pb = PocketBase(credentials.url);
-    await pb.admins.authWithPassword(
-      credentials.email,
-      credentials.password,
-    );
+    await pb.collection('_superusers').authWithPassword(
+          credentials.email,
+          credentials.password,
+        );
     return OriginSuccess<PocketBaseCredentials, PocketBaseService>(
       credentials: credentials,
-      service: PocketBaseService(pb),
+      service: PocketBaseService(pb, this),
     );
   }
 }
