@@ -29,6 +29,7 @@ void main() async {
 
   Hive.registerAdapters();
 
+  // If these throw type errors, delete all Hive data from the disk.
   await Hive.openBox<PageModel>(pageBox);
   await Hive.openBox<PageModel>(journalBox);
 

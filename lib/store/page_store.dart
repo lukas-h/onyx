@@ -110,10 +110,6 @@ class PageStore {
   Future<void> init() async {
     _initPages();
     _initJournals();
-    // pages.clear();
-    // journals.clear();
-    // pages.deleteFromDisk();
-    // journals.deleteFromDisk();
   }
 
   void _initPages() async {
