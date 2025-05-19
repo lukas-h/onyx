@@ -127,7 +127,7 @@ class ListEditorState extends State<ListEditor> {
                             child: ListTile(
                               leading: const Icon(Icons.functions),
                               title: Padding(
-                                padding: const EdgeInsets.only(left: 6.0),
+                                padding: const EdgeInsets.only(left: 6.0),/*  */
                                 child: Text(
                                   state.sum.toDouble().toStringAsFixed(2),
                                   style: const TextStyle(fontSize: 16),
