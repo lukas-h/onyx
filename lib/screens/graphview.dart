@@ -4,6 +4,7 @@ import 'package:graphview/GraphView.dart';
 import 'package:onyx/cubit/graph_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
+import 'package:onyx/store/page_store.dart';
 
 class GraphViewScreen extends StatelessWidget {
   const GraphViewScreen({super.key});
@@ -51,7 +52,8 @@ class _TreeViewPageState extends State<TreeViewPage> {
                                 ..style = PaintingStyle.stroke,
                               builder: (Node node) {
                                 String? key = state.titleNode.entries.firstWhere((entry) => entry.value == node).key;
-                                return state.recursionExist.contains(node) ? nodeWithRecursionWidget(key) : nodeWidget(key);
+                                Map<PageModel,bool> isJournal = state.dataNode.entries.firstWhere((entry)=>entry.key==node).value;
+                                return state.recursionExist.contains(node) ? nodeWithRecursionWidget(key,isJournal.values.first) : nodeWidget(key,isJournal.values.first);
                               },
                             );
                           },
@@ -66,10 +68,10 @@ class _TreeViewPageState extends State<TreeViewPage> {
     );
   }
 
-  Widget nodeWidget(String nodeTitle) {
+  Widget nodeWidget(String nodeTitle,bool isJournal) {
     // Condition to check if it's a journal or page
     IconData iconData;
-    if (nodeTitle.contains('/')) {
+    if (isJournal) {
       iconData = Icons.calendar_today_outlined; // Specific icon for journal
     } else {
       iconData = Icons.summarize_outlined; // Specific icon for page
@@ -101,10 +103,10 @@ class _TreeViewPageState extends State<TreeViewPage> {
     );
   }
 
-  Widget nodeWithRecursionWidget(String nodeTitle) {
+  Widget nodeWithRecursionWidget(String nodeTitle,bool isJournal) {
     // Decide the icon (journal vs page)
     IconData iconData;
-    if (nodeTitle.contains('/')) {
+    if (isJournal) {
       iconData = Icons.calendar_today_outlined;
     } else {
       iconData = Icons.summarize_outlined;
