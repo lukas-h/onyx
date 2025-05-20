@@ -22,6 +22,9 @@ abstract class OriginService {
 
   Future<void> deletePage(String uid);
 
+  // Only used for conflict resolution; journals cannot be deleted by UI actions.
+  Future<void> deleteJournal(String uid);
+
   Future<void> createFavorite(String uid);
 
   Future<void> deleteFavorite(String uid);
