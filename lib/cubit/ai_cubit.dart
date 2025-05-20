@@ -72,6 +72,32 @@ List<OpenAiContent> parseOpenAiContentList(List<dynamic> json) {
   return output;
 }
 
+class OpenAiError {
+  final String message;
+  final String type;
+  final String? code;
+  final String? eventId;
+  final String? param;
+
+  OpenAiError({
+    required this.message,
+    required this.type,
+    required this.code,
+    required this.eventId,
+    required this.param,
+  });
+
+  factory OpenAiError.fromJson(Map<String, dynamic> json) {
+    return OpenAiError(
+      message: json['error']['message'] as String,
+      type: json['error']['type'] as String,
+      code: json['error']['code'] as String?,
+      eventId: json['error']['event_id'] as String?,
+      param: json['error']['param'] as String?,
+    );
+  }
+}
+
 class OpenAiResponse {
   final int createdAt;
   final Object? error;
@@ -240,14 +266,16 @@ class AiServiceCubit extends Cubit<AiServiceState> {
 
     final response = await request(message);
 
-    if (response != null && response.output.isNotEmpty && response.output[0].content.isNotEmpty) {
+    if (response is OpenAiResponse && response.output.isNotEmpty && response.output[0].content.isNotEmpty) {
       _addToChatHistory(response.output[0].content[0].text, ContextSource.ai);
+    } else if (response is OpenAiError) {
+      _addToChatHistory(response.message, ContextSource.ai);
     } else {
       _addToChatHistory('error', ContextSource.ai);
     }
   }
 
-  Future<OpenAiResponse?> request(String input) async {
+  Future<dynamic> request(String input) async {
     final url = Uri.https('api.openai.com', '/v1/responses');
 
     final Map<String, String> headers = <String, String>{};
@@ -257,8 +285,13 @@ class AiServiceCubit extends Cubit<AiServiceState> {
     try {
       final response = await http.post(url, headers: headers, body: jsonEncode({'model': model, 'input': input}));
 
-      return OpenAiResponse.fromJson(jsonDecode(response.body));
+      if (response.statusCode != 200) {
+        return OpenAiError.fromJson(jsonDecode(response.body));
+      } else {
+        return OpenAiResponse.fromJson(jsonDecode(response.body));
+      }
     } catch (e) {
+      print(e);
       // todo better logging
       return null;
     }
