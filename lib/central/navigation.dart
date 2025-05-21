@@ -12,15 +12,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class NavigationMenu extends StatelessWidget {
   final NavigationSuccess state;
   final VoidCallback onTapCollapse;
-  const NavigationMenu(
-      {super.key, required this.state, required this.onTapCollapse});
+  const NavigationMenu({super.key, required this.state, required this.onTapCollapse});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 196,
+      width: 200,
       decoration: const BoxDecoration(),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.all(12),
       child: Column(
         children: [
           Row(
@@ -99,9 +98,7 @@ class NavigationMenu extends StatelessWidget {
                                       ),
                                     )
                                   : Icon(
-                                      state
-                                          ? Icons.sync
-                                          : Icons.cloud_off_outlined,
+                                      state ? Icons.sync : Icons.cloud_off_outlined,
                                     );
                             },
                           ),
@@ -163,9 +160,7 @@ class NavigationMenu extends StatelessWidget {
             active: state.journalNav,
             onTap: () {
               onTapCollapse();
-              context
-                  .read<NavigationCubit>()
-                  .navigateTo(RouteState.journalSelected);
+              context.read<NavigationCubit>().navigateTo(RouteState.journalSelected);
             },
           ),
           Button(
@@ -187,8 +182,7 @@ class NavigationMenu extends StatelessWidget {
           ),
           const FavoritesList(),
           const RecentsList(),
-          if (state.route != RouteState.pages &&
-              state.route != RouteState.settings)
+          if (state.route != RouteState.pages && state.route != RouteState.settings)
             Button(
               'References',
               maxWidth: true,
@@ -196,27 +190,26 @@ class NavigationMenu extends StatelessWidget {
               active: false,
               onTap: () {},
             ),
-          Expanded(child: Container()),
+          Spacer(),
           Row(
             children: [
-              Button(
-                'Settings',
-                width: 120,
-                maxWidth: true,
-                icon: const Icon(Icons.settings_outlined),
-                active: state.settingsNav,
-                onTap: () {
-                  onTapCollapse();
-                  context
-                      .read<NavigationCubit>()
-                      .navigateTo(RouteState.settings);
-                },
+              Expanded(
+                child: Button(
+                  'Settings',
+                  maxWidth: false,
+                  icon: const Icon(Icons.settings_outlined),
+                  active: state.settingsNav,
+                  onTap: () {
+                    onTapCollapse();
+                    context.read<NavigationCubit>().navigateTo(RouteState.settings);
+                  },
+                ),
               ),
               Button(
                 '⌘',
                 width: 60,
                 iconSize: 18,
-                maxWidth: true,
+                maxWidth: false,
                 icon: const Icon(Icons.help_outline_outlined),
                 active: false,
                 onTap: () {

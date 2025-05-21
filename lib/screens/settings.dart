@@ -8,6 +8,7 @@ import 'package:onyx/widgets/button.dart';
 import 'package:onyx/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:onyx/widgets/page_header.dart';
 
 class _SettingsCard extends StatelessWidget {
   final Widget child;
@@ -33,14 +34,16 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 30.0),
-          child: ListTile(
-            title: Text(
-              'Settings',
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
+        PageHeader(
+          title: Text(
+            'Settings',
+            style: Theme.of(context).textTheme.headlineLarge,
           ),
+          buttons: [
+            SizedBox(
+              height: 40,
+            )
+          ],
         ),
         Expanded(
           child: NarrowBody(
@@ -332,7 +335,7 @@ class _PocketBaseFormState extends State<_PocketBaseForm> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8),
+      padding: const EdgeInsets.only(left: 12, right: 12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

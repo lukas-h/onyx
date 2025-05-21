@@ -7,37 +7,30 @@ class PageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 12.0),
-      child: LayoutBuilder(builder: (context, constraints) {
-        if (constraints.maxWidth >= 700) {
-          return ListTile(
-            title: title,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: buttons,
-            ),
-          );
-        } else {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: 56),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.only(left: 12, top: 12, right: 12),
+              child: Row(
                 children: [
                   ...buttons,
-                  const SizedBox(width: 24),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: title,
-              ),
-            ],
-          );
-        }
-      }),
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: title,
+        ),
+      ],
     );
   }
 }

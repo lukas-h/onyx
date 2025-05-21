@@ -202,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(0),
             side: BorderSide.none,
           ),
-          width: 191,
+          width: 200,
           child: SafeArea(
             child: NavigationMenu(
               state: widget.state,
@@ -240,30 +240,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Expanded(child: Body()),
                   ],
                 ),
-                Row(
-                  children: [
-                    const SizedBox(width: 8),
-                    Builder(builder: (context) {
-                      return Button(
-                        '',
-                        width: 40,
-                        height: 40,
-                        iconSize: 18,
-                        maxWidth: false,
-                        icon: const Icon(Icons.more_horiz_outlined),
-                        active: false,
-                        onTap: () {
-                          setState(() {
-                            expanded = !expanded;
-                          });
-                          if (expanded && !wideEnough) {
-                            Scaffold.of(context).openDrawer();
-                          }
-                        },
-                      );
-                    }),
-                  ],
-                )
+                Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      Builder(builder: (context) {
+                        return Button(
+                          '',
+                          width: 40,
+                          height: 40,
+                          iconSize: 18,
+                          maxWidth: false,
+                          icon: const Icon(Icons.more_horiz_outlined),
+                          active: false,
+                          onTap: () {
+                            if (wideEnough) {
+                              setState(() {
+                                expanded = !expanded;
+                              });
+                            } else {
+                              Scaffold.of(context).openDrawer();
+                            }
+                          },
+                        );
+                      }),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
