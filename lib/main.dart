@@ -2,13 +2,18 @@ import 'package:flutter/services.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:onyx/central/body.dart';
+import 'package:onyx/central/conflict.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/cubit/origin/directory_cubit.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/central/keyboard.dart';
 import 'package:onyx/central/navigation.dart';
-import 'package:onyx/cubit/pb_cubit.dart';
+import 'package:onyx/cubit/origin/pb_cubit.dart';
+import 'package:onyx/service/directory_service.dart';
+import 'package:onyx/cubit/origin/pb_cubit.dart';
 import 'package:onyx/extensions/chat_extension.dart';
 import 'package:onyx/extensions/extensions_registry.dart';
 import 'package:onyx/hive/hive_registrar.g.dart';
@@ -74,6 +79,9 @@ class _OnyxAppState extends State<OnyxApp> {
             create: (context) => PocketBaseCubit(),
           ),
           BlocProvider(
+            create: (context) => DirectoryCubit(),
+          ),
+          BlocProvider(
             create: (context) => NavigationCubit(
               store: store,
               imageStore: imageStore,
@@ -89,6 +97,7 @@ class _OnyxAppState extends State<OnyxApp> {
                 index: 0,
                 items: const [],
                 created: DateTime.now(),
+                modified: DateTime.now(),
                 title: '',
                 sum: 0,
                 uid: '',
@@ -123,19 +132,29 @@ class _OnyxAppState extends State<OnyxApp> {
             ),
             fontFamily: 'Futura',
           ),
-          home: BlocListener<PocketBaseCubit, PocketBaseState>(
-            listener: (context, state) {
+          home: BlocListener<DirectoryCubit, OriginState>(
+            listenWhen: (previousState, currentState) {
+              return previousState.runtimeType != currentState.runtimeType;
+            },
+            listener: (context, state) async {
               final navCubit = context.read<NavigationCubit>();
               final favCubit = context.read<FavoritesCubit>();
-              if (state is PocketBaseSuccess) {
-                store.pbService = state.service;
-                imageStore.pbService = state.service;
-                favoriteStore.pbService = state.service;
+
+              if (state is OriginSuccess) {
+                store.originServices = [state.service];
+                imageStore.originServices = [state.service];
+                favoriteStore.originServices = [state.service];
                 navCubit.init();
                 favCubit.init();
-              }
-              if (state is PocketBasePrompt || state is PocketBaseError) {
+              } else if (state is OriginPrompt || state is OriginError) {
                 navCubit.navigateTo(RouteState.settings);
+              } else if (state is OriginConflict) {
+                final OriginConflictResolutionType? conflictResolution =
+                    await openConflictMenu(context, conflictFileUid: state.conflictUid, isJournal: state.isJournal);
+
+                if (conflictResolution != null) {
+                  store.resolveConflict(state.conflictUid, state.isJournal, conflictResolution);
+                }
               }
             },
             child: BlocConsumer<NavigationCubit, NavigationState>(
@@ -146,6 +165,9 @@ class _OnyxAppState extends State<OnyxApp> {
                   if (state is NavigationSuccess && state.newPage) {
                     context.read<PageCubit>().index(0);
                   }
+                }
+                if(currentPage == null && state is NavigationInitial){
+                  context.read<NavigationCubit>().redo();
                 }
               },
               builder: (context, state) => state is NavigationSuccess ? HomeScreen(state: state) : const LoadingScreen(),
