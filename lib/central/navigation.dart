@@ -84,7 +84,6 @@ class NavigationMenu extends StatelessWidget {
                       children: [
                         Button(
                           'Sync',
-                          width: 84,
                           height: 40,
                           iconSize: 14,
                           maxWidth: false,
@@ -113,7 +112,7 @@ class NavigationMenu extends StatelessWidget {
                         ),
                         Positioned(
                             top: 0,
-                            right: 8,
+                            right: 0,
                             child: Container(
                               height: 12,
                               width: 12,
@@ -132,7 +131,7 @@ class NavigationMenu extends StatelessWidget {
                 width: 84,
                 height: 40,
                 iconSize: 14,
-                maxWidth: true,
+                maxWidth: false,
                 icon: const Icon(Icons.search),
                 active: false,
                 onTap: () {
