@@ -5,6 +5,7 @@ import 'package:onyx/central/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:io' show Platform;
 
 class SearchIntent extends ActivateIntent {
   const SearchIntent();
@@ -83,41 +84,32 @@ class KeyboardInterceptor extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<PageCubit>();
     final navCubit = context.read<NavigationCubit>();
+
+    final modifierKey = Platform.isMacOS ? LogicalKeyboardKey.meta : LogicalKeyboardKey.control;
+
     return Shortcuts(
       shortcuts: <LogicalKeySet, Intent>{
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyK):
-            const SearchIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.delete):
-            const DeleteLineIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyS):
-            const SyncIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyH):
-            const HelpIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyZ):
-            const UndoIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.keyK): const SearchIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.delete): const DeleteLineIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.keyS): const SyncIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.keyH): const HelpIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.keyZ): const UndoIntent(),
         LogicalKeySet(
-          LogicalKeyboardKey.meta,
+          modifierKey,
           LogicalKeyboardKey.shift,
           LogicalKeyboardKey.keyZ,
         ): const RedoIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.enter): const CreateNewLineIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.keyI): const ImageInsertIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.arrowUp): const NextJournalIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.arrowDown): const PreviousJournalIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.keyR): const PageInsertIntent(),
+        LogicalKeySet(modifierKey, LogicalKeyboardKey.keyL): const LinkInsertIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowUp): const LineUpIntent(),
         LogicalKeySet(LogicalKeyboardKey.arrowDown): const LineDownIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.enter):
-            const CreateNewLineIntent(),
         LogicalKeySet(LogicalKeyboardKey.enter): const LineFeedIntent(),
         LogicalKeySet(LogicalKeyboardKey.tab): const IndentIncreaseIntent(),
-        LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab):
-            const IndentDecreaseIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyI):
-            const ImageInsertIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowUp):
-            const NextJournalIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.arrowDown):
-            const PreviousJournalIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyR):
-            const PageInsertIntent(),
-        LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyL):
-            const LinkInsertIntent(),
+        LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.tab): const IndentDecreaseIntent(),
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
