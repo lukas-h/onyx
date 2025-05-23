@@ -72,7 +72,7 @@ List<OpenAiContent> parseOpenAiContentList(List<dynamic> json) {
   return output;
 }
 
-class OpenAiError {
+class OpenAiError implements Exception {
   final String message;
   final String type;
   final String? code;
@@ -95,6 +95,11 @@ class OpenAiError {
       eventId: json['error']['event_id'] as String?,
       param: json['error']['param'] as String?,
     );
+  }
+
+  @override
+  String toString() {
+    return "Open Ai error: $message";
   }
 }
 
@@ -186,19 +191,26 @@ class AiChatModel {
 class AiServiceState {
   final String apiToken;
   final String model;
+  final String? chatId;
+  final bool fullContext;
   final List<String> availableModels;
   final List<AiChatModel> chatHistory;
 
   AiServiceState(
     this.apiToken, {
     this.model = "gpt-4.1-nano",
+    this.chatId,
+    this.fullContext = true,
     this.availableModels = const [],
     this.chatHistory = const [],
   });
 
-  AiServiceState copyWith({String? newApiToken, String? newModel, List<String>? newAvailableModels, List<AiChatModel>? newChatHistory}) {
+  AiServiceState copyWith({String? newApiToken, String? newModel, List<String>? newAvailableModels, List<AiChatModel>? newChatHistory, bool? newFullContext}) {
     return AiServiceState(newApiToken ?? apiToken,
-        model: newModel ?? model, availableModels: newAvailableModels ?? availableModels, chatHistory: newChatHistory ?? chatHistory);
+        model: newModel ?? model,
+        availableModels: newAvailableModels ?? availableModels,
+        chatHistory: newChatHistory ?? chatHistory,
+        fullContext: newFullContext ?? fullContext);
   }
 }
 
@@ -257,6 +269,26 @@ class AiServiceCubit extends Cubit<AiServiceState> {
     return state.chatHistory;
   }
 
+  String? get chatId {
+    return state.chatId;
+  }
+
+  bool get fullContext {
+    return state.fullContext;
+  }
+
+  set fullContext(bool fullContext) {
+    emit(state.copyWith(newFullContext: fullContext));
+  }
+
+  String fullPageGraphString() {
+    return 'not implmented yet';
+  }
+
+  String currentPageGraphString() {
+    return 'not implmented yet';
+  }
+
   void resetHistory() {
     emit(state.copyWith(newChatHistory: []));
   }
@@ -264,36 +296,39 @@ class AiServiceCubit extends Cubit<AiServiceState> {
   Future<void> sendMessage(String message) async {
     _addToChatHistory(message, ContextSource.message);
 
-    final response = await request(message);
+    try {
+      final response = await request(message);
 
-    if (response is OpenAiResponse && response.output.isNotEmpty && response.output[0].content.isNotEmpty) {
-      _addToChatHistory(response.output[0].content[0].text, ContextSource.ai);
-    } else if (response is OpenAiError) {
-      _addToChatHistory(response.message, ContextSource.ai);
-    } else {
-      _addToChatHistory('error', ContextSource.ai);
+      if (response.output.isNotEmpty && response.output[0].content.isNotEmpty) {
+        _addToChatHistory(response.output[0].content[0].text, ContextSource.ai);
+      } else {
+        _addToChatHistory('No output', ContextSource.ai);
+      }
+    } catch (e) {
+      _addToChatHistory(e.toString(), ContextSource.ai);
     }
   }
 
-  Future<dynamic> request(String input) async {
+  Future<OpenAiResponse> request(String input) async {
     final url = Uri.https('api.openai.com', '/v1/responses');
 
     final Map<String, String> headers = <String, String>{};
     headers["Content-Type"] = "application/json";
     headers["Authorization"] = "Bearer $apiToken";
 
-    try {
-      final response = await http.post(url, headers: headers, body: jsonEncode({'model': model, 'input': input}));
+    final Map<String, String?> body = {
+      'model': model,
+      'instructions': fullContext ? fullPageGraphString() : currentPageGraphString(),
+      'input': input,
+      'previous_response_id': chatId,
+    };
 
-      if (response.statusCode != 200) {
-        return OpenAiError.fromJson(jsonDecode(response.body));
-      } else {
-        return OpenAiResponse.fromJson(jsonDecode(response.body));
-      }
-    } catch (e) {
-      print(e);
-      // todo better logging
-      return null;
+    final response = await http.post(url, headers: headers, body: jsonEncode(body));
+
+    if (response.statusCode != 200) {
+      throw OpenAiError.fromJson(jsonDecode(response.body));
+    } else {
+      return OpenAiResponse.fromJson(jsonDecode(response.body));
     }
   }
 
