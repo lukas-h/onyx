@@ -41,6 +41,7 @@ dependencies:
     hive_ce_flutter: ^2.2.0
     hive_ce: ^2.10.1
     build_runner: ^2.4.15
+    syncfusion_flutter_calendar: ^29.1.41
   
 dev_dependencies:
     flutter_test:
