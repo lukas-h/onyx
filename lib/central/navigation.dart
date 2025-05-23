@@ -1,4 +1,3 @@
-import 'package:onyx/central/conflict.dart';
 import 'package:onyx/central/favorites.dart';
 import 'package:onyx/central/help.dart';
 import 'package:onyx/central/recents.dart';
@@ -8,6 +7,7 @@ import 'package:onyx/central/search.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:io' show Platform;
 
 class NavigationMenu extends StatelessWidget {
   final NavigationSuccess state;
@@ -16,8 +16,10 @@ class NavigationMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final modifierSymbol = Platform.isMacOS ? '⌘' : '⌃';
+
     return Container(
-      width: 200,
+      width: 224,
       decoration: const BoxDecoration(),
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -126,7 +128,7 @@ class NavigationMenu extends StatelessWidget {
                 ),
               ),
               Button(
-                '⌘K',
+                '${modifierSymbol}K',
                 width: 84,
                 height: 40,
                 iconSize: 14,
@@ -206,8 +208,8 @@ class NavigationMenu extends StatelessWidget {
                 ),
               ),
               Button(
-                '⌘',
-                width: 60,
+                '${modifierSymbol}H',
+                width: 84,
                 iconSize: 18,
                 maxWidth: false,
                 icon: const Icon(Icons.help_outline_outlined),

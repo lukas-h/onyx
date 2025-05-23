@@ -166,7 +166,7 @@ class _OnyxAppState extends State<OnyxApp> {
                     context.read<PageCubit>().index(0);
                   }
                 }
-                if(currentPage == null && state is NavigationInitial){
+                if (currentPage == null && state is NavigationInitial) {
                   context.read<NavigationCubit>().redo();
                 }
               },
@@ -202,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(0),
             side: BorderSide.none,
           ),
-          width: 200,
+          width: 224,
           child: SafeArea(
             child: NavigationMenu(
               state: widget.state,
