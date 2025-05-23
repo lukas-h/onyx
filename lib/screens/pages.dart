@@ -2,6 +2,7 @@ import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/editor/delete.dart';
 import 'package:onyx/editor/favorite.dart';
+import 'package:onyx/editor/label.dart';
 import 'package:onyx/editor/list.dart';
 import 'package:onyx/extensions/extensions_registry.dart';
 import 'package:onyx/extensions/page_extension.dart';
@@ -137,6 +138,8 @@ class _PageDetailState extends State<_PageDetail> {
                     child: PageHeader(
                       buttons: [
                         FavoriteButton(uid: state.uid),
+                        const SizedBox(width: 8),
+                        LabelButton(uid: state.uid),
                         const SizedBox(width: 8),
                         DeleteButton(state: state),
                         for (final ext in context.read<ExtensionsRegistry>().pagesExtensions) ...[

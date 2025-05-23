@@ -18,6 +18,7 @@ class PageState extends Equatable {
   final List<ListItemState> items;
   final int index;
   final num sum;
+  final List<String> labels;
 
   ListItemState? get currentItem => index >= 0 ? items[index] : null;
 
@@ -30,6 +31,7 @@ class PageState extends Equatable {
     required this.created,
     required this.modified,
     required this.uid,
+    this.labels = const [],
   });
 
   @override
@@ -39,6 +41,7 @@ class PageState extends Equatable {
     List<ListItemState>? items,
     int? index,
     String? title,
+    List<String>? labels,
   }) {
     return PageState(
       items: items ?? this.items,
@@ -49,6 +52,7 @@ class PageState extends Equatable {
       title: title ?? this.title,
       isJournal: isJournal,
       uid: uid,
+      labels: labels ?? this.labels,
     );
   }
 
@@ -72,6 +76,7 @@ class PageState extends Equatable {
         created: model.created,
         modified: model.modified,
         uid: model.uid,
+        labels: model.labels,
       );
 }
 
@@ -136,6 +141,7 @@ class PageCubit extends ReplayCubit<PageState> {
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,
+        labels: state.labels,
       ),
     );
   }
@@ -145,6 +151,12 @@ class PageCubit extends ReplayCubit<PageState> {
       state.copyWith(
         title: title,
       ),
+    );
+  }
+
+  void updateLabels(List<String> labels) {
+    emit(
+      state.copyWith(labels: labels),
     );
   }
 
@@ -162,6 +174,7 @@ class PageCubit extends ReplayCubit<PageState> {
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,
+        labels: state.labels,
       ),
     );
   }
@@ -172,11 +185,7 @@ class PageCubit extends ReplayCubit<PageState> {
     if (state.items.isEmpty) return;
     emit(
       state.copyWith(
-        items: state.items
-            .map((e) => e.index == index
-                ? e.copyWith(checked: !e.checked)
-                : e.copyWith())
-            .toList(),
+        items: state.items.map((e) => e.index == index ? e.copyWith(checked: !e.checked) : e.copyWith()).toList(),
       ),
     );
   }
@@ -202,13 +211,13 @@ class PageCubit extends ReplayCubit<PageState> {
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,
+        labels: state.labels,
       ),
     );
   }
 
   void index(int i) {
-    if (i < state.items.length &&
-        ((i > -1 && state.isJournal) || (i >= -1 && !state.isJournal))) {
+    if (i < state.items.length && ((i > -1 && state.isJournal) || (i >= -1 && !state.isJournal))) {
       emit(state.copyWith(index: i));
     }
   }
@@ -227,8 +236,7 @@ class PageCubit extends ReplayCubit<PageState> {
 
   void skipToNext() {
     final nextIndex = state.index + 1;
-    if (nextIndex < state.items.length &&
-        state.items[nextIndex].fullText.isEmpty) {
+    if (nextIndex < state.items.length && state.items[nextIndex].fullText.isEmpty) {
       index(nextIndex);
     } else {
       add(
@@ -261,6 +269,7 @@ class PageCubit extends ReplayCubit<PageState> {
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,
+        labels: state.labels,
       ),
     );
   }
@@ -269,11 +278,7 @@ class PageCubit extends ReplayCubit<PageState> {
     if (state.items.isEmpty) return;
     emit(
       state.copyWith(
-        items: state.items
-            .map((e) => e.index == state.index
-                ? e.copyWith(indent: e.indent + 1)
-                : e.copyWith())
-            .toList(),
+        items: state.items.map((e) => e.index == state.index ? e.copyWith(indent: e.indent + 1) : e.copyWith()).toList(),
       ),
     );
   }
@@ -282,11 +287,7 @@ class PageCubit extends ReplayCubit<PageState> {
     if (state.items.isEmpty) return;
     emit(
       state.copyWith(
-        items: state.items
-            .map((e) => e.index == state.index && e.indent > 0
-                ? e.copyWith(indent: e.indent - 1)
-                : e.copyWith())
-            .toList(),
+        items: state.items.map((e) => e.index == state.index && e.indent > 0 ? e.copyWith(indent: e.indent - 1) : e.copyWith()).toList(),
       ),
     );
   }

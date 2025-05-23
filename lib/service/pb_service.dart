@@ -17,6 +17,12 @@ class PocketBaseService extends OriginService {
     return list.items.map((e) => e.getStringValue('uid')).toList();
   }
 
+  @override
+  Future<List<String>> getLabels() async {
+    final list = await pb.collection('labels').getList();
+    return list.items.map((e) => e.getStringValue('name')).toList();
+  }
+
   void _subscribeToRealtime(String collection) {
     pb.collection(collection).subscribe('*', (e) {
       // TODO: Handle each event type (ADD, REMOVE, MODIFY).
@@ -101,6 +107,24 @@ class PocketBaseService extends OriginService {
     if (list.items.isNotEmpty) {
       final id = list.items.first.id;
       await pb.collection('favorites').delete(id);
+    }
+  }
+
+  @override
+  Future<void> createLabel(String label) => pb.collection('labels').create(body: {
+        'name': label,
+      });
+
+  @override
+  Future<void> deleteLabel(String label) async {
+    final list = await pb.collection('labels').getList(
+          filter: 'name = "$label"',
+          page: 1,
+          perPage: 1,
+        );
+    if (list.items.isNotEmpty) {
+      final id = list.items.first.id;
+      await pb.collection('labels').delete(id);
     }
   }
 

@@ -26,6 +26,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/widgets/button.dart';
+import 'package:onyx/cubit/label_cubit.dart';
+import 'package:onyx/store/label_store.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -59,6 +61,7 @@ class _OnyxAppState extends State<OnyxApp> {
   final store = PageStore();
   final favoriteStore = FavoriteStore();
   final imageStore = ImageStore([]);
+  final labelStore = LabelStore();
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +94,9 @@ class _OnyxAppState extends State<OnyxApp> {
           ),
           BlocProvider(
             create: (context) => FavoritesCubit(store: favoriteStore),
+          ),
+          BlocProvider(
+            create: (context) => LabelCubit(store: labelStore),
           ),
           BlocProvider(
             create: (context) => PageCubit(

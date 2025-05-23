@@ -19,6 +19,7 @@ class PageModel extends HiveObject {
   final DateTime created;
   final DateTime modified;
   final List<String> fullText;
+  final List<String> labels;
 
   PageModel({
     required this.uid,
@@ -26,6 +27,7 @@ class PageModel extends HiveObject {
     required this.created,
     required this.modified,
     required this.fullText,
+    this.labels = const [],
   });
 
   factory PageModel.fromPageState(PageState state) => PageModel(
@@ -38,6 +40,7 @@ class PageModel extends HiveObject {
               (e) => List.generate(e.indent, (e) => '  ').join('') + e.fullText,
             )
             .toList(),
+        labels: state.labels,
       );
 
   String toMarkdown() => '''
@@ -46,6 +49,7 @@ title: $title
 created: ${created.toIso8601String()}
 modified: ${modified.toIso8601String()}
 uid: $uid
+labels: ${labels.join(',')}
 ---
 
 ${fullText.join('\n')}
@@ -53,8 +57,8 @@ ${fullText.join('\n')}
 
   factory PageModel.fromMarkdown(String markdown) {
     // Matches the structure created by toMarkdown() and uses named capturing groups to extract the details for pageModel.
-    final fromMarkdownRegex =
-        RegExp(r'---\ntitle: (?<title>[\S ]*)\ncreated: (?<created>[\S]*)\nmodified: (?<modified>[\S]*)\nuid: (?<uid>[\S]*)\n---\n\n(?<fullText>(.|\n)*)');
+    final fromMarkdownRegex = RegExp(
+        r'---\ntitle: (?<title>[\S ]*)\ncreated: (?<created>[\S]*)\nmodified: (?<modified>[\S]*)\nuid: (?<uid>[\S]*)\nlabels: (?<labels>[\S]*)\n---\n\n(?<fullText>(.|\n)*)');
 
     RegExpMatch? match = fromMarkdownRegex.firstMatch(markdown);
     if (match != null) {
@@ -62,6 +66,7 @@ ${fullText.join('\n')}
       String? createdGroupMatch = match.namedGroup("created");
       String? modifiedGroupMatch = match.namedGroup("modified");
       String? uidGroupMatch = match.namedGroup("uid");
+      String? labelsGroupMatch = match.namedGroup("labels");
       String? fullTextGroupMatch = match.namedGroup("fullText");
 
       return PageModel(
@@ -69,6 +74,7 @@ ${fullText.join('\n')}
         created: DateTime.tryParse(createdGroupMatch ?? '') ?? DateTime.now(),
         modified: DateTime.tryParse(modifiedGroupMatch ?? '') ?? DateTime.now(),
         uid: uidGroupMatch ?? nanoid(15),
+        labels: labelsGroupMatch?.split(',') ?? [],
         fullText: fullTextGroupMatch?.split('\n') ?? [''],
       );
     }
@@ -83,6 +89,7 @@ ${fullText.join('\n')}
         'uid': uid,
         'id': uid,
         'body': fullText.join('\n'),
+        'labels': labels,
       };
 
   PageModel copyWith({
@@ -91,6 +98,7 @@ ${fullText.join('\n')}
     DateTime? created,
     DateTime? modified,
     List<String>? fullText,
+    List<String>? labels,
   }) {
     return PageModel(
       uid: uid ?? this.uid,
@@ -98,6 +106,7 @@ ${fullText.join('\n')}
       created: created ?? this.created,
       modified: modified ?? this.modified,
       fullText: fullText ?? this.fullText,
+      labels: labels ?? this.labels,
     );
   }
 }

@@ -275,4 +275,22 @@ class DirectoryService extends OriginService {
   void close() {
     writeInterval.stop();
   }
+
+  @override
+  Future<void> createLabel(String label) {
+    // TODO: implement createLabel
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteLabel(String label) {
+    // TODO: implement deleteLabel
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<String>> getLabels() {
+    // TODO: implement getLabels
+    throw UnimplementedError();
+  }
 }

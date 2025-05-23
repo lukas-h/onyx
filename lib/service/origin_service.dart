@@ -3,6 +3,7 @@ import 'package:onyx/store/page_store.dart';
 
 abstract class OriginService {
   Future<List<String>> getFavorites();
+  Future<List<String>> getLabels();
 
   Future<List<PageModel>> getPages();
 
@@ -25,6 +26,10 @@ abstract class OriginService {
   Future<void> createFavorite(String uid);
 
   Future<void> deleteFavorite(String uid);
+
+  Future<void> createLabel(String label);
+
+  Future<void> deleteLabel(String label);
 
   Future<void> createImage(ImageModel image);
 
