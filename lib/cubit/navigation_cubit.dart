@@ -249,6 +249,18 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     }
   }
 
+  void openPageOrJournalUsingUid(String uid){
+    final page = store.pages.values.firstWhereOrNull((e) => e.uid == uid);
+    if (page != null) {
+      switchToPage(page.uid);
+    } else {
+      final journal = store.journals.values.firstWhereOrNull((e) => e.uid == uid);
+      if (journal != null) {
+        switchToJournal(journal.uid);
+      }
+    }
+  }
+
   PageState? get currentPage {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;

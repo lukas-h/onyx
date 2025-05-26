@@ -20,12 +20,12 @@ class GraphCubit extends Cubit<GraphState> {
   Map<Node, Map<PageModel, bool>> dataNode = {};
   final List<Node> recursionExist = [];
 
-  Node? getNodeByTitle(String title) => state.titleNode[title];
+  Node? getNodeByUid(String uid) => state.titleNode[uid];
 
   Map<PageModel, bool>? getPageModelForNode(Node node) => state.dataNode[node];
 
-  Map<PageModel, bool>? getPageModelByTitle(String title) {
-    final node = getNodeByTitle(title);
+  Map<PageModel, bool>? getPageModelByTitle(String uid) {
+    final node = getNodeByUid(uid);
     if (node != null) {
       return getPageModelForNode(node);
     }
@@ -36,7 +36,7 @@ class GraphCubit extends Cubit<GraphState> {
     init();
   }
 
-  createGraphNodes(allPages){
+  void createGraphNodes(allPages){
      for (final entry in allPages) {
       final PageModel page = entry['page'] as PageModel;
       final bool isJournal = entry['isJournal'] as bool;
@@ -46,12 +46,12 @@ class GraphCubit extends Cubit<GraphState> {
         if (isJournal && page.uid.contains('/')) {
           final numericDate = int.parse(page.uid.replaceAll('/', ''));
           node = Node.Id(numericDate);
-          titleNode[page.title] = node;
+          titleNode[page.uid] = node;
           graph.addNode(node);
           dataNode[node] = {page: isJournal};
         } else if (!isJournal) {
-          node = Node.Id(UniqueKey().hashCode);
-          titleNode[page.title] = node;
+          node = Node.Id(page.uid.hashCode);
+          titleNode[page.uid] = node;
           graph.addNode(node);
           dataNode[node] = {page: isJournal};
         }
@@ -60,7 +60,7 @@ class GraphCubit extends Cubit<GraphState> {
     }
   }  
 
-  createGraphEdges(allPages){
+  void createGraphEdges(allPages){
      final pattern = RegExp(r'\[\[(.*?)\]\]');
      for (final entry in allPages) {
       final PageModel page = entry['page'] as PageModel;
@@ -74,7 +74,7 @@ class GraphCubit extends Cubit<GraphState> {
           for (final match in matches) {
             final content = match.group(1);
             if (content != null && titleNode.containsKey(content)) {
-              final node1 = titleNode[page.title]!;
+              final node1 = titleNode[page.uid]!;
               final node2 = titleNode[content]!;
 
               if (node1 == node2) {

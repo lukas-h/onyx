@@ -51,9 +51,9 @@ class _TreeViewPageState extends State<TreeViewPage> {
                                 ..strokeWidth = 1
                                 ..style = PaintingStyle.stroke,
                               builder: (Node node) {
-                                String? key = state.titleNode.entries.firstWhere((entry) => entry.value == node).key;
                                 Map<PageModel,bool> isJournal = state.dataNode.entries.firstWhere((entry)=>entry.key==node).value;
-                                return state.recursionExist.contains(node) ? nodeWithRecursionWidget(key,isJournal.values.first) : nodeWidget(key,isJournal.values.first);
+                                PageModel page = isJournal.keys.first;
+                                return state.recursionExist.contains(node) ? nodeWithRecursionWidget(page.title,page.uid,isJournal.values.first) : nodeWidget(page.title,page.uid,isJournal.values.first);
                               },
                             );
                           },
@@ -68,7 +68,7 @@ class _TreeViewPageState extends State<TreeViewPage> {
     );
   }
 
-  Widget nodeWidget(String nodeTitle,bool isJournal) {
+  Widget nodeWidget(String nodeTitle,String uid,bool isJournal) {
     // Condition to check if it's a journal or page
     IconData iconData;
     if (isJournal) {
@@ -80,7 +80,7 @@ class _TreeViewPageState extends State<TreeViewPage> {
     return InkWell(
       onTap: () {
         final navCubit = context.read<NavigationCubit>();
-        navCubit.openPageOrJournal(nodeTitle);
+        navCubit.openPageOrJournalUsingUid(uid);
       },
       child: Container(
         padding: EdgeInsets.all(16),
@@ -103,7 +103,7 @@ class _TreeViewPageState extends State<TreeViewPage> {
     );
   }
 
-  Widget nodeWithRecursionWidget(String nodeTitle,bool isJournal) {
+  Widget nodeWithRecursionWidget(String nodeTitle,String uid,bool isJournal) {
     // Decide the icon (journal vs page)
     IconData iconData;
     if (isJournal) {
