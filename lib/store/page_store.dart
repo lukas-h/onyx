@@ -1,21 +1,30 @@
+import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
+import 'package:nanoid/nanoid.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
+import 'package:onyx/cubit/page_cubit.dart';
+import 'package:onyx/service/origin_service.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:nanoid/nanoid.dart';
-
 import 'package:onyx/cubit/page_cubit.dart';
-import 'package:onyx/store/pocketbase.dart';
+import 'package:onyx/store/page_store.dart';
 import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/utils/utils.dart';
+import 'package:onyx/central/conflict.dart';
 
 class PageModel extends HiveObject {
   final String uid;
   final String title;
   final DateTime created;
+  final DateTime modified;
   final List<String> fullText;
 
   PageModel({
     required this.uid,
     required this.title,
     required this.created,
+    required this.modified,
     required this.fullText,
   });
 
@@ -23,6 +32,7 @@ class PageModel extends HiveObject {
         uid: state.uid,
         title: state.title,
         created: state.created,
+        modified: state.modified,
         fullText: state.items
             .map(
               (e) => List.generate(e.indent, (e) => '  ').join('') + e.fullText,
@@ -34,19 +44,37 @@ class PageModel extends HiveObject {
 ---
 title: $title
 created: ${created.toIso8601String()}
+modified: ${modified.toIso8601String()}
 uid: $uid
 ---
 
 ${fullText.join('\n')}
 ''';
 
-// TODO finish markdown parser
-  factory PageModel.fromMarkdown(String markdown) => PageModel(
-        created: DateTime.now(),
-        fullText: [],
-        title: '',
-        uid: '',
+  factory PageModel.fromMarkdown(String markdown) {
+    // Matches the structure created by toMarkdown() and uses named capturing groups to extract the details for pageModel.
+    final fromMarkdownRegex =
+        RegExp(r'---\ntitle: (?<title>[\S ]*)\ncreated: (?<created>[\S]*)\nmodified: (?<modified>[\S]*)\nuid: (?<uid>[\S]*)\n---\n\n(?<fullText>(.|\n)*)');
+
+    RegExpMatch? match = fromMarkdownRegex.firstMatch(markdown);
+    if (match != null) {
+      String? titleGroupMatch = match.namedGroup("title");
+      String? createdGroupMatch = match.namedGroup("created");
+      String? modifiedGroupMatch = match.namedGroup("modified");
+      String? uidGroupMatch = match.namedGroup("uid");
+      String? fullTextGroupMatch = match.namedGroup("fullText");
+
+      return PageModel(
+        title: titleGroupMatch ?? '',
+        created: DateTime.tryParse(createdGroupMatch ?? '') ?? DateTime.now(),
+        modified: DateTime.tryParse(modifiedGroupMatch ?? '') ?? DateTime.now(),
+        uid: uidGroupMatch ?? nanoid(15),
+        fullText: fullTextGroupMatch?.split('\n') ?? [''],
       );
+    }
+
+    throw Exception('Unable to parse file to markdown. Content: $markdown.');
+  }
 
   PageState toPageState(bool isJournal) => PageState.fromPageModel(this, isJournal);
 
@@ -61,51 +89,113 @@ ${fullText.join('\n')}
     String? uid,
     String? title,
     DateTime? created,
+    DateTime? modified,
     List<String>? fullText,
   }) {
     return PageModel(
       uid: uid ?? this.uid,
       title: title ?? this.title,
       created: created ?? this.created,
+      modified: modified ?? this.modified,
       fullText: fullText ?? this.fullText,
     );
   }
 }
 
 class PageStore {
-  PocketBaseService? _pbService;
+  List<OriginService>? _originServices;
   final pages = Hive.box<PageModel>(pageBox);
   final journals = Hive.box<PageModel>(journalBox);
 
-  PageStore({PocketBaseService? pbService}) : _pbService = pbService;
+  PageStore({List<OriginService>? originServices}) : _originServices = originServices;
 
-  set pbService(PocketBaseService pbService) {
-    _pbService = pbService;
+  set originServices(List<OriginService> originServices) {
+    _originServices = originServices;
   }
 
   Future<void> init() async {
-    // TODO check for local changes that aren't online yet
-    // conflict management needs to happen here
-    final dbPages = await _pbService?.getPages() ?? [];
-    _pbService?.subscribeToPage();
-    pages.putAll(Map.fromIterable(dbPages, key: (element) => element.uid));
-
-    final dbJournals = await _pbService?.getJournals() ?? [];
-    _pbService?.subscribeToJournals();
-    journals.clear();
-    journals.putAll(Map.fromIterable(dbJournals, key: (element) => element.uid));
+    _initPages();
+    _initJournals();
+    // pages.clear();
+    // journals.clear();
+    // pages.deleteFromDisk();
+    // journals.deleteFromDisk();
   }
 
-  Future<void> initLimitation() async {
-    // TODO check for local changes that aren't online yet
-    // conflict management needs to happen here
-    final dbPages = await _pbService?.getPages() ?? [];
-    _pbService?.subscribeToPage();
-    pages.putAll(Map.fromIterable(dbPages, key: (element) => element.uid));
+  void _initPages() async {
+    final originPages = await _originServices?.firstOrNull?.getPages() ?? [];
 
-    final dbJournals = await _pbService?.getJournals() ?? [];
-    _pbService?.subscribeToJournals();
-    journals.putAll(Map.fromIterable(dbJournals, key: (element) => element.uid));
+    // Origin pages which do not exist in Hive.
+    for (var originPage in originPages) {
+      if (!pages.containsKey(originPage.uid)) {
+        pages.put(originPage.uid, originPage.copyWith(modified: DateTime.now()));
+      }
+    }
+
+    // Hive pages which do not exist in Origin.
+    for (var hivePage in pages.values) {
+      if (!originPages.any((originPage) => originPage.uid == hivePage.uid)) {
+        _originServices?.firstOrNull?.createPage(hivePage.copyWith(modified: DateTime.now()));
+      }
+    }
+
+    _originServices?.firstOrNull?.subscribeToPages();
+  }
+
+  void _initJournals() async {
+    final originJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
+
+    // Origin journals which do not exist in Hive.
+    for (var originJournal in originJournals) {
+      if (!journals.containsKey(originJournal.uid)) {
+        journals.put(originJournal.uid, originJournal.copyWith(modified: DateTime.now()));
+      }
+    }
+
+    // Hive journals which do not exist in Origin.
+    for (var hiveJournal in journals.values) {
+      if (!originJournals.any((originJournal) => originJournal.uid == hiveJournal.uid)) {
+        _originServices?.firstOrNull?.createJournal(hiveJournal.copyWith(modified: DateTime.now()));
+      }
+    }
+
+    _originServices?.firstOrNull?.subscribeToJournals();
+  }
+
+  void resolveConflict(String modelUid, bool isJournal, OriginConflictResolutionType resolution) async {
+    switch (resolution) {
+      case OriginConflictResolutionType.useInternal:
+        if (isJournal) {
+          final internalJournal = journals.get(modelUid);
+          if (internalJournal != null) {
+            _originServices?.firstOrNull?.updateJournal(internalJournal.copyWith(modified: DateTime.now()));
+          }
+        } else {
+          final internalPage = pages.get(modelUid);
+          if (internalPage != null) {
+            _originServices?.firstOrNull?.updatePage(internalPage.copyWith(modified: DateTime.now()));
+          }
+        }
+        break;
+      case OriginConflictResolutionType.useExternal:
+        if (isJournal) {
+          final originJournals = await _originServices?.firstOrNull?.getJournals();
+          final externalJournal = originJournals?.firstWhereOrNull((journal) => journal.uid == modelUid);
+          if (externalJournal != null) {
+            journals.put(externalJournal.uid, externalJournal.copyWith(modified: DateTime.now()));
+          }
+        } else {
+          final originPages = await _originServices?.firstOrNull?.getPages();
+          final externalPage = originPages?.firstWhereOrNull((page) => page.uid == modelUid);
+          if (externalPage != null) {
+            pages.put(externalPage.uid, externalPage.copyWith(modified: DateTime.now()));
+          }
+        }
+        break;
+      default:
+        throw Exception("Unknown OriginConflictResolutionType.");
+    }
+    _originServices?.firstOrNull?.markConflictResolved();
   }
 
   String createPage() {
@@ -113,26 +203,27 @@ class PageStore {
       fullText: const [''],
       title: '',
       created: DateTime.now(),
+      modified: DateTime.now(),
       uid: nanoid(15),
     );
     pages.put(page.uid, page);
-    _pbService?.createPage(page);
+    _originServices?.firstOrNull?.createPage(page);
     return page.uid;
   }
 
   void updatePage(PageModel model) {
     pages.put(model.uid, model);
-    _pbService?.updatePage(model);
+    _originServices?.firstOrNull?.updatePage(model);
   }
 
   void updateJournal(PageModel model) {
     journals.put(model.uid, model);
-    _pbService?.updateJournal(model);
+    _originServices?.firstOrNull?.updateJournal(model);
   }
 
   void deletePage(String uid) {
     pages.delete(uid);
-    _pbService?.deletePage(uid);
+    _originServices?.firstOrNull?.deletePage(uid);
   }
 
   String getTodaysJournalId() => ddmmyyyy.format(DateTime.now());
@@ -146,17 +237,20 @@ class PageStore {
   }
 
   PageModel getJournal(String dateId) {
-    final journal = journals.get(dateId);
+    final dateIdOrToday = parseDateOrToday(dateId);
+
+    final journal = journals.get(dateIdOrToday);
     if (journal != null) {
       return journal;
     } else {
       final newJournal = PageModel(
         fullText: const [''],
-        title: dateId,
+        title: dateIdOrToday,
         created: DateTime.now(),
-        uid: dateId,
+        modified: DateTime.now(),
+        uid: dateIdOrToday,
       );
-      journals.put(dateId, newJournal);
+      journals.put(dateIdOrToday, newJournal);
       return newJournal;
     }
   }

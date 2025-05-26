@@ -13,6 +13,7 @@ class PageState extends Equatable {
   final bool isJournal;
   final String title;
   final DateTime created;
+  final DateTime modified;
   final String uid;
   final List<ListItemState> items;
   final int index;
@@ -27,6 +28,7 @@ class PageState extends Equatable {
     required this.sum,
     required this.title,
     required this.created,
+    required this.modified,
     required this.uid,
   });
 
@@ -43,6 +45,7 @@ class PageState extends Equatable {
       index: index ?? this.index,
       sum: sum,
       created: created,
+      modified: modified,
       title: title ?? this.title,
       isJournal: isJournal,
       uid: uid,
@@ -67,6 +70,7 @@ class PageState extends Equatable {
         title: model.title,
         isJournal: isJournal,
         created: model.created,
+        modified: model.modified,
         uid: model.uid,
       );
 }
@@ -128,6 +132,7 @@ class PageCubit extends ReplayCubit<PageState> {
         index: state.index,
         sum: calculateUntil(items, items.length),
         created: state.created,
+        modified: state.modified,
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,
@@ -153,6 +158,7 @@ class PageCubit extends ReplayCubit<PageState> {
         index: index > 0 ? index - 1 : 0,
         sum: calculateUntil(items, items.length),
         created: state.created,
+        modified: state.modified,
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,
@@ -192,6 +198,7 @@ class PageCubit extends ReplayCubit<PageState> {
         index: items.length == 1 ? 0 : state.index + 1,
         sum: calculateUntil(items, items.length),
         created: state.created,
+        modified: state.modified,
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,
@@ -250,6 +257,7 @@ class PageCubit extends ReplayCubit<PageState> {
         index: items.indexOf(item),
         sum: calculateUntil(items, items.length),
         created: state.created,
+        modified: state.modified,
         title: state.title,
         isJournal: state.isJournal,
         uid: state.uid,

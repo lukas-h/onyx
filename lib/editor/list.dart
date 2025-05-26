@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:onyx/editor/link.dart';
 import 'package:onyx/central/search.dart';
 import 'package:onyx/cubit/page_cubit.dart';
@@ -54,13 +53,9 @@ class ListEditorState extends State<ListEditor> {
               if (event.logicalKey != LogicalKeyboardKey.backspace) {
                 return KeyEventResult.ignored;
               }
-              final currentlyEmpty =
-                  state.currentItem?.fullText.isEmpty == true;
+              final currentlyEmpty = state.currentItem?.fullText.isEmpty == true;
 
-              if (currentlyEmpty &&
-                  state.index > 0 &&
-                  !_eventHandled &&
-                  _previouslyEmpty) {
+              if (currentlyEmpty && state.index > 0 && !_eventHandled && _previouslyEmpty) {
                 _previouslyEmpty = true;
                 _eventHandled = true;
                 context.read<PageCubit>().removeCurrent();
@@ -126,14 +121,13 @@ class ListEditorState extends State<ListEditor> {
                         ? Container(
                             decoration: BoxDecoration(
                               border: Border(
-                                top: BorderSide(
-                                    width: 0.5, color: Colors.grey[300]!),
+                                top: BorderSide(width: 0.5, color: Colors.grey[300]!),
                               ),
                             ),
                             child: ListTile(
                               leading: const Icon(Icons.functions),
                               title: Padding(
-                                padding: const EdgeInsets.only(left: 6.0),
+                                padding: const EdgeInsets.only(left: 6.0),/*  */
                                 child: Text(
                                   state.sum.toDouble().toStringAsFixed(2),
                                   style: const TextStyle(fontSize: 16),
@@ -144,171 +138,144 @@ class ListEditorState extends State<ListEditor> {
                         : Container(),
                   ),
                 ),
-                LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints) {
-                    final bottomInset =
-                        MediaQuery.of(context).viewInsets.bottom;
-                    final keyboardActive = bottomInset != 0.0;
-
-                    return Material(
-                      elevation: 0,
-                      color: Colors.black.withValues(alpha: 0.03),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(3),
-                        topRight: Radius.circular(3),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(3),
+                      topRight: Radius.circular(3),
+                    ),
+                  ),
+                  child: IconButtonTheme(
+                    data: IconButtonThemeData(
+                      style: ButtonStyle(
+                        shape: WidgetStatePropertyAll(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
                       ),
-                      child: IconButtonTheme(
-                        data: IconButtonThemeData(
-                          style: ButtonStyle(
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(3),
+                    ),
+                    child: SafeArea(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 48,
+                              child: ListView(
+                                scrollDirection: Axis.horizontal,
+                                itemExtent: 48,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.add),
+                                    onPressed: () {
+                                      cubit.add(
+                                        ListItemState.unparsed(
+                                          index: state.items.length,
+                                          fullText: '',
+                                          position: 0,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.keyboard_arrow_left),
+                                    onPressed: state.items.isNotEmpty && state.index >= 0 && state.items[state.index].indent > 0
+                                        ? () {
+                                            cubit.decreaseIndent();
+                                          }
+                                        : null,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.keyboard_arrow_right),
+                                    onPressed: state.items.isNotEmpty
+                                        ? () {
+                                            cubit.increaseIndent();
+                                          }
+                                        : null,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.add_photo_alternate_outlined),
+                                    onPressed: state.items.isNotEmpty
+                                        ? () {
+                                            cubit.insertImage();
+                                          }
+                                        : null,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.data_array_outlined),
+                                    onPressed: state.items.isNotEmpty
+                                        ? () async {
+                                            final page = await openInsertMenu(context);
+                                            if (page != null) {
+                                              cubit.insertInternalLink(page.title);
+                                            }
+                                          }
+                                        : null,
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.link),
+                                    onPressed: state.items.isNotEmpty
+                                        ? () async {
+                                            final link = await openExternalLinkInsertMenu(context);
+                                            if (link != null) {
+                                              cubit.insertExternalLink(link.$1, link.$2);
+                                            }
+                                          }
+                                        : null,
+                                  ),
+                                  SizedBox(
+                                    child: IconButton(
+                                      icon: const Icon(Icons.undo),
+                                      onPressed: cubit.canUndo
+                                          ? () {
+                                              cubit.undo();
+                                            }
+                                          : null,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.redo),
+                                    onPressed: cubit.canRedo
+                                        ? () {
+                                            cubit.redo();
+                                          }
+                                        : null,
+                                  ),
+                                ]
+                                    .map((e) => Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: e,
+                                        ))
+                                    .toList(),
                               ),
                             ),
                           ),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              bottom: (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android) &&
-                                      keyboardActive
-                                  ? 32
-                                  : 0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 48,
-                                  child: ListView(
-                                    scrollDirection: Axis.horizontal,
-                                    itemExtent: 48,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.add),
-                                        onPressed: () {
-                                          cubit.add(
-                                            ListItemState.unparsed(
-                                              index: state.items.length,
-                                              fullText: '',
-                                              position: 0,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                            Icons.keyboard_arrow_left),
-                                        onPressed: state.items.isNotEmpty &&
-                                                state.index >= 0 &&
-                                                state.items[state.index]
-                                                        .indent >
-                                                    0
-                                            ? () {
-                                                cubit.decreaseIndent();
-                                              }
-                                            : null,
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                            Icons.keyboard_arrow_right),
-                                        onPressed: state.items.isNotEmpty
-                                            ? () {
-                                                cubit.increaseIndent();
-                                              }
-                                            : null,
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                            Icons.add_photo_alternate_outlined),
-                                        onPressed: state.items.isNotEmpty
-                                            ? () {
-                                                cubit.insertImage();
-                                              }
-                                            : null,
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                            Icons.data_array_outlined),
-                                        onPressed: state.items.isNotEmpty
-                                            ? () async {
-                                                final page =
-                                                    await openInsertMenu(
-                                                        context);
-                                                if (page != null) {
-                                                  cubit.insertInternalLink(
-                                                      page.title);
-                                                }
-                                              }
-                                            : null,
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.link),
-                                        onPressed: state.items.isNotEmpty
-                                            ? () async {
-                                                final link =
-                                                    await openExternalLinkInsertMenu(
-                                                        context);
-                                                if (link != null) {
-                                                  cubit.insertExternalLink(
-                                                      link.$1, link.$2);
-                                                }
-                                              }
-                                            : null,
-                                      ),
-                                      SizedBox(
-                                        child: IconButton(
-                                          icon: const Icon(Icons.undo),
-                                          onPressed: cubit.canUndo
-                                              ? () {
-                                                  cubit.undo();
-                                                }
-                                              : null,
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.redo),
-                                        onPressed: cubit.canRedo
-                                            ? () {
-                                                cubit.redo();
-                                              }
-                                            : null,
-                                      ),
-                                    ]
-                                        .map((e) => Padding(
-                                              padding: const EdgeInsets.all(4),
-                                              child: e,
-                                            ))
-                                        .toList(),
-                                  ),
-                                ),
-                              ),
-                              const VerticalDivider(
-                                width: 1,
-                                color: Colors.black26,
-                                thickness: 1,
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.keyboard_arrow_up),
-                                onPressed: state.index > 0
-                                    ? () {
-                                        cubit.index(state.index - 1);
-                                      }
-                                    : null,
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.keyboard_arrow_down),
-                                onPressed: state.items.isNotEmpty &&
-                                        state.index < state.items.length - 1
-                                    ? () {
-                                        cubit.index(state.index + 1);
-                                      }
-                                    : null,
-                              ),
-                            ],
+                          Container(
+                            width: 1,
+                            height: 48,
+                            color: Colors.black12,
                           ),
-                        ),
+                          IconButton(
+                            icon: const Icon(Icons.keyboard_arrow_up),
+                            onPressed: state.index > 0
+                                ? () {
+                                    cubit.index(state.index - 1);
+                                  }
+                                : null,
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.keyboard_arrow_down),
+                            onPressed: state.items.isNotEmpty && state.index < state.items.length - 1
+                                ? () {
+                                    cubit.index(state.index + 1);
+                                  }
+                                : null,
+                          ),
+                        ],
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
               ],
             ),

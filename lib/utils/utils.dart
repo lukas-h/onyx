@@ -10,6 +10,15 @@ bool isToday(String dateString) {
   }
 }
 
+String parseDateOrToday(String dateString) {
+  try {
+    ddmmyyyy.parse(dateString);
+    return dateString;
+  } catch (e) {
+    return ddmmyyyy.format(DateTime.now());
+  }
+}
+
 extension OnlyStringExtension on String {
   String only(int max) => max >= (length - 1) ? this : substring(0, max);
 }
