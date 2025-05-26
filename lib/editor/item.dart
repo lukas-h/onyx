@@ -9,6 +9,7 @@ import 'package:onyx/editor/image_builder.dart';
 import 'package:onyx/editor/latex_builder.dart';
 import 'package:onyx/editor/markdown.dart';
 import 'package:onyx/editor/model.dart';
+import 'package:onyx/utils/utils.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class ListItemEditor extends StatefulWidget {
@@ -124,7 +125,7 @@ class _ListItemEditorState extends State<ListItemEditor> {
             SizedBox(
               width: 60,
               child: Text(
-                widget.cubit.calculateUntil(widget.cubit.state.items, index).toDouble().toStringAsFixed(2),
+                calculateTotal(widget.cubit.state.items, index).toDouble().toStringAsFixed(2),
                 style: const TextStyle(fontSize: ListItemEditor.fontSize),
                 maxLines: 1,
                 overflow: TextOverflow.visible,
