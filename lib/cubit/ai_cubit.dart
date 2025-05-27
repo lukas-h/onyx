@@ -192,7 +192,7 @@ class AiServiceState {
   final String apiToken;
   final String model;
   final String? chatId;
-  final bool fullContext;
+  final bool loading;
   final List<String> availableModels;
   final List<AiChatModel> chatHistory;
 
@@ -200,17 +200,19 @@ class AiServiceState {
     this.apiToken, {
     this.model = "gpt-4.1-nano",
     this.chatId,
-    this.fullContext = true,
+    this.loading = false,
     this.availableModels = const [],
     this.chatHistory = const [],
   });
 
-  AiServiceState copyWith({String? newApiToken, String? newModel, List<String>? newAvailableModels, List<AiChatModel>? newChatHistory, bool? newFullContext}) {
+  AiServiceState copyWith(
+      {String? newApiToken, String? newModel, List<String>? newAvailableModels, List<AiChatModel>? newChatHistory, bool? newLoading, String? newChatId}) {
     return AiServiceState(newApiToken ?? apiToken,
         model: newModel ?? model,
         availableModels: newAvailableModels ?? availableModels,
         chatHistory: newChatHistory ?? chatHistory,
-        fullContext: newFullContext ?? fullContext);
+        loading: newLoading ?? loading,
+        chatId: newChatId ?? chatId);
   }
 }
 
@@ -273,34 +275,21 @@ class AiServiceCubit extends Cubit<AiServiceState> {
     return state.chatId;
   }
 
-  bool get fullContext {
-    return state.fullContext;
-  }
-
-  set fullContext(bool fullContext) {
-    emit(state.copyWith(newFullContext: fullContext));
-  }
-
-  String fullPageGraphString() {
-    return 'not implmented yet';
-  }
-
-  String currentPageGraphString() {
-    return 'not implmented yet';
-  }
-
   void resetHistory() {
     emit(state.copyWith(newChatHistory: []));
   }
 
-  Future<void> sendMessage(String message) async {
+  Future<void> sendMessage(String message, String context) async {
     _addToChatHistory(message, ContextSource.message);
 
+    final instructions = 'Answer any requests with reference to the following document \n $context';
+
     try {
-      final response = await request(message);
+      final response = await request(message, instructions);
 
       if (response.output.isNotEmpty && response.output[0].content.isNotEmpty) {
         _addToChatHistory(response.output[0].content[0].text, ContextSource.ai);
+        emit(state.copyWith(newChatId: response.id));
       } else {
         _addToChatHistory('No output', ContextSource.ai);
       }
@@ -309,7 +298,7 @@ class AiServiceCubit extends Cubit<AiServiceState> {
     }
   }
 
-  Future<OpenAiResponse> request(String input) async {
+  Future<OpenAiResponse> request(String input, String instructions) async {
     final url = Uri.https('api.openai.com', '/v1/responses');
 
     final Map<String, String> headers = <String, String>{};
@@ -318,7 +307,7 @@ class AiServiceCubit extends Cubit<AiServiceState> {
 
     final Map<String, String?> body = {
       'model': model,
-      'instructions': fullContext ? fullPageGraphString() : currentPageGraphString(),
+      'instructions': instructions,
       'input': input,
       'previous_response_id': chatId,
     };
@@ -336,6 +325,6 @@ class AiServiceCubit extends Cubit<AiServiceState> {
     final chatHistory = List.of(state.chatHistory, growable: true);
     final model = AiChatModel(text: text, source: source, created: DateTime.now());
     chatHistory.add(model);
-    emit(state.copyWith(newChatHistory: chatHistory));
+    emit(state.copyWith(newChatHistory: chatHistory, newLoading: source == ContextSource.message));
   }
 }
