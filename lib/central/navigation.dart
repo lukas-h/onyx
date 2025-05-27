@@ -7,6 +7,7 @@ import 'package:onyx/central/search.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:io' show Platform;
 
 class NavigationMenu extends StatelessWidget {
   final NavigationSuccess state;
@@ -15,10 +16,12 @@ class NavigationMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final modifierSymbol = Platform.isMacOS ? '⌘' : '⌃';
+
     return Container(
-      width: 196,
+      width: 224,
       decoration: const BoxDecoration(),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.all(12),
       child: Column(
         children: [
           Row(
@@ -81,7 +84,6 @@ class NavigationMenu extends StatelessWidget {
                       children: [
                         Button(
                           'Sync',
-                          width: 84,
                           height: 40,
                           iconSize: 14,
                           maxWidth: false,
@@ -110,7 +112,7 @@ class NavigationMenu extends StatelessWidget {
                         ),
                         Positioned(
                             top: 0,
-                            right: 8,
+                            right: 0,
                             child: Container(
                               height: 12,
                               width: 12,
@@ -125,11 +127,11 @@ class NavigationMenu extends StatelessWidget {
                 ),
               ),
               Button(
-                '⌘K',
+                '${modifierSymbol}K',
                 width: 84,
                 height: 40,
                 iconSize: 14,
-                maxWidth: true,
+                maxWidth: false,
                 icon: const Icon(Icons.search),
                 active: false,
                 onTap: () {
@@ -189,25 +191,26 @@ class NavigationMenu extends StatelessWidget {
               active: false,
               onTap: () {},
             ),
-          Expanded(child: Container()),
+          Spacer(),
           Row(
             children: [
-              Button(
-                'Settings',
-                width: 120,
-                maxWidth: true,
-                icon: const Icon(Icons.settings_outlined),
-                active: state.settingsNav,
-                onTap: () {
-                  onTapCollapse();
-                  context.read<NavigationCubit>().navigateTo(RouteState.settings);
-                },
+              Expanded(
+                child: Button(
+                  'Settings',
+                  maxWidth: false,
+                  icon: const Icon(Icons.settings_outlined),
+                  active: state.settingsNav,
+                  onTap: () {
+                    onTapCollapse();
+                    context.read<NavigationCubit>().navigateTo(RouteState.settings);
+                  },
+                ),
               ),
               Button(
-                '⌘',
-                width: 60,
+                '${modifierSymbol}H',
+                width: 84,
                 iconSize: 18,
-                maxWidth: true,
+                maxWidth: false,
                 icon: const Icon(Icons.help_outline_outlined),
                 active: false,
                 onTap: () {

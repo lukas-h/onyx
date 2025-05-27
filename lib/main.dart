@@ -3,6 +3,7 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:onyx/central/body.dart';
 import 'package:onyx/central/conflict.dart';
+import 'package:onyx/cubit/ai_cubit.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
@@ -64,12 +65,13 @@ class _OnyxAppState extends State<OnyxApp> {
         pagesExtensions: [
           ChatPageExtension(),
         ],
-        settingsExtensions: [
-          ChatSettingsExtension(),
-        ],
+        settingsExtensions: [],
       ),
       child: MultiBlocProvider(
         providers: [
+          BlocProvider(
+            create: (context) => AiServiceCubit(apiToken: ""),
+          ),
           BlocProvider(
             create: (context) => ConnectivityCubit(),
           ),
@@ -200,7 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(0),
             side: BorderSide.none,
           ),
-          width: 191,
+          width: 224,
           child: SafeArea(
             child: NavigationMenu(
               state: widget.state,
@@ -238,30 +240,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Expanded(child: Body()),
                   ],
                 ),
-                Row(
-                  children: [
-                    const SizedBox(width: 8),
-                    Builder(builder: (context) {
-                      return Button(
-                        '',
-                        width: 40,
-                        height: 40,
-                        iconSize: 18,
-                        maxWidth: false,
-                        icon: const Icon(Icons.more_horiz_outlined),
-                        active: false,
-                        onTap: () {
-                          setState(() {
-                            expanded = !expanded;
-                          });
-                          if (expanded && !wideEnough) {
-                            Scaffold.of(context).openDrawer();
-                          }
-                        },
-                      );
-                    }),
-                  ],
-                )
+                Padding(
+                  padding: EdgeInsets.all(12),
+                  child: Row(
+                    children: [
+                      Builder(builder: (context) {
+                        return Button(
+                          '',
+                          width: 40,
+                          height: 40,
+                          iconSize: 18,
+                          maxWidth: false,
+                          icon: const Icon(Icons.more_horiz_outlined),
+                          active: false,
+                          onTap: () {
+                            if (wideEnough) {
+                              setState(() {
+                                expanded = !expanded;
+                              });
+                            } else {
+                              Scaffold.of(context).openDrawer();
+                            }
+                          },
+                        );
+                      }),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
