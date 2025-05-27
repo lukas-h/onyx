@@ -4,6 +4,13 @@ import 'package:graphview/GraphView.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/store/page_store.dart';
 
+class PageWrapper {
+  final PageModel page;
+  final bool isJournal;
+
+  PageWrapper({required this.page, required this.isJournal});
+}
+
 class GraphState {
   final Graph graph;
   final List<Node> recursionExist;
@@ -24,7 +31,7 @@ class GraphCubit extends Cubit<GraphState> {
 
   Map<PageModel, bool>? getPageModelForNode(Node node) => state.dataNode[node];
 
-  Map<PageModel, bool>? getPageModelByTitle(String uid) {
+  Map<PageModel, bool>? getPageModelById(String uid) {
     final node = getNodeByUid(uid);
     if (node != null) {
       return getPageModelForNode(node);
@@ -36,10 +43,10 @@ class GraphCubit extends Cubit<GraphState> {
     init();
   }
 
-  void createGraphNodes(allPages){
-     for (final entry in allPages) {
-      final PageModel page = entry['page'] as PageModel;
-      final bool isJournal = entry['isJournal'] as bool;
+  void createGraphNodes(List<PageWrapper> allPages) {
+    for (final entry in allPages) {
+      final PageModel page = entry.page;
+      final bool isJournal = entry.isJournal;
 
       if (page.uid.isNotEmpty && page.title.isNotEmpty) {
         late final Node node;
@@ -55,16 +62,15 @@ class GraphCubit extends Cubit<GraphState> {
           graph.addNode(node);
           dataNode[node] = {page: isJournal};
         }
-       
       }
     }
-  }  
+  }
 
-  void createGraphEdges(allPages){
-     final pattern = RegExp(r'\[\[(.*?)\]\]');
-     for (final entry in allPages) {
-      final PageModel page = entry['page'] as PageModel;
-      final bool isJournal = entry['isJournal'] as bool;
+  void createGraphEdges(List<PageWrapper> allPages) {
+    final pattern = RegExp(r'\[\[(.*?)\]\]');
+    for (final entry in allPages) {
+      final PageModel page = entry.page;
+      final bool isJournal = entry.isJournal;
 
       if (page.uid.isNotEmpty && page.title.isNotEmpty && ((isJournal && page.uid.contains('/')) || (!isJournal))) {
         final pageState = PageState.fromPageModel(page, isJournal);
@@ -88,12 +94,12 @@ class GraphCubit extends Cubit<GraphState> {
       }
     }
   }
+
   init() {
-   
     // Combine journals and pages
     final allPages = [
-      ...cubit.store.journals.values.map((p) => {'page': p, 'isJournal': true}),
-      ...cubit.store.pages.values.map((p) => {'page': p, 'isJournal': false}),
+      ...cubit.store.journals.values.map((p) => PageWrapper(page: p, isJournal: true)),
+      ...cubit.store.pages.values.map((p) => PageWrapper(page: p, isJournal: false)),
     ];
 
     // Add nodes (journals + pages)
@@ -101,7 +107,7 @@ class GraphCubit extends Cubit<GraphState> {
 
     // Add edges (journals + pages)
     createGraphEdges(allPages);
-   
+
     emit(GraphState(graph: graph, recursionExist: recursionExist, titleNode: titleNode, dataNode: dataNode));
   }
 }
