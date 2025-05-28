@@ -13,8 +13,6 @@ import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/central/keyboard.dart';
 import 'package:onyx/central/navigation.dart';
 import 'package:onyx/cubit/origin/pb_cubit.dart';
-import 'package:onyx/service/directory_service.dart';
-import 'package:onyx/cubit/origin/pb_cubit.dart';
 import 'package:onyx/extensions/chat_extension.dart';
 import 'package:onyx/extensions/extensions_registry.dart';
 import 'package:onyx/hive/hive_registrar.g.dart';
@@ -152,7 +150,7 @@ class _OnyxAppState extends State<OnyxApp> {
                 navCubit.navigateTo(RouteState.settings);
               } else if (state is OriginConflict) {
                 final OriginConflictResolutionType? conflictResolution =
-                    await openConflictMenu(context, conflictFileUid: state.conflictUid, isJournal: state.isJournal);
+                    await openConflictMenu(context, conflictFileUid: state.conflictUid, isJournal: state.isJournal, conflictType: state.conflictType);
 
                 if (conflictResolution != null) {
                   store.resolveConflict(state.conflictUid, state.isJournal, conflictResolution);

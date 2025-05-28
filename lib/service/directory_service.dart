@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:onyx/cubit/origin/directory_cubit.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
 import 'package:onyx/service/origin_service.dart';
@@ -29,7 +29,18 @@ class DirectoryService extends OriginService {
 
   DirectoryService(this.directory, this.cubit) {
     writeInterval = PausableInterval(Duration(seconds: 5), () async {
-      for (final entry in pagesCache.entries) {
+      // Deep copy pages cache to avoid modifying it while iterating.
+      final pagesCacheCopy = pagesCache.map((key, value) {
+        final copiedRecord = (
+          lastModified: DateTime.fromMillisecondsSinceEpoch(value.lastModified.millisecondsSinceEpoch),
+          folderName: value.folderName,
+          pageContent: value.pageContent.copyWith()
+        );
+        return MapEntry(key, copiedRecord);
+      });
+
+      pagesCache.clear();
+      for (final entry in pagesCacheCopy.entries) {
         String pageUid = entry.key;
         PageChangedRecord pageChangedRecord = entry.value;
 
@@ -109,12 +120,17 @@ class DirectoryService extends OriginService {
   Future<void> deletePage(String uid) => _deleteItem(pagesFolderName, uid);
 
   @override
+  Future<void> deleteJournal(String uid) => _deleteItem(journalsFolderName, uid);
+
+  @override
   void markConflictResolved() {
     writeInterval.resume();
     cubit.markConflictResolved();
   }
 
-  void _watchDirectory(String directoryName) {
+  // Still potential for issues with concurrent changes (eg. selecting multiple files to delete).
+  // TODO: Queue changes and wait for the conflict dialog to close before resolving the next one.
+  void _watchDirectory(String directoryName) async {
     DirectoryWatcher(
             p.join(
               directory.path,
@@ -122,37 +138,46 @@ class DirectoryService extends OriginService {
             ),
             pollingDelay: Duration(seconds: 5))
         .events
-        .listen((WatchEvent event) async {
-      final fileName = p.basenameWithoutExtension(event.path);
-      final fileIsJournal = fileName.contains('.');
-      final pageUid = fileIsJournal ? fileName.replaceAll('.', '/') : fileName;
+        .listen((event) => _processDirectoryChangeEvent(event));
+  }
 
-      switch (event.type) {
-        case ChangeType.ADD:
-          // TODO: Handle create new page case.
-          // TODO Handle not being Onyx format.
-          break;
-        case ChangeType.MODIFY:
-          try {
-            final modifiedPageObject = await _getModel(File(event.path));
-            final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
+  void _processDirectoryChangeEvent(WatchEvent event) async {
+    final fileName = p.basenameWithoutExtension(event.path);
 
-            if (!onyxTriggeredModifyEvent) {
-              pagesCache.remove(modifiedPageObject.uid);
-              writeInterval.pause();
+    // Ignore GLib temporary files in Linux.
+    // See here: https://github.com/mate-desktop/caja/issues/1439#issuecomment-671674987.
+    if (fileName.startsWith('.goutputstream')) {
+      return;
+    }
 
-              cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal);
-            }
+    final fileIsJournal = fileName.contains('.');
+    final pageUid = fileIsJournal ? fileName.replaceAll('.', '/') : fileName;
 
-            break;
-          } catch (e) {
-            debugPrint('Modified file ${event.path} ($pageUid) is not a parsable Onyx markdown file. Exception: $e.');
-          }
-        case ChangeType.REMOVE:
-          // TODO: Handle delete page.
-          break;
-      }
-    });
+    pagesCache.remove(pageUid);
+    writeInterval.pause();
+
+    switch (event.type) {
+      case ChangeType.ADD:
+      case ChangeType.MODIFY:
+        late final PageModel modifiedPageObject;
+        try {
+          modifiedPageObject = await _getModel(File(event.path));
+        } catch (e) {
+          debugPrint('Modified file ${event.path} ($pageUid) is not a parsable Onyx markdown file. Exception: $e.');
+          return;
+        }
+
+        final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
+        if (!onyxTriggeredModifyEvent) {
+          cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal, event.type == ChangeType.ADD ? OriginConflictType.add : OriginConflictType.modify);
+        } else {
+          writeInterval.resume();
+        }
+        break;
+      case ChangeType.REMOVE:
+        cubit.triggerConflict(pageUid, fileIsJournal, OriginConflictType.delete);
+        break;
+    }
   }
 
   Future<void> _writePage(String collection, PageModel model) async {

@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 typedef IntervalMethod = Future<Null> Function();
 
 class PausableInterval {
