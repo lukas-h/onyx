@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:onyx/central/help.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
@@ -5,7 +6,6 @@ import 'package:onyx/central/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:io' show Platform;
 
 class SearchIntent extends ActivateIntent {
   const SearchIntent();
@@ -85,7 +85,7 @@ class KeyboardInterceptor extends StatelessWidget {
     final cubit = context.read<PageCubit>();
     final navCubit = context.read<NavigationCubit>();
 
-    final modifierKey = Platform.isMacOS ? LogicalKeyboardKey.meta : LogicalKeyboardKey.control;
+    final modifierKey = defaultTargetPlatform == TargetPlatform.macOS ? LogicalKeyboardKey.meta : LogicalKeyboardKey.control;
 
     return Shortcuts(
       shortcuts: <LogicalKeySet, Intent>{
