@@ -7,11 +7,23 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 class CalendarViewScreen extends StatelessWidget {
   const CalendarViewScreen({super.key});
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return BlocBuilder<PageCubit, PageState>(
       builder: (context, state) {
-        return CalendarViewPage();
+        return Dialog(
+          insetPadding: const EdgeInsets.all(20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 550,
+              maxHeight: MediaQuery.of(context).size.height,
+            ),
+            child: CalendarViewPage(),
+          ),
+        );
       },
     );
   }
@@ -23,8 +35,8 @@ class CalendarViewPage extends StatefulWidget {
 }
 
 class _CalendarViewPageState extends State<CalendarViewPage> {
-  final Set<DateTime> _journalDates = {};
-  final Map<DateTime, String> _dateTitleMap = {};
+  final Set<DateTime> journalDates = {};
+  final Map<DateTime, String> dateTitleMap = {};
 
   @override
   void initState() {
@@ -43,9 +55,9 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
               int.parse(parts[1]),
               int.parse(parts[0]),
             );
-            final normalized = _normalizeDate(date);
-            _journalDates.add(normalized);
-            _dateTitleMap[normalized] = pageModel.title;
+            final normalized = normalizeDate(date);
+            journalDates.add(normalized);
+            dateTitleMap[normalized] = pageModel.title;
           } catch (_) {
             // Skip malformed entries
           }
@@ -54,7 +66,7 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
     }
   }
 
-  DateTime _normalizeDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
+  DateTime normalizeDate(DateTime dt) => DateTime(dt.year, dt.month, dt.day);
 
   String getStringTitle(DateTime dt) {
     final day = dt.day.toString().padLeft(2, '0');
@@ -62,7 +74,7 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
     return '$day/$month/${dt.year}';
   }
 
-  bool _isJournaled(DateTime day) => _journalDates.contains(_normalizeDate(day));
+  bool isDateJournaled(DateTime day) => journalDates.contains(normalizeDate(day));
 
   @override
   Widget build(BuildContext context) {
@@ -87,8 +99,8 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
                 showDatePickerButton: true,
                 todayHighlightColor: Colors.deepPurple,
                 monthCellBuilder: (BuildContext context, MonthCellDetails details) {
-                  final normalized = _normalizeDate(details.date);
-                  final isJournaled = _isJournaled(normalized);
+                  final normalized = normalizeDate(details.date);
+                  final isJournaled = isDateJournaled(normalized);
 
                   return Container(
                     margin: const EdgeInsets.all(4),
@@ -130,11 +142,13 @@ class _CalendarViewPageState extends State<CalendarViewPage> {
                 onTap: (calendarTapDetails) {
                   final tappedDate = calendarTapDetails.date;
                   if (tappedDate == null) return;
-                  final normalized = _normalizeDate(tappedDate);
-                  if (_dateTitleMap.containsKey(normalized)) {
-                    context.read<NavigationCubit>().openPageOrJournal(_dateTitleMap[normalized]!);
+                  final normalized = normalizeDate(tappedDate);
+                  if (dateTitleMap.containsKey(normalized)) {
+                    context.read<NavigationCubit>().openPageOrJournal(dateTitleMap[normalized]!);
+                    Navigator.of(context).pop();
                   } else {
                     context.read<NavigationCubit>().openJournalFromCalendar(getStringTitle(normalized));
+                    Navigator.of(context).pop();
                   }
                 },
                 monthViewSettings: const MonthViewSettings(

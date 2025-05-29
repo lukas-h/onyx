@@ -174,17 +174,6 @@ class NavigationMenu extends StatelessWidget {
               context.read<NavigationCubit>().navigateTo(RouteState.pages);
             },
           ),
-           Button(
-            'Calendar View',
-            height: 40,
-            maxWidth: true,
-            icon: const Icon(Icons.calendar_month),
-            active: state.pagesNav,
-            onTap: () {
-              onTapCollapse();
-              context.read<NavigationCubit>().navigateTo(RouteState.calendarview);
-            },
-          ),
           Divider(
             height: 12,
             endIndent: 0,

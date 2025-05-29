@@ -18,8 +18,7 @@ class Body extends StatelessWidget {
           RouteState.journalSelected => const JournalsScreen(),
           RouteState.pages => const PagesScreen(),
           RouteState.pageSelected => const PagesScreen(),
-          RouteState.settings => const SettingsScreen(),
-          RouteState.calendarview =>  const CalendarViewScreen(),
+          RouteState.settings => const SettingsScreen()
         };
       } else {
         return Container();
