@@ -1,6 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
-import 'dart:io' show Platform;
 
 void openHelpMenu(BuildContext context) => showDialog(
       context: context,
@@ -12,7 +12,7 @@ class HelpMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final modifierSymbol = Platform.isMacOS ? '⌘' : '⌃';
+    final modifierSymbol = defaultTargetPlatform == TargetPlatform.macOS ? '⌘' : '⌃';
 
     return AlertDialog(
       content: ConstrainedBox(
