@@ -23,6 +23,7 @@ class ChatPageExtension extends PageExtension {
         child: BlocBuilder<AiServiceCubit, AiServiceState>(builder: (context, aiState) {
           final chatHistory = aiState.chatHistory;
           final loading = aiState.loading;
+          final aiCubit = context.read<AiServiceCubit>();
           return Column(
             spacing: 8,
             children: [
@@ -37,6 +38,10 @@ class ChatPageExtension extends PageExtension {
                   border: OutlineInputBorder(),
                   hintText: 'Ask anything',
                 ),
+                onEditingComplete: () {
+                  aiCubit.sendMessage(_messageController.text, state.toPageModel().toMarkdown());
+                  _messageController.clear();
+                },
               ),
               if (loading)
                 const Icon(
@@ -50,8 +55,8 @@ class ChatPageExtension extends PageExtension {
                   icon: const Icon(Icons.done),
                   active: false,
                   onTap: () {
-                    final aiCubit = context.read<AiServiceCubit>();
                     aiCubit.sendMessage(_messageController.text, state.toPageModel().toMarkdown());
+                    _messageController.clear();
                   },
                 ),
             ],

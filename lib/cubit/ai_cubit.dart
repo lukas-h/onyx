@@ -99,7 +99,7 @@ class OpenAiError implements Exception {
 
   @override
   String toString() {
-    return "Open Ai error: $message";
+    return "OpenAi error: $message";
   }
 }
 
