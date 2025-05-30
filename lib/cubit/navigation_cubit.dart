@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
-
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/utils/utils.dart';
 import 'package:replay_bloc/replay_bloc.dart';
@@ -248,16 +247,6 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
       }
   }
 
-  void openJournalFromCalendar(String text){
-    final journal = store.journals.values.firstWhereOrNull((e) => e.title == text)?.uid;
-      if (journal != null) {
-        switchToJournal(journal);
-      }
-      else{
-        PageState pagestate = store.getJournal(text).toPageState(true);
-        switchToJournal(pagestate.uid);
-      }
-  }
 
   void openPageOrJournal(String text) {
     final page = store.pages.values.firstWhereOrNull((e) => e.title == text)?.uid;
