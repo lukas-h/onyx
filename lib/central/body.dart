@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/screens/calendarview.dart';
 import 'package:onyx/screens/journals.dart';
 import 'package:onyx/screens/pages.dart';
 import 'package:onyx/screens/settings.dart';
@@ -17,7 +18,7 @@ class Body extends StatelessWidget {
           RouteState.journalSelected => const JournalsScreen(),
           RouteState.pages => const PagesScreen(),
           RouteState.pageSelected => const PagesScreen(),
-          RouteState.settings => const SettingsScreen(),
+          RouteState.settings => const SettingsScreen()
         };
       } else {
         return Container();
