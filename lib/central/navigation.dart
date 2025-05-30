@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:onyx/central/favorites.dart';
 import 'package:onyx/central/help.dart';
 import 'package:onyx/central/recents.dart';
@@ -7,7 +8,6 @@ import 'package:onyx/central/search.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:io' show Platform;
 
 class NavigationMenu extends StatelessWidget {
   final NavigationSuccess state;
@@ -16,7 +16,7 @@ class NavigationMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final modifierSymbol = Platform.isMacOS ? '⌘' : '⌃';
+    final modifierSymbol = defaultTargetPlatform == TargetPlatform.macOS ? '⌘' : '⌃';
 
     return Container(
       width: 224,

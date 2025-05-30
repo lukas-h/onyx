@@ -1,6 +1,7 @@
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/editor/list.dart';
+import 'package:onyx/screens/calendarview.dart';
 import 'package:onyx/utils/utils.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:onyx/widgets/narrow_body.dart';
@@ -53,6 +54,20 @@ class JournalsScreen extends StatelessWidget {
                   icon: const Icon(Icons.keyboard_arrow_down),
                   onTap: () {
                     context.read<NavigationCubit>().switchToPreviousJournal();
+                  },
+                  active: false,
+                ),
+                 const SizedBox(width: 8),
+                Button(
+                  'Calendar',
+                  maxWidth: false,
+                  icon: const Icon(Icons.calendar_month_outlined),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => CalendarViewScreen(
+                      ),
+                    );
                   },
                   active: false,
                 ),

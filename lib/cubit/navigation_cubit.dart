@@ -237,6 +237,28 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     }
   }
 
+  void openJournalFromCalendar(String text){
+    final journal = store.journals.values.firstWhereOrNull((e) => e.title == text)?.uid;
+      if (journal != null) {
+        switchToJournal(journal);
+      }
+      else{
+        PageState pagestate = store.getJournal(text).toPageState(true);
+        switchToJournal(pagestate.uid);
+      }
+  }
+
+  void openJournalFromCalendar(String text){
+    final journal = store.journals.values.firstWhereOrNull((e) => e.title == text)?.uid;
+      if (journal != null) {
+        switchToJournal(journal);
+      }
+      else{
+        PageState pagestate = store.getJournal(text).toPageState(true);
+        switchToJournal(pagestate.uid);
+      }
+  }
+
   void openPageOrJournal(String text) {
     final page = store.pages.values.firstWhereOrNull((e) => e.title == text)?.uid;
     if (page != null) {

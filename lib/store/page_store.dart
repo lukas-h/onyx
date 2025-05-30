@@ -1,17 +1,11 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:nanoid/nanoid.dart';
 import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/service/origin_service.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
-import 'package:nanoid/nanoid.dart';
-import 'package:onyx/cubit/page_cubit.dart';
-import 'package:onyx/store/page_store.dart';
 import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/utils/utils.dart';
-import 'package:onyx/central/conflict.dart';
 
 class PageModel extends HiveObject {
   final String uid;
@@ -192,9 +186,14 @@ class PageStore {
           }
         }
         break;
-      default:
-        throw Exception("Unknown OriginConflictResolutionType.");
+      case OriginConflictResolutionType.deleteInternal:
+        isJournal ? journals.delete(modelUid) : pages.delete(modelUid);
+        break;
+      case OriginConflictResolutionType.deleteExternal:
+        isJournal ? _originServices?.firstOrNull?.deleteJournal(modelUid) : _originServices?.firstOrNull?.deletePage(modelUid);
+        break;
     }
+
     _originServices?.firstOrNull?.markConflictResolved();
   }
 
