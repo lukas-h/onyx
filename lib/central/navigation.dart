@@ -2,9 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:onyx/central/favorites.dart';
 import 'package:onyx/central/help.dart';
 import 'package:onyx/central/recents.dart';
+import 'package:onyx/central/version.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/central/search.dart';
+import 'package:onyx/cubit/origin/origin_cubit.dart';
+import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -64,6 +67,35 @@ class NavigationMenu extends StatelessWidget {
                         context.read<NavigationCubit>().redo();
                       }
                     : null,
+              ),
+              Button(
+                '',
+                width: 40,
+                height: 40,
+                iconSize: 18,
+                maxWidth: false,
+                icon: const Icon(Icons.account_tree_outlined),
+                active: false,
+                onTap: () async {
+                  final versionMenuResult = await openVersionMenu(
+                    context,
+                    pageStore: context.read<PageCubit>().store,
+                  );
+                  if (versionMenuResult == null || !context.mounted) return;
+                  switch (versionMenuResult.versionActionType) {
+                    case OriginVersionActionType.commitChanges:
+                      if (versionMenuResult.commitMessage != null) {
+                        context.read<PageCubit>().store.originServices?.firstOrNull?.commitChanges(versionMenuResult.commitMessage!);
+                      }
+                    case OriginVersionActionType.useVersion:
+                      if (versionMenuResult.versionId != null) {
+                        await context.read<PageCubit>().store.originServices?.firstOrNull?.revertToVersion(versionMenuResult.versionId!);
+
+                        if (!context.mounted) return;
+                        context.read<PageCubit>().store.init();
+                      }
+                  }
+                },
               ),
             ],
           ),

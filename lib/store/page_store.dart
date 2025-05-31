@@ -97,27 +97,19 @@ ${fullText.join('\n')}
 }
 
 class PageStore {
-  List<OriginService>? _originServices;
+  List<OriginService>? originServices;
   final pages = Hive.box<PageModel>(pageBox);
   final journals = Hive.box<PageModel>(journalBox);
 
-  PageStore({List<OriginService>? originServices}) : _originServices = originServices;
-
-  set originServices(List<OriginService> originServices) {
-    _originServices = originServices;
-  }
+  PageStore({this.originServices});
 
   Future<void> init() async {
     _initPages();
     _initJournals();
-    // pages.clear();
-    // journals.clear();
-    // pages.deleteFromDisk();
-    // journals.deleteFromDisk();
   }
 
   void _initPages() async {
-    final originPages = await _originServices?.firstOrNull?.getPages() ?? [];
+    final originPages = await originServices?.firstOrNull?.getPages() ?? [];
 
     // Origin pages which do not exist in Hive.
     for (var originPage in originPages) {
@@ -129,15 +121,15 @@ class PageStore {
     // Hive pages which do not exist in Origin.
     for (var hivePage in pages.values) {
       if (!originPages.any((originPage) => originPage.uid == hivePage.uid)) {
-        _originServices?.firstOrNull?.createPage(hivePage.copyWith(modified: DateTime.now()));
+        originServices?.firstOrNull?.createPage(hivePage.copyWith(modified: DateTime.now()));
       }
     }
 
-    _originServices?.firstOrNull?.subscribeToPages();
+    originServices?.firstOrNull?.subscribeToPages();
   }
 
   void _initJournals() async {
-    final originJournals = await _originServices?.firstOrNull?.getJournals() ?? [];
+    final originJournals = await originServices?.firstOrNull?.getJournals() ?? [];
 
     // Origin journals which do not exist in Hive.
     for (var originJournal in originJournals) {
@@ -149,11 +141,11 @@ class PageStore {
     // Hive journals which do not exist in Origin.
     for (var hiveJournal in journals.values) {
       if (!originJournals.any((originJournal) => originJournal.uid == hiveJournal.uid)) {
-        _originServices?.firstOrNull?.createJournal(hiveJournal.copyWith(modified: DateTime.now()));
+        originServices?.firstOrNull?.createJournal(hiveJournal.copyWith(modified: DateTime.now()));
       }
     }
 
-    _originServices?.firstOrNull?.subscribeToJournals();
+    originServices?.firstOrNull?.subscribeToJournals();
   }
 
   void resolveConflict(String modelUid, bool isJournal, OriginConflictResolutionType resolution) async {
@@ -162,24 +154,24 @@ class PageStore {
         if (isJournal) {
           final internalJournal = journals.get(modelUid);
           if (internalJournal != null) {
-            _originServices?.firstOrNull?.updateJournal(internalJournal.copyWith(modified: DateTime.now()));
+            originServices?.firstOrNull?.updateJournal(internalJournal.copyWith(modified: DateTime.now()));
           }
         } else {
           final internalPage = pages.get(modelUid);
           if (internalPage != null) {
-            _originServices?.firstOrNull?.updatePage(internalPage.copyWith(modified: DateTime.now()));
+            originServices?.firstOrNull?.updatePage(internalPage.copyWith(modified: DateTime.now()));
           }
         }
         break;
       case OriginConflictResolutionType.useExternal:
         if (isJournal) {
-          final originJournals = await _originServices?.firstOrNull?.getJournals();
+          final originJournals = await originServices?.firstOrNull?.getJournals();
           final externalJournal = originJournals?.firstWhereOrNull((journal) => journal.uid == modelUid);
           if (externalJournal != null) {
             journals.put(externalJournal.uid, externalJournal.copyWith(modified: DateTime.now()));
           }
         } else {
-          final originPages = await _originServices?.firstOrNull?.getPages();
+          final originPages = await originServices?.firstOrNull?.getPages();
           final externalPage = originPages?.firstWhereOrNull((page) => page.uid == modelUid);
           if (externalPage != null) {
             pages.put(externalPage.uid, externalPage.copyWith(modified: DateTime.now()));
@@ -190,11 +182,11 @@ class PageStore {
         isJournal ? journals.delete(modelUid) : pages.delete(modelUid);
         break;
       case OriginConflictResolutionType.deleteExternal:
-        isJournal ? _originServices?.firstOrNull?.deleteJournal(modelUid) : _originServices?.firstOrNull?.deletePage(modelUid);
+        isJournal ? originServices?.firstOrNull?.deleteJournal(modelUid) : originServices?.firstOrNull?.deletePage(modelUid);
         break;
     }
 
-    _originServices?.firstOrNull?.markConflictResolved();
+    originServices?.firstOrNull?.markConflictResolved();
   }
 
   String createPage() {
@@ -206,23 +198,23 @@ class PageStore {
       uid: nanoid(15),
     );
     pages.put(page.uid, page);
-    _originServices?.firstOrNull?.createPage(page);
+    originServices?.firstOrNull?.createPage(page);
     return page.uid;
   }
 
   void updatePage(PageModel model) {
     pages.put(model.uid, model);
-    _originServices?.firstOrNull?.updatePage(model);
+    originServices?.firstOrNull?.updatePage(model);
   }
 
   void updateJournal(PageModel model) {
     journals.put(model.uid, model);
-    _originServices?.firstOrNull?.updateJournal(model);
+    originServices?.firstOrNull?.updateJournal(model);
   }
 
   void deletePage(String uid) {
     pages.delete(uid);
-    _originServices?.firstOrNull?.deletePage(uid);
+    originServices?.firstOrNull?.deletePage(uid);
   }
 
   String getTodaysJournalId() => ddmmyyyy.format(DateTime.now());
