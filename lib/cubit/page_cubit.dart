@@ -7,6 +7,7 @@ import 'package:onyx/store/page_store.dart';
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nanoid/nanoid.dart';
+import 'package:onyx/utils/utils.dart';
 import 'package:replay_bloc/replay_bloc.dart';
 
 class PageState extends Equatable {
@@ -98,31 +99,6 @@ class PageCubit extends ReplayCubit<PageState> {
     emit(newPage);
   }
 
-  num calculateUntil(List<ListItemState> items, int untilIndex) {
-    final limit = untilIndex < items.length ? untilIndex : items.length;
-    num sum = 0;
-    for (int i = 0; i < limit; i++) {
-      final item = items[i];
-      switch (item.operator) {
-        case Operator.add:
-          sum += item.number ?? 0;
-          break;
-        case Operator.subtract:
-          sum -= item.number ?? 0;
-          break;
-        case Operator.multiply:
-          sum *= item.number ?? 1;
-          break;
-        case Operator.divide:
-          sum /= item.number ?? 1;
-          break;
-        default:
-          break;
-      }
-    }
-    return sum;
-  }
-
   void update(int index, ListItemState model) {
     final items = List.of(state.items, growable: true);
     items[index] = Parser.parse(model);
@@ -130,7 +106,7 @@ class PageCubit extends ReplayCubit<PageState> {
       PageState(
         items: items,
         index: state.index,
-        sum: calculateUntil(items, items.length),
+        sum: calculateTotal(items, items.length),
         created: state.created,
         modified: state.modified,
         title: state.title,
@@ -156,7 +132,7 @@ class PageCubit extends ReplayCubit<PageState> {
       PageState(
         items: items,
         index: index > 0 ? index - 1 : 0,
-        sum: calculateUntil(items, items.length),
+        sum: calculateTotal(items, items.length),
         created: state.created,
         modified: state.modified,
         title: state.title,
@@ -172,11 +148,7 @@ class PageCubit extends ReplayCubit<PageState> {
     if (state.items.isEmpty) return;
     emit(
       state.copyWith(
-        items: state.items
-            .map((e) => e.index == index
-                ? e.copyWith(checked: !e.checked)
-                : e.copyWith())
-            .toList(),
+        items: state.items.map((e) => e.index == index ? e.copyWith(checked: !e.checked) : e.copyWith()).toList(),
       ),
     );
   }
@@ -196,7 +168,7 @@ class PageCubit extends ReplayCubit<PageState> {
       PageState(
         items: items,
         index: items.length == 1 ? 0 : state.index + 1,
-        sum: calculateUntil(items, items.length),
+        sum: calculateTotal(items, items.length),
         created: state.created,
         modified: state.modified,
         title: state.title,
@@ -207,8 +179,7 @@ class PageCubit extends ReplayCubit<PageState> {
   }
 
   void index(int i) {
-    if (i < state.items.length &&
-        ((i > -1 && state.isJournal) || (i >= -1 && !state.isJournal))) {
+    if (i < state.items.length && ((i > -1 && state.isJournal) || (i >= -1 && !state.isJournal))) {
       emit(state.copyWith(index: i));
     }
   }
@@ -227,8 +198,7 @@ class PageCubit extends ReplayCubit<PageState> {
 
   void skipToNext() {
     final nextIndex = state.index + 1;
-    if (nextIndex < state.items.length &&
-        state.items[nextIndex].fullText.isEmpty) {
+    if (nextIndex < state.items.length && state.items[nextIndex].fullText.isEmpty) {
       index(nextIndex);
     } else {
       add(
@@ -255,7 +225,7 @@ class PageCubit extends ReplayCubit<PageState> {
       PageState(
         items: items.mapIndexed((i, e) => e.copyWith(index: i)).toList(),
         index: items.indexOf(item),
-        sum: calculateUntil(items, items.length),
+        sum: calculateTotal(items, items.length),
         created: state.created,
         modified: state.modified,
         title: state.title,
@@ -269,11 +239,7 @@ class PageCubit extends ReplayCubit<PageState> {
     if (state.items.isEmpty) return;
     emit(
       state.copyWith(
-        items: state.items
-            .map((e) => e.index == state.index
-                ? e.copyWith(indent: e.indent + 1)
-                : e.copyWith())
-            .toList(),
+        items: state.items.map((e) => e.index == state.index ? e.copyWith(indent: e.indent + 1) : e.copyWith()).toList(),
       ),
     );
   }
@@ -282,11 +248,7 @@ class PageCubit extends ReplayCubit<PageState> {
     if (state.items.isEmpty) return;
     emit(
       state.copyWith(
-        items: state.items
-            .map((e) => e.index == state.index && e.indent > 0
-                ? e.copyWith(indent: e.indent - 1)
-                : e.copyWith())
-            .toList(),
+        items: state.items.map((e) => e.index == state.index && e.indent > 0 ? e.copyWith(indent: e.indent - 1) : e.copyWith()).toList(),
       ),
     );
   }
