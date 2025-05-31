@@ -1,10 +1,15 @@
 import 'package:onyx/cubit/origin/directory_cubit.dart';
 import 'package:onyx/cubit/origin/origin_cubit.dart';
 import 'package:onyx/cubit/origin/pb_cubit.dart';
+import 'package:onyx/service/directory_service.dart';
+import 'package:onyx/service/pb_service.dart';
+import 'package:onyx/cubit/ai_cubit.dart';
+import 'package:onyx/extensions/extensions_registry.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:onyx/widgets/narrow_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:onyx/widgets/page_header.dart';
 
 class _SettingsCard extends StatelessWidget {
   final Widget child;
@@ -30,14 +35,16 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 30.0),
-          child: ListTile(
-            title: Text(
-              'Settings',
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
+        PageHeader(
+          title: Text(
+            'Settings',
+            style: Theme.of(context).textTheme.headlineLarge,
           ),
+          buttons: [
+            SizedBox(
+              height: 40,
+            )
+          ],
         ),
         Expanded(
           child: NarrowBody(
@@ -199,6 +206,7 @@ class SettingsScreen extends StatelessWidget {
                     }
                   },
                 ),
+                const _AiSettings(),
               ],
             ),
           ),
@@ -242,7 +250,7 @@ class _PocketBaseFormState extends State<_PocketBaseForm> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8),
+      padding: const EdgeInsets.only(left: 12, right: 12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,6 +376,113 @@ class _DirectoryFormState extends State<_DirectoryForm> {
                         path: _pathController.text,
                       ),
                     );
+                  }
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AiSettings extends StatelessWidget {
+  const _AiSettings();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AiServiceCubit, AiServiceState>(
+      builder: (context, state) {
+        return _AiForm(
+          initialModel: state.model,
+          initialApiToken: state.apiToken,
+          saveButtonText: 'Update credentials',
+        );
+      },
+    );
+  }
+}
+
+class _AiForm extends StatefulWidget {
+  final String initialModel;
+  final String initialApiToken;
+  final String saveButtonText;
+
+  const _AiForm({
+    required this.initialModel,
+    required this.initialApiToken,
+    required this.saveButtonText,
+  });
+
+  @override
+  State<_AiForm> createState() => _AiFormState();
+}
+
+class _AiFormState extends State<_AiForm> {
+  late final TextEditingController _modelController;
+  late final TextEditingController _apiTokenController;
+  bool changed = false;
+
+  @override
+  void initState() {
+    _modelController = TextEditingController(text: widget.initialModel);
+    _apiTokenController = TextEditingController(text: widget.initialApiToken);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8, right: 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _modelController,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Open Ai model',
+            ),
+            cursorColor: Colors.black,
+            onChanged: (v) {
+              setState(() {
+                changed = true;
+              });
+            },
+          ),
+          TextField(
+            controller: _apiTokenController,
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              hintText: 'Api Token',
+            ),
+            cursorColor: Colors.black,
+            onChanged: (v) {
+              setState(() {
+                changed = true;
+              });
+            },
+          ),
+          if (_apiTokenController.text == '')
+            ListTile(
+              leading: Icon(
+                Icons.info_outline,
+                color: Colors.yellow,
+              ),
+              title: Text('Open Ai configuration'),
+              subtitle: Text('Please provide your api token'),
+            ),
+          Button(
+            widget.saveButtonText,
+            maxWidth: false,
+            icon: const Icon(Icons.done),
+            active: false,
+            onTap: changed
+                ? () {
+                    final aiServiceCubit = context.read<AiServiceCubit>();
+                    aiServiceCubit.apiToken = _apiTokenController.text;
+                    aiServiceCubit.model = _modelController.text;
+                    changed = false;
                   }
                 : null,
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
+import 'package:onyx/screens/graphview.dart';
 import 'package:onyx/screens/journals.dart';
 import 'package:onyx/screens/pages.dart';
 import 'package:onyx/screens/settings.dart';
@@ -18,6 +19,7 @@ class Body extends StatelessWidget {
           RouteState.pages => const PagesScreen(),
           RouteState.pageSelected => const PagesScreen(),
           RouteState.settings => const SettingsScreen(),
+          RouteState.graphview =>  const GraphViewScreen(),
         };
       } else {
         return Container();

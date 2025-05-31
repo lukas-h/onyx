@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,8 @@ class HelpMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final modifierSymbol = defaultTargetPlatform == TargetPlatform.macOS ? '⌘' : '⌃';
+
     return AlertDialog(
       content: ConstrainedBox(
         constraints: const BoxConstraints(
@@ -18,7 +21,7 @@ class HelpMenu extends StatelessWidget {
           minWidth: 350, // TODO adaptive width
           maxHeight: 650,
         ),
-        child: const SingleChildScrollView(
+        child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -32,26 +35,28 @@ class HelpMenu extends StatelessWidget {
               ListTile(
                 dense: true,
                 title: Text('Search pages and journals'),
-                leading: Text('⌘K'),
+                leading: Text('$modifierSymbol K'),
               ),
               ListTile(
                 dense: true,
                 title: Text('Manually synchronize'),
-                leading: Text('⌘S'),
+                leading: Text('$modifierSymbol S'),
               ),
               ListTile(
-                  dense: true,
-                  title: Text('Open help menu'),
-                  leading: Text('⌘H')),
+                dense: true,
+                title: Text('Open help menu'),
+                leading: Text('$modifierSymbol H'),
+              ),
               ListTile(
                 dense: true,
                 title: Text('Next journal'),
-                leading: Text('⌘↑'),
+                leading: Text('$modifierSymbol ↑'),
               ),
               ListTile(
-                  dense: true,
-                  title: Text('Previous journal'),
-                  leading: Text('⌘↓')),
+                dense: true,
+                title: Text('Previous journal'),
+                leading: Text('$modifierSymbol↓'),
+              ),
               ListTile(
                 title: Text(
                   'Editing',
@@ -62,17 +67,17 @@ class HelpMenu extends StatelessWidget {
               ListTile(
                 dense: true,
                 title: Text('Undo change'),
-                leading: Text('⌘Z'),
+                leading: Text('${modifierSymbol}Z'),
               ),
               ListTile(
                 dense: true,
                 title: Text('Redo change'),
-                leading: Text('⌘⇧Z'),
+                leading: Text('$modifierSymbol⇧Z'),
               ),
               ListTile(
                 dense: true,
                 title: Text('Delete line'),
-                leading: Text('⌘⌫'),
+                leading: Text('$modifierSymbol⌫'),
               ),
               ListTile(
                 dense: true,
@@ -82,7 +87,7 @@ class HelpMenu extends StatelessWidget {
               ListTile(
                 dense: true,
                 title: Text('Add new paragraph'),
-                leading: Text('⌘⏎'),
+                leading: Text('$modifierSymbol⏎'),
               ),
               ListTile(
                 dense: true,
@@ -107,17 +112,17 @@ class HelpMenu extends StatelessWidget {
               ListTile(
                 dense: true,
                 title: Text('Insert image ![alt](href)'),
-                leading: Text('⌘I'),
+                leading: Text('${modifierSymbol}I'),
               ),
               ListTile(
                 dense: true,
                 title: Text('Insert internal link/reference [[title]]'),
-                leading: Text('⌘R'),
+                leading: Text('${modifierSymbol}R'),
               ),
               ListTile(
                 dense: true,
                 title: Text('Insert external link [text](href)'),
-                leading: Text('⌘L'),
+                leading: Text('${modifierSymbol}L'),
               ),
               // arrows ↑ ↓ → ←
               // tab ⇥

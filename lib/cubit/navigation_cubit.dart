@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
-
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/utils/utils.dart';
 import 'package:replay_bloc/replay_bloc.dart';
@@ -14,6 +13,7 @@ enum RouteState {
   pages,
   pageSelected,
   journalSelected,
+  graphview,
   settings,
 }
 
@@ -27,6 +27,7 @@ class NavigationSuccess extends NavigationState {
   bool get pagesNav => route == RouteState.pageSelected || route == RouteState.pages;
 
   bool get settingsNav => route == RouteState.settings;
+  bool get graphViewNav => route == RouteState.graphview;
 
   NavigationSuccess({
     required this.route,
@@ -235,6 +236,18 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     }
   }
 
+  void openJournalFromCalendar(String text){
+    final journal = store.journals.values.firstWhereOrNull((e) => e.title == text)?.uid;
+      if (journal != null) {
+        switchToJournal(journal);
+      }
+      else{
+        PageState pagestate = store.getJournal(text).toPageState(true);
+        switchToJournal(pagestate.uid);
+      }
+  }
+
+
   void openPageOrJournal(String text) {
     final page = store.pages.values.firstWhereOrNull((e) => e.title == text)?.uid;
     if (page != null) {
@@ -247,6 +260,18 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
     }
   }
 
+  void openPageOrJournalUsingUid(String uid){
+    final page = store.pages.values.firstWhereOrNull((e) => e.uid == uid);
+    if (page != null) {
+      switchToPage(page.uid);
+    } else {
+      final journal = store.journals.values.firstWhereOrNull((e) => e.uid == uid);
+      if (journal != null) {
+        switchToJournal(journal.uid);
+      }
+    }
+  }
+
   PageState? get currentPage {
     if (state is NavigationSuccess) {
       final currentState = state as NavigationSuccess;
@@ -255,6 +280,7 @@ class NavigationCubit extends ReplayCubit<NavigationState> {
         RouteState.pageSelected => store.getPage(currentState.pageId ?? '')?.toPageState(false),
         RouteState.journalSelected => store.getJournal(currentState.pageId ?? '').toPageState(true),
         RouteState.settings => null,
+        RouteState.graphview => null
       };
     } else {
       return null;

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:onyx/cubit/ai_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/extensions/page_extension.dart';
-import 'package:onyx/extensions/settings_extension.dart';
 import 'package:onyx/widgets/button.dart';
 
 class ChatPageExtension extends PageExtension {
+  final TextEditingController _messageController = TextEditingController();
+
   ChatPageExtension()
       : super(
           activeOnJournals: true,
@@ -15,7 +17,51 @@ class ChatPageExtension extends PageExtension {
 
   @override
   Widget buildBody(BuildContext context, PageState state) {
-    return const Center(child: Text('Hi'));
+    return Container(
+        width: 380,
+        padding: EdgeInsets.all(8),
+        child: BlocBuilder<AiServiceCubit, AiServiceState>(builder: (context, aiState) {
+          final chatHistory = aiState.chatHistory;
+          final loading = aiState.loading;
+          final aiCubit = context.read<AiServiceCubit>();
+          return Column(
+            spacing: 8,
+            children: [
+              Expanded(
+                  child: ListView.builder(
+                itemBuilder: (context, index) => MessageCard(chatHistory[index]),
+                itemCount: chatHistory.length,
+              )),
+              TextField(
+                controller: _messageController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Ask anything',
+                ),
+                onEditingComplete: () {
+                  aiCubit.sendMessage(_messageController.text, state.toPageModel().toMarkdown());
+                  _messageController.clear();
+                },
+              ),
+              if (loading)
+                const Icon(
+                  Icons.rocket_launch,
+                  size: 42,
+                )
+              else
+                Button(
+                  'Send',
+                  maxWidth: false,
+                  icon: const Icon(Icons.done),
+                  active: false,
+                  onTap: () {
+                    aiCubit.sendMessage(_messageController.text, state.toPageModel().toMarkdown());
+                    _messageController.clear();
+                  },
+                ),
+            ],
+          );
+        }));
   }
 
   @override
@@ -38,34 +84,30 @@ class ChatPageExtension extends PageExtension {
   List<BlocProvider> registerBlocProviders(BuildContext context) => [];
 
   @override
-  List<RepositoryProvider> registerRepositoryProviders(BuildContext context) =>
-      [];
+  List<RepositoryProvider> registerRepositoryProviders(BuildContext context) => [];
 }
 
-class ChatSettingsExtension extends SettingsExtension {
-  ChatSettingsExtension()
-      : super(
-          icon: const Icon(Icons.mode_comment_outlined),
-          title: 'AI Chat',
-        );
+class MessageCard extends StatelessWidget {
+  final AiChatModel message;
+  const MessageCard(
+    this.message, {
+    super.key,
+  });
 
-  @override
-  Widget buildBody(BuildContext context) {
-    return TextField(
-      controller: TextEditingController(),
-      decoration: const InputDecoration(
-        border: InputBorder.none,
-        hintText: 'OpenAI Key',
-      ),
-      cursorColor: Colors.black,
-      onChanged: (v) {},
-    );
+  bool get _isAi {
+    return message.source == ContextSource.ai;
   }
 
   @override
-  List<BlocProvider> registerBlocProviders(BuildContext context) => [];
-
-  @override
-  List<RepositoryProvider> registerRepositoryProviders(BuildContext context) =>
-      [];
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: _isAi ? Alignment.bottomLeft : Alignment.bottomRight,
+      margin: EdgeInsets.all(8),
+      padding: EdgeInsets.all(8),
+      child: Card(
+        color: _isAi ? Colors.lightBlue : Colors.grey[200],
+        child: Padding(padding: EdgeInsets.all(8), child: Text(message.text)),
+      ),
+    );
+  }
 }
