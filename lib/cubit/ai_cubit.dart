@@ -72,6 +72,37 @@ List<OpenAiContent> parseOpenAiContentList(List<dynamic> json) {
   return output;
 }
 
+class OpenAiError implements Exception {
+  final String message;
+  final String type;
+  final String? code;
+  final String? eventId;
+  final String? param;
+
+  OpenAiError({
+    required this.message,
+    required this.type,
+    required this.code,
+    required this.eventId,
+    required this.param,
+  });
+
+  factory OpenAiError.fromJson(Map<String, dynamic> json) {
+    return OpenAiError(
+      message: json['error']['message'] as String,
+      type: json['error']['type'] as String,
+      code: json['error']['code'] as String?,
+      eventId: json['error']['event_id'] as String?,
+      param: json['error']['param'] as String?,
+    );
+  }
+
+  @override
+  String toString() {
+    return "OpenAi error: $message";
+  }
+}
+
 class OpenAiResponse {
   final int createdAt;
   final Object? error;
@@ -160,19 +191,28 @@ class AiChatModel {
 class AiServiceState {
   final String apiToken;
   final String model;
+  final String? chatId;
+  final bool loading;
   final List<String> availableModels;
   final List<AiChatModel> chatHistory;
 
   AiServiceState(
     this.apiToken, {
     this.model = "gpt-4.1-nano",
+    this.chatId,
+    this.loading = false,
     this.availableModels = const [],
     this.chatHistory = const [],
   });
 
-  AiServiceState copyWith({String? newApiToken, String? newModel, List<String>? newAvailableModels, List<AiChatModel>? newChatHistory}) {
+  AiServiceState copyWith(
+      {String? newApiToken, String? newModel, List<String>? newAvailableModels, List<AiChatModel>? newChatHistory, bool? newLoading, String? newChatId}) {
     return AiServiceState(newApiToken ?? apiToken,
-        model: newModel ?? model, availableModels: newAvailableModels ?? availableModels, chatHistory: newChatHistory ?? chatHistory);
+        model: newModel ?? model,
+        availableModels: newAvailableModels ?? availableModels,
+        chatHistory: newChatHistory ?? chatHistory,
+        loading: newLoading ?? loading,
+        chatId: newChatId ?? chatId);
   }
 }
 
@@ -231,36 +271,53 @@ class AiServiceCubit extends Cubit<AiServiceState> {
     return state.chatHistory;
   }
 
+  String? get chatId {
+    return state.chatId;
+  }
+
   void resetHistory() {
     emit(state.copyWith(newChatHistory: []));
   }
 
-  Future<void> sendMessage(String message) async {
+  Future<void> sendMessage(String message, String context) async {
     _addToChatHistory(message, ContextSource.message);
 
-    final response = await request(message);
+    final instructions = 'Answer any requests with reference to the following document \n $context';
 
-    if (response != null && response.output.isNotEmpty && response.output[0].content.isNotEmpty) {
-      _addToChatHistory(response.output[0].content[0].text, ContextSource.ai);
-    } else {
-      _addToChatHistory('error', ContextSource.ai);
+    try {
+      final response = await request(message, instructions);
+
+      if (response.output.isNotEmpty && response.output[0].content.isNotEmpty) {
+        _addToChatHistory(response.output[0].content[0].text, ContextSource.ai);
+        emit(state.copyWith(newChatId: response.id));
+      } else {
+        _addToChatHistory('No output', ContextSource.ai);
+      }
+    } catch (e) {
+      _addToChatHistory(e.toString(), ContextSource.ai);
     }
   }
 
-  Future<OpenAiResponse?> request(String input) async {
+  Future<OpenAiResponse> request(String input, String instructions) async {
     final url = Uri.https('api.openai.com', '/v1/responses');
 
     final Map<String, String> headers = <String, String>{};
     headers["Content-Type"] = "application/json";
     headers["Authorization"] = "Bearer $apiToken";
 
-    try {
-      final response = await http.post(url, headers: headers, body: jsonEncode({'model': model, 'input': input}));
+    final Map<String, String?> body = {
+      'model': model,
+      'instructions': instructions,
+      'input': input,
+      'previous_response_id': chatId,
+    };
 
+    final response = await http.post(url, headers: headers, body: jsonEncode(body));
+
+    if (response.statusCode != 200) {
+      throw OpenAiError.fromJson(jsonDecode(response.body));
+    } else {
       return OpenAiResponse.fromJson(jsonDecode(response.body));
-    } catch (e) {
-      // todo better logging
-      return null;
     }
   }
 
@@ -268,6 +325,6 @@ class AiServiceCubit extends Cubit<AiServiceState> {
     final chatHistory = List.of(state.chatHistory, growable: true);
     final model = AiChatModel(text: text, source: source, created: DateTime.now());
     chatHistory.add(model);
-    emit(state.copyWith(newChatHistory: chatHistory));
+    emit(state.copyWith(newChatHistory: chatHistory, newLoading: source == ContextSource.message));
   }
 }

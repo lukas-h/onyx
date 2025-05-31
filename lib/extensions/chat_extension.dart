@@ -18,39 +18,50 @@ class ChatPageExtension extends PageExtension {
   @override
   Widget buildBody(BuildContext context, PageState state) {
     return Container(
-      width: 380,
-      padding: EdgeInsets.all(8),
-      child: Column(
-        children: [
-          Expanded(child: BlocBuilder<AiServiceCubit, AiServiceState>(
-            builder: (context, aiState) {
-              final chatHistory = aiState.chatHistory;
-              return ListView.builder(
+        width: 380,
+        padding: EdgeInsets.all(8),
+        child: BlocBuilder<AiServiceCubit, AiServiceState>(builder: (context, aiState) {
+          final chatHistory = aiState.chatHistory;
+          final loading = aiState.loading;
+          final aiCubit = context.read<AiServiceCubit>();
+          return Column(
+            spacing: 8,
+            children: [
+              Expanded(
+                  child: ListView.builder(
                 itemBuilder: (context, index) => MessageCard(chatHistory[index]),
                 itemCount: chatHistory.length,
-              );
-            },
-          )),
-          TextField(
-            controller: _messageController,
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              hintText: 'Ask anything',
-            ),
-          ),
-          Button(
-            'Send',
-            maxWidth: false,
-            icon: const Icon(Icons.done),
-            active: false,
-            onTap: () {
-              final aiCubit = context.read<AiServiceCubit>();
-              aiCubit.sendMessage(_messageController.text);
-            },
-          ),
-        ],
-      ),
-    );
+              )),
+              TextField(
+                controller: _messageController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Ask anything',
+                ),
+                onEditingComplete: () {
+                  aiCubit.sendMessage(_messageController.text, state.toPageModel().toMarkdown());
+                  _messageController.clear();
+                },
+              ),
+              if (loading)
+                const Icon(
+                  Icons.rocket_launch,
+                  size: 42,
+                )
+              else
+                Button(
+                  'Send',
+                  maxWidth: false,
+                  icon: const Icon(Icons.done),
+                  active: false,
+                  onTap: () {
+                    aiCubit.sendMessage(_messageController.text, state.toPageModel().toMarkdown());
+                    _messageController.clear();
+                  },
+                ),
+            ],
+          );
+        }));
   }
 
   @override
