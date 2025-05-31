@@ -96,10 +96,22 @@ class DirectoryService extends OriginService {
   Future<List<PageModel>> getPages() => _getModels(pagesFolderName);
 
   @override
+  Future<PageModel> getPage(String uid) {
+    final pageFile = File(p.join(directory.path, pagesFolderName, '$uid.md'));
+    return _getModel(pageFile);
+  }
+
+  @override
   void subscribeToPages() => _watchDirectory(pagesFolderName);
 
   @override
   Future<List<PageModel>> getJournals() => _getModels(journalsFolderName);
+
+  @override
+  Future<PageModel> getJournal(String uid) {
+    final journalFile = File(p.join(directory.path, journalsFolderName, '$uid.md'));
+    return _getModel(journalFile);
+  }
 
   @override
   void subscribeToJournals() => _watchDirectory(journalsFolderName);
@@ -128,20 +140,43 @@ class DirectoryService extends OriginService {
     cubit.markConflictResolved();
   }
 
+  final Map<String, StreamSubscription<WatchEvent>> _watchDirectorySubscriptions = {};
+
   // Still potential for issues with concurrent changes (eg. selecting multiple files to delete).
   // TODO: Queue changes and wait for the conflict dialog to close before resolving the next one.
   void _watchDirectory(String directoryName) async {
-    DirectoryWatcher(
+    _watchDirectorySubscriptions[directoryName] = DirectoryWatcher(
             p.join(
               directory.path,
               directoryName,
             ),
             pollingDelay: Duration(seconds: 5))
         .events
-        .listen((event) => _processDirectoryChangeEvent(event));
+        .listen((event) => _processDirectoryChangeEvent(event, directoryName));
   }
 
-  void _processDirectoryChangeEvent(WatchEvent event) async {
+  void _cancelAllDirectoryWatchers() {
+    for (final subscription in _watchDirectorySubscriptions.values) {
+      subscription.cancel();
+    }
+  }
+
+  void _restartAllDirectoryWatchers() {
+    for (final directory in _watchDirectorySubscriptions.keys) {
+      _watchDirectory(directory);
+    }
+  }
+
+  @override
+  void close() {
+    writeInterval.stop();
+  }
+
+  void _processDirectoryChangeEvent(WatchEvent event, String directoryName) async {
+    if (_watchDirectorySubscriptions[directoryName]?.isPaused ?? false) return;
+
+    debugPrint('Change event.');
+
     final fileName = p.basenameWithoutExtension(event.path);
 
     // Ignore GLib temporary files in Linux.
@@ -169,7 +204,11 @@ class DirectoryService extends OriginService {
 
         final onyxTriggeredModifyEvent = DateTime.now().difference(modifiedPageObject.modified) < fileModificationWindow;
         if (!onyxTriggeredModifyEvent) {
-          cubit.triggerConflict(modifiedPageObject.uid, fileIsJournal, event.type == ChangeType.ADD ? OriginConflictType.add : OriginConflictType.modify);
+          cubit.triggerConflict(
+            modifiedPageObject.uid,
+            fileIsJournal,
+            event.type == ChangeType.ADD ? OriginConflictType.add : OriginConflictType.modify,
+          );
         } else {
           writeInterval.resume();
         }
@@ -297,7 +336,92 @@ class DirectoryService extends OriginService {
   }
 
   @override
-  void close() {
-    writeInterval.stop();
+  Future<List<VersionRecord>> getVersions() async {
+    try {
+      final commandResult = await Process.run(
+        'git',
+        ['--no-pager', 'log', '--pretty=format:%H,%ad,%an,%s', '--date=iso'],
+        runInShell: true,
+        workingDirectory: directory.path,
+      );
+      if (commandResult.exitCode != 0) throw Exception('Git command failed: ${commandResult.stderr}');
+
+      final gitCommitStrings = commandResult.stdout.toString().split('\n');
+
+      return gitCommitStrings.map<VersionRecord>((commitString) {
+        final splitCommitString = commitString.split(',');
+        return (
+          versionId: splitCommitString[0],
+          versionDate: DateTime.parse(splitCommitString[1]),
+          author: splitCommitString[2],
+          commitMessage: splitCommitString.sublist(3).join(','), // Include author in commit message
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('Failed to parse Git response. ${e.toString()}.');
+      return [];
+    }
+  }
+
+  @override
+  Future<List<ChangeRecord>> getCurrentDiff() async {
+    try {
+      final commandResult = await Process.run(
+        'git',
+        ['--no-pager', 'status', '--porcelain'],
+        runInShell: true,
+        workingDirectory: directory.path,
+      );
+      if (commandResult.exitCode != 0) throw Exception('Git command failed: ${commandResult.stderr}');
+
+      final gitChangesStrings = commandResult.stdout.toString().split('\n');
+      gitChangesStrings.removeLast(); // Remove the trailing empty string after the final newline.
+
+      return gitChangesStrings.map<ChangeRecord>((changeString) {
+        return (
+          changeType: changeString.substring(0, 2), // First two characters (plus the joining space) describe the change type.
+          filePath: changeString.substring(3), // The rest of the string is the filepath.
+        );
+      }).toList();
+    } catch (e) {
+      debugPrint('Failed to get Git diff. ${e.toString()}.');
+      return [];
+    }
+  }
+
+  @override
+  Future<void> revertToVersion(String versionId) async {
+    try {
+      // Cancel to avoid throwing the conflict dialog when reverting.
+      _cancelAllDirectoryWatchers();
+
+      var commandResult = await Process.run(
+        'git',
+        ['reset', '--hard', versionId],
+        runInShell: true,
+        workingDirectory: directory.path,
+      );
+      if (commandResult.exitCode != 0) throw Exception('Git command failed: ${commandResult.stderr}');
+    } catch (e) {
+      debugPrint('Failed to revert. ${e.toString()}.');
+    } finally {
+      _restartAllDirectoryWatchers();
+    }
+  }
+
+  @override
+  void commitChanges(String message) async {
+    try {
+      var addResult = await Process.run('git', ['add', '-A'], runInShell: true, workingDirectory: directory.path);
+      if (addResult.exitCode != 0) throw Exception('Failed to add untracked files: ${addResult.stderr}');
+
+      var commitResult = await Process.run('git', ['commit', '-m', message], runInShell: true, workingDirectory: directory.path);
+      if (commitResult.exitCode != 0) throw Exception('Failed to commit changes: ${commitResult.stderr}');
+
+      var pushResult = await Process.run('git', ['push'], runInShell: true, workingDirectory: directory.path);
+      if (pushResult.exitCode != 0) throw Exception('Failed to push commit: ${pushResult.stderr}');
+    } catch (e) {
+      debugPrint('Failed to commit changes. ${e.toString()}.');
+    }
   }
 }

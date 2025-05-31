@@ -24,12 +24,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/widgets/button.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   await Hive.initFlutter();
 
   Hive.registerAdapters();
 
+  // If these throw type errors, delete all Hive data from the disk.
   await Hive.openBox<PageModel>(pageBox);
   await Hive.openBox<PageModel>(journalBox);
 
@@ -105,6 +107,9 @@ class _OnyxAppState extends State<OnyxApp> {
               store: store,
               imageStore: imageStore,
             ),
+          ),
+          Provider<PageStore>(
+            create: (context) => store,
           ),
         ],
         child: MaterialApp(
