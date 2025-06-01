@@ -3,7 +3,7 @@ import 'package:onyx/editor/model.dart';
 import 'package:onyx/utils/utils.dart';
 
 void main() {
-  group('calculation tests', () {
+  group('Calculation tests', () {
     test('calculate total', () {
       final item1 = ListItemState(textPart: ":3", operator: Operator.add, number: 3, index: 0, position: 0, fullText: ':3');
       final item2 = ListItemState(textPart: ":*5", operator: Operator.multiply, number: 5, index: 1, position: 0, fullText: ':*5');

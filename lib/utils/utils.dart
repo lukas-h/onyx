@@ -32,6 +32,7 @@ num calculateTotal(List<ListItemState> items, int untilIndex) {
       .toList();
 
   // Reduce groups of 2+ adjacent items with the same (max) indent
+  // TODO: Replace while (true) with a more controlled loop to avoid infinite loops
   while (true) {
     if (working.length < 2) break;
     final maxIndent = working.map((e) => e.indent).fold(0, (a, b) => a > b ? a : b);
