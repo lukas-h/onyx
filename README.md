@@ -117,7 +117,7 @@ If you have a suggestion, please fork the repo and create a pull request. You ca
 
 ### Top Contributors
 
-<a href="https://github.com/othneildrew/Best-README-Template/graphs/contributors">
+<a href="https://github.com/lukas-h/onyx/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=lukas-h/onyx" alt="Onyx.md Top Contributors" />
 </a>
 
