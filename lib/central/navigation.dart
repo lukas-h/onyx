@@ -207,17 +207,17 @@ class NavigationMenu extends StatelessWidget {
               context.read<NavigationCubit>().navigateTo(RouteState.pages);
             },
           ),
-          Button(
-            'Graph View',
-            height: 40,
-            maxWidth: true,
-            icon: const Icon(Icons.account_tree),
-            active: state.pagesNav ,
-            onTap: context.read<NavigationCubit>().store.journals.length>1 || context.read<NavigationCubit>().store.pages.length>0 ? () {
-              onTapCollapse();
-              context.read<NavigationCubit>().navigateTo(RouteState.graphview);
-            }:null
-          ),
+          Button('Graph View',
+              height: 40,
+              maxWidth: true,
+              icon: const Icon(Icons.account_tree),
+              active: state.graphViewNav,
+              onTap: context.read<NavigationCubit>().store.journals.length > 1 || context.read<NavigationCubit>().store.pages.length > 0
+                  ? () {
+                      onTapCollapse();
+                      context.read<NavigationCubit>().navigateTo(RouteState.graphview);
+                    }
+                  : null),
           Divider(
             height: 12,
             endIndent: 0,
