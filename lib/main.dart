@@ -125,7 +125,7 @@ class _OnyxAppState extends State<OnyxApp> {
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
-            dialogTheme: DialogTheme(
+            dialogTheme: DialogThemeData(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(3),
                 side: BorderSide(
@@ -229,10 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return NavigationMenu(
                           state: widget.state,
                           onTapCollapse: () {
-                            setState(() {
-                              expanded = false;
-                            });
-                            Scaffold.of(context).closeDrawer();
+                            // Collapse the navigation menu if needed
                           },
                         );
                       }),
