@@ -1,12 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/editor/list.dart';
-import 'package:onyx/screens/calendarview.dart';
 import 'package:onyx/utils/utils.dart';
 import 'package:onyx/widgets/button.dart';
 import 'package:onyx/widgets/narrow_body.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:onyx/widgets/page_header.dart';
 
 class JournalsScreen extends StatelessWidget {
@@ -29,7 +28,9 @@ class JournalsScreen extends StatelessWidget {
                       onTap: isToday(state.uid)
                           ? null
                           : () {
-                              context.read<NavigationCubit>().switchToTodaysJournal();
+                              context
+                                  .read<NavigationCubit>()
+                                  .switchToTodaysJournal();
                             },
                       active: isToday(state.uid),
                     );
@@ -57,8 +58,8 @@ class JournalsScreen extends StatelessWidget {
                   },
                   active: false,
                 ),
-                 const SizedBox(width: 8),
-                Button(
+                const SizedBox(width: 8),
+                /*Button(
                   'Calendar',
                   maxWidth: false,
                   icon: const Icon(Icons.calendar_month_outlined),
@@ -70,7 +71,7 @@ class JournalsScreen extends StatelessWidget {
                     );
                   },
                   active: false,
-                ),
+                ),*/
               ],
               title: Text(
                 state.title,

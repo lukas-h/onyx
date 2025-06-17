@@ -1,30 +1,29 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:onyx/central/body.dart';
 import 'package:onyx/central/conflict.dart';
+import 'package:onyx/central/keyboard.dart';
+import 'package:onyx/central/navigation.dart';
 import 'package:onyx/cubit/ai_cubit.dart';
 import 'package:onyx/cubit/connectivity_cubit.dart';
 import 'package:onyx/cubit/favorites_cubit.dart';
 import 'package:onyx/cubit/navigation_cubit.dart';
 import 'package:onyx/cubit/origin/directory_cubit.dart';
 import 'package:onyx/cubit/origin/origin_cubit.dart';
-import 'package:onyx/cubit/page_cubit.dart';
-import 'package:onyx/central/keyboard.dart';
-import 'package:onyx/central/navigation.dart';
 import 'package:onyx/cubit/origin/pb_cubit.dart';
+import 'package:onyx/cubit/page_cubit.dart';
 import 'package:onyx/extensions/chat_extension.dart';
 import 'package:onyx/extensions/extensions_registry.dart';
+import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/hive/hive_registrar.g.dart';
+import 'package:onyx/screens/loading.dart';
 import 'package:onyx/store/favorite_store.dart';
 import 'package:onyx/store/image_store.dart';
 import 'package:onyx/store/page_store.dart';
-import 'package:onyx/screens/loading.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:onyx/hive/hive_boxes.dart';
 import 'package:onyx/widgets/button.dart';
-import 'package:provider/provider.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -108,7 +107,7 @@ class _OnyxAppState extends State<OnyxApp> {
               imageStore: imageStore,
             ),
           ),
-          Provider<PageStore>(
+          RepositoryProvider<PageStore>(
             create: (context) => store,
           ),
         ],
@@ -118,7 +117,8 @@ class _OnyxAppState extends State<OnyxApp> {
           builder: (context, child) {
             final mediaQueryData = MediaQuery.of(context);
             return MediaQuery(
-              data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1.2)),
+              data: mediaQueryData.copyWith(
+                  textScaler: const TextScaler.linear(1.2)),
               child: child!,
             );
           },
@@ -155,10 +155,14 @@ class _OnyxAppState extends State<OnyxApp> {
                 navCubit.navigateTo(RouteState.settings);
               } else if (state is OriginConflict) {
                 final OriginConflictResolutionType? conflictResolution =
-                    await openConflictMenu(context, conflictFileUid: state.conflictUid, isJournal: state.isJournal, conflictType: state.conflictType);
+                    await openConflictMenu(context,
+                        conflictFileUid: state.conflictUid,
+                        isJournal: state.isJournal,
+                        conflictType: state.conflictType);
 
                 if (conflictResolution != null) {
-                  store.resolveConflict(state.conflictUid, state.isJournal, conflictResolution);
+                  store.resolveConflict(
+                      state.conflictUid, state.isJournal, conflictResolution);
                 }
               }
             },
@@ -175,7 +179,9 @@ class _OnyxAppState extends State<OnyxApp> {
                   context.read<NavigationCubit>().redo();
                 }
               },
-              builder: (context, state) => state is NavigationSuccess ? HomeScreen(state: state) : const LoadingScreen(),
+              builder: (context, state) => state is NavigationSuccess
+                  ? HomeScreen(state: state)
+                  : const LoadingScreen(),
             ),
           ),
         ),
